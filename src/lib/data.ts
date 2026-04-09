@@ -307,14 +307,27 @@ export const incomeStatementPreInitiative: IncomeStatementLine[] = [
   { label: "Capital Reserve", values: [-55_000, -57_750, -60_638, -63_669, -66_853] },
   { label: "Est. Taxes (25%)", values: [-47_330, -64_403, -82_870, -102_970, -124_678] },
   { label: "Distributable FCF", isHeader: true, values: [141_990, 193_207, 248_611, 308_909, 374_034] },
+  { label: "→ GP (Keith Piper)", values: [119_543, 157_955, 199_508, 244_732, 293_576] },
+  { label: "→ JP (5% eq + 15% carry)", values: [39_848, 52_652, 53_202, 65_262, 78_287] },
+  { label: "→ LP (Senior Debt Yield)", values: [240_000, 240_000, 240_000, 240_000, 240_000] },
 ];
 
-// Post-initiative cash flow
+// Post-initiative cash flow (same debt service, higher EBITDA → higher FCF)
+// Post-init FCF = EBITDA - LP Interest - Seller Note - Reserve - Taxes(25%)
+// Yr1: 683100-240000-46400-55000-0.25*(683100-240000-46400-55000) = 683100-341400 - 0.25*341700 = 341700-85425 = 256275
+// Approximate post-initiative distributions (75/20/5 split on FCF)
 export const incomeStatementPostInitiative: IncomeStatementLine[] = [
   { label: "Revenue", isHeader: true, values: [4_950_000, 5_690_000, 5_942_000, 6_036_600, 6_314_430] },
   { label: "EBITDA", isHeader: true, values: [683_100, 848_100, 848_100, 958_100, 958_100] },
   { label: "EBITDA Margin", values: [13.8, 14.9, 14.3, 15.9, 15.2] },
-  { label: "Initiative EBITDA Uplift", values: [129_100, 223_140, 146_381, 172_952, 82_935] },
+  { label: "LP Interest (10% IO)", values: [-240_000, -240_000, -240_000, -240_000, -240_000] },
+  { label: "Seller Note (P&I)", values: [-46_400, -46_400, -46_400, -46_400, -46_400] },
+  { label: "Capital Reserve", values: [-55_000, -57_750, -60_638, -63_669, -66_853] },
+  { label: "Est. Taxes (25%)", values: [-85_425, -125_988, -125_266, -152_008, -151_212] },
+  { label: "Distributable FCF", isHeader: true, values: [256_275, 377_963, 375_796, 456_023, 453_636] },
+  { label: "→ GP (Keith Piper)", values: [192_206, 283_472, 281_847, 342_017, 340_227] },
+  { label: "→ JP (5% eq + 15% carry)", values: [51_255, 75_593, 75_159, 91_205, 90_727] },
+  { label: "→ LP (Senior Debt Yield)", values: [240_000, 240_000, 240_000, 240_000, 240_000] },
 ];
 
 export const incomeStatementYears = ["Yr 1", "Yr 2", "Yr 3", "Yr 4", "Yr 5"];

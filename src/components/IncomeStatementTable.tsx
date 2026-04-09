@@ -94,25 +94,36 @@ function ComparisonView() {
         <tbody>
           {incomeStatementPreInitiative.map((row, ri) => {
             const postRow = incomeStatementPostInitiative[ri];
+            const isDistribution = row.label.startsWith("→");
+            const isDistHeader = ri === 8; // first distribution row — add a section divider above
             return (
-              <tr key={row.label} className={`border-b border-border-custom/50 ${row.isHeader ? "bg-surface" : ""}`}>
-                <td className={`py-1.5 px-2 ${row.isHeader ? "font-semibold text-foreground" : "text-text-secondary"}`}>
-                  {row.label}
-                </td>
-                {row.values.map((val, ci) => {
-                  const postVal = postRow?.values[ci] ?? null;
-                  return (
-                    <Fragment key={ci}>
-                      <td className={`py-1.5 px-1 text-right font-mono border-l border-border-custom/50 ${row.isHeader ? "font-semibold" : ""} text-text-secondary`}>
-                        {fmt(val)}
-                      </td>
-                      <td className={`py-1.5 px-1 text-right font-mono ${row.isHeader ? "font-semibold text-foreground" : "text-foreground"}`}>
-                        {postVal !== null && postVal !== undefined ? fmt(postVal) : "—"}
-                      </td>
-                    </Fragment>
-                  );
-                })}
-              </tr>
+              <Fragment key={row.label}>
+                {isDistHeader && (
+                  <tr>
+                    <td colSpan={11} className="py-1.5 px-2 text-[10px] text-text-secondary font-semibold uppercase bg-accent-blue/5 border-y border-border-custom">
+                      Annual Cash to Investors (from FCF)
+                    </td>
+                  </tr>
+                )}
+                <tr className={`border-b border-border-custom/50 ${row.isHeader ? "bg-surface" : ""} ${isDistribution ? "bg-accent-green/5" : ""}`}>
+                  <td className={`py-1.5 px-2 ${row.isHeader ? "font-semibold text-foreground" : isDistribution ? "text-accent-green font-medium pl-4" : "text-text-secondary"}`}>
+                    {row.label}
+                  </td>
+                  {row.values.map((val, ci) => {
+                    const postVal = postRow?.values[ci] ?? null;
+                    return (
+                      <Fragment key={ci}>
+                        <td className={`py-1.5 px-1 text-right font-mono border-l border-border-custom/50 ${row.isHeader ? "font-semibold" : ""} ${isDistribution ? "text-accent-green/70" : "text-text-secondary"}`}>
+                          {fmt(val)}
+                        </td>
+                        <td className={`py-1.5 px-1 text-right font-mono ${row.isHeader ? "font-semibold text-foreground" : isDistribution ? "text-accent-green font-medium" : "text-foreground"}`}>
+                          {postVal !== null && postVal !== undefined ? fmt(postVal) : "—"}
+                        </td>
+                      </Fragment>
+                    );
+                  })}
+                </tr>
+              </Fragment>
             );
           })}
         </tbody>
