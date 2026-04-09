@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { expandedCampaigns, enrichTarget } from "@/lib/outreach-expanded";
+import { generatedCampaigns } from "@/lib/outreach-generator";
 import { emailTemplates } from "@/lib/crm-data";
 import type { OutreachTarget } from "@/lib/outreach-expanded";
 
@@ -28,12 +29,32 @@ export default function OutreachPage() {
   const [activeRegion, setActiveRegion] = useState<RegionKey>("columbia");
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string>("all");
-  const campaign = expandedCampaigns[activeRegion];
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 50;
+
+  // Merge hand-picked (priority) + generated targets, dedup by company name
+  const campaign = useMemo(() => {
+    const handPicked = expandedCampaigns[activeRegion]?.targets || [];
+    const generated = generatedCampaigns[activeRegion]?.targets || [];
+    const meta = generatedCampaigns[activeRegion] || expandedCampaigns[activeRegion];
+    const seen = new Set<string>();
+    const merged: OutreachTarget[] = [];
+    // Hand-picked first (they have priority)
+    for (const t of handPicked.map(enrichTarget)) {
+      if (!seen.has(t.company)) { seen.add(t.company); merged.push(t); }
+    }
+    // Then generated
+    for (const t of generated) {
+      if (!seen.has(t.company)) { seen.add(t.company); merged.push(t); }
+    }
+    return { ...meta, targets: merged };
+  }, [activeRegion]);
 
   const allTypes = Array.from(new Set(campaign.targets.map((t) => t.type))).sort();
-  const enrichedTargets = campaign.targets.map(enrichTarget);
-  const filteredTargets = filterType === "all" ? enrichedTargets : enrichedTargets.filter((t) => t.type === filterType);
-  const totalTargets = Object.values(expandedCampaigns).reduce((sum, c) => sum + c.targets.length, 0);
+  const filtered = filterType === "all" ? campaign.targets : campaign.targets.filter((t) => t.type === filterType);
+  const filteredTargets = filtered.slice(0, (page + 1) * PAGE_SIZE);
+  const hasMore = filteredTargets.length < filtered.length;
+  const totalTargets = Object.values(generatedCampaigns).reduce((sum, c) => sum + c.targets.length, 0) + Object.values(expandedCampaigns).reduce((sum, c) => sum + c.targets.length, 0);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -50,18 +71,19 @@ export default function OutreachPage() {
       {/* Region tabs */}
       <div className="flex flex-wrap gap-2 mb-4">
         {regionKeys.map((region) => {
-          const c = expandedCampaigns[region];
+          const hp = expandedCampaigns[region]?.targets.length || 0;
+          const gn = generatedCampaigns[region]?.targets.length || 0;
           return (
             <button
               key={region}
-              onClick={() => { setActiveRegion(region); setFilterType("all"); }}
+              onClick={() => { setActiveRegion(region); setFilterType("all"); setPage(0); }}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                 activeRegion === region
                   ? "bg-accent-blue text-white"
                   : "bg-surface border border-border-custom text-text-secondary hover:text-foreground"
               }`}
             >
-              {regionLabels[region]} ({c.targets.length})
+              {regionLabels[region]} ({hp + gn})
             </button>
           );
         })}
@@ -97,12 +119,30 @@ export default function OutreachPage() {
         ))}
       </div>
 
+      {/* Stats bar */}
+      <div className="text-xs text-text-secondary mb-2">
+        Showing {filteredTargets.length} of {filtered.length} targets
+        {filterType !== "all" && ` (filtered: ${filterType})`}
+      </div>
+
       {/* Target list */}
       <div className="space-y-2">
         {filteredTargets.map((target, i) => (
           <TargetCard key={i} target={target} onPreview={() => setPreviewTemplate(previewTemplate === `${i}-${target.template}` ? null : `${i}-${target.template}`)} showPreview={previewTemplate === `${i}-${target.template}`} />
         ))}
       </div>
+
+      {/* Load More */}
+      {hasMore && (
+        <div className="text-center py-4">
+          <button
+            onClick={() => setPage(page + 1)}
+            className="bg-accent-blue text-white text-sm font-medium px-6 py-2.5 rounded-lg hover:bg-accent-blue/90 transition-colors"
+          >
+            Load More ({filtered.length - filteredTargets.length} remaining)
+          </button>
+        </div>
+      )}
 
       {/* Template preview modal */}
       {previewTemplate && (() => {
