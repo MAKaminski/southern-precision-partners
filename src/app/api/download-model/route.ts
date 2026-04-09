@@ -101,21 +101,21 @@ export async function GET() {
     ["CAPITAL STRUCTURE", ""],
     ["LP Debt (Pete — Senior)", 2400000],
     ["GP Equity (Keith Piper)", 400000],
-    ["JP Equity (5% + 15% carry)", 100000],
+    ["JP Equity (5% + 11% carry)", 100000],
     ["Seller Note (6%, 5-yr amort)", 200000],
     ["Total Sources", 3100000],
     ["", ""],
     ["PROFIT DISTRIBUTION WATERFALL", ""],
     ["1. Return of invested capital", "$500K (GP $400K + JP $100K)"],
     ["2. Remaining profits split:", ""],
-    ["   GP (Keith Piper)", "75%"],
-    ["   JP (5% equity + 15% carry)", "20%"],
+    ["   GP (Keith Piper)", "79%"],
+    ["   JP (5% equity + 11% carry)", "16%"],
     ["   LP equity kicker (Scen. 2)", "5%"],
     ["", ""],
     ["BASE CASE RETURNS ($9M Exit)", ""],
-    ["GP MOIC", "12.4x"],
-    ["JP MOIC", "13.4x"],
-    ["GP-JP MOIC Variance", "-7.5%"],
+    ["GP MOIC", "13.05x"],
+    ["JP MOIC", "10.76x"],
+    ["GP-JP MOIC Variance", "+21.3%"],
     ["LP Total Proceeds", "$3.51M"],
   ];
 
@@ -171,9 +171,9 @@ export async function GET() {
   s1.addRow([]);
 
   // Partner payouts
-  s1.addRow(["PARTNER DISTRIBUTIONS (75/25 → 75/20/5)", "", "", "", "", ""]); hdr(s1, s1.rowCount, 6);
-  s1.addRow(["Managing Partner (Keith Piper)", 119543, 157955, 199508, 244732, 293576]).eachCell((c, i) => { if (i > 1 && i <= 6) c.numFmt = CUR_D; });
-  s1.addRow(["Junior Partner (5% eq + 15% carry)", 39848, 52652, 53202, 65262, 78287]).eachCell((c, i) => { if (i > 1 && i <= 6) c.numFmt = CUR_D; });
+  s1.addRow(["PARTNER DISTRIBUTIONS (83/17 — no LP kicker)", "", "", "", "", ""]); hdr(s1, s1.rowCount, 6);
+  s1.addRow(["Managing Partner (Keith Piper)", 132294, 174804, 220789, 270836, 324890]).eachCell((c, i) => { if (i > 1 && i <= 6) c.numFmt = CUR_D; });
+  s1.addRow(["Junior Partner (5% eq + 11% carry)", 27096, 35803, 45222, 55473, 66544]).eachCell((c, i) => { if (i > 1 && i <= 6) c.numFmt = CUR_D; });
 
   // Cumulative
   s1.addRow([]);
@@ -211,9 +211,9 @@ export async function GET() {
   tot(s2, s2fcfR, 6); s2fcf.eachCell((c, i) => { if (i > 1 && i <= 6) c.numFmt = CUR_D; });
 
   s2.addRow([]);
-  s2.addRow(["PARTNER DISTRIBUTIONS (75/20/5)", "", "", "", "", ""]); hdr(s2, s2.rowCount, 6);
-  s2.addRow(["Managing Partner (75%)", 160043, 198455, 240008, 285232, 334076]).eachCell((c, i) => { if (i > 1 && i <= 6) c.numFmt = CUR_D; });
-  s2.addRow(["Junior Partner (20%)", 42678, 52921, 64002, 76062, 89087]).eachCell((c, i) => { if (i > 1 && i <= 6) c.numFmt = CUR_D; });
+  s2.addRow(["PARTNER DISTRIBUTIONS (79/16/5)", "", "", "", "", ""]); hdr(s2, s2.rowCount, 6);
+  s2.addRow(["Managing Partner (79%)", 168578, 209040, 252809, 300444, 351893]).eachCell((c, i) => { if (i > 1 && i <= 6) c.numFmt = CUR_D; });
+  s2.addRow(["Junior Partner (16%)", 34142, 42337, 51202, 60849, 71269]).eachCell((c, i) => { if (i > 1 && i <= 6) c.numFmt = CUR_D; });
   s2.addRow(["LP Equity Kicker (5%)", 10670, 13230, 16001, 19015, 22272]).eachCell((c, i) => { if (i > 1 && i <= 6) c.numFmt = CUR_D; });
 
   s2.addRow([]);
@@ -227,8 +227,8 @@ export async function GET() {
   const remR = s2.rowCount + 1;
   s2.addRow(["Distributable Proceeds", "", "", "", "", { formula: `F${postDebtR}+F${remR-1}` }]).getCell(6).numFmt = CUR_D;
   tot(s2, remR, 6);
-  s2.addRow(["GP Exit (75%)", "", "", "", "", { formula: `0.75*F${remR}+400000` }]).getCell(6).numFmt = CUR_D;
-  s2.addRow(["JP Exit (20%)", "", "", "", "", { formula: `0.20*F${remR}+100000` }]).getCell(6).numFmt = CUR_D;
+  s2.addRow(["GP Exit (79%)", "", "", "", "", { formula: `0.79*F${remR}+400000` }]).getCell(6).numFmt = CUR_D;
+  s2.addRow(["JP Exit (16%)", "", "", "", "", { formula: `0.16*F${remR}+100000` }]).getCell(6).numFmt = CUR_D;
   s2.addRow(["LP Kicker (5%)", "", "", "", "", { formula: `0.05*F${remR}` }]).getCell(6).numFmt = CUR_D;
   s2.addRow([]);
   s2.addRow(["GP MOIC", "", "", "", "", { formula: `F${remR+1}/400000` }]).getCell(6).numFmt = MULT;
@@ -288,14 +288,14 @@ export async function GET() {
 
   ret.addRow(["Scenario", "Investor", "Invested", "Exit Proceeds", "MOIC", "Variance vs GP", ""]); sub(ret, 2, 7);
   const retData: [string, string, number, number][] = [
-    ["Bear (4.5x)", "GP", 400000, 1450000],
-    ["Bear (4.5x)", "JP", 100000, 380000],
-    ["Base ($9M)", "GP", 400000, 4975000],
-    ["Base ($9M)", "JP", 100000, 1340000],
-    ["Bull (7.5x)", "GP", 400000, 6663000],
-    ["Bull (7.5x)", "JP", 100000, 1870000],
-    ["Stretch (9x)", "GP", 400000, 8350000],
-    ["Stretch (9x)", "JP", 100000, 2220000],
+    ["Bear (4.5x)", "GP", 400000, 1506000],
+    ["Bear (4.5x)", "JP", 100000, 324000],
+    ["Base ($9M)", "GP", 400000, 5219000],
+    ["Base ($9M)", "JP", 100000, 1076000],
+    ["Bull (7.5x)", "GP", 400000, 6997000],
+    ["Bull (7.5x)", "JP", 100000, 1436000],
+    ["Stretch (9x)", "GP", 400000, 8774000],
+    ["Stretch (9x)", "JP", 100000, 1796000],
   ];
   retData.forEach((d, i) => {
     const rn = ret.rowCount + 1;
@@ -339,8 +339,8 @@ export async function GET() {
 
   const sources: [string, number, number, string][] = [
     ["LP Debt (Pete — Senior)", 2400000, 0.774, "10% IO (or 7% + 5% kicker)"],
-    ["GP Equity (Keith Piper)", 400000, 0.129, "75% profit share"],
-    ["JP Equity (5% + 15% Carry)", 100000, 0.032, "5% equity + 15% carried interest = 20% effective"],
+    ["GP Equity (Keith Piper)", 400000, 0.129, "79% profit share"],
+    ["JP Equity (5% + 11% Carry)", 100000, 0.032, "5% equity + 11% carried interest = 16% effective"],
     ["Seller Note", 200000, 0.065, "6%, 5-yr amortization"],
   ];
   const sStart = su.rowCount + 1;
