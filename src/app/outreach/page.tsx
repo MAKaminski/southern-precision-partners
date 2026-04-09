@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { expandedCampaigns } from "@/lib/outreach-expanded";
+import { expandedCampaigns, enrichTarget } from "@/lib/outreach-expanded";
 import { emailTemplates } from "@/lib/crm-data";
 import type { OutreachTarget } from "@/lib/outreach-expanded";
 
@@ -31,7 +31,8 @@ export default function OutreachPage() {
   const campaign = expandedCampaigns[activeRegion];
 
   const allTypes = Array.from(new Set(campaign.targets.map((t) => t.type))).sort();
-  const filteredTargets = filterType === "all" ? campaign.targets : campaign.targets.filter((t) => t.type === filterType);
+  const enrichedTargets = campaign.targets.map(enrichTarget);
+  const filteredTargets = filterType === "all" ? enrichedTargets : enrichedTargets.filter((t) => t.type === filterType);
   const totalTargets = Object.values(expandedCampaigns).reduce((sum, c) => sum + c.targets.length, 0);
 
   return (
@@ -133,8 +134,9 @@ export default function OutreachPage() {
 
 function TargetCard({ target, onPreview, showPreview }: { target: OutreachTarget; onPreview: () => void; showPreview: boolean }) {
   const template = emailTemplates[target.template];
-  const mailtoBody = template ? template.body.replace("[Contact Name]", target.contactTitle) : "";
-  const mailtoUrl = `mailto:?subject=${encodeURIComponent(template?.subject || "Tile Center Group — Introduction")}&body=${encodeURIComponent(mailtoBody)}`;
+  const contactLabel = target.contactName || target.contactTitle;
+  const mailtoBody = template ? template.body.replace("[Contact Name]", contactLabel) : "";
+  const mailtoUrl = `mailto:${target.email}?subject=${encodeURIComponent(template?.subject || "Tile Center Group — Introduction")}&body=${encodeURIComponent(mailtoBody)}`;
 
   return (
     <div className={`bg-surface border border-border-custom rounded-lg p-3 ${showPreview ? "ring-2 ring-accent-blue/30" : ""}`}>
@@ -151,8 +153,9 @@ function TargetCard({ target, onPreview, showPreview }: { target: OutreachTarget
           <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-text-secondary">
             <span>{target.location}</span>
             <span>{target.contactTitle}</span>
+            <a href={`mailto:${target.email}`} className="text-accent-blue hover:underline">{target.email}</a>
+            <a href={`tel:${target.phone}`} className="hover:text-foreground">{target.phone}</a>
             <span className="text-accent-green font-medium">{target.estimatedRevenue}</span>
-            <span>via {target.channel}</span>
           </div>
         </div>
         <div className="flex gap-1.5 shrink-0">
@@ -160,7 +163,10 @@ function TargetCard({ target, onPreview, showPreview }: { target: OutreachTarget
             Preview
           </button>
           <a href={mailtoUrl} className="bg-accent-blue text-white text-[10px] font-medium px-2 py-1 rounded hover:bg-accent-blue/90 transition-colors">
-            Send
+            Email
+          </a>
+          <a href={`tel:${target.phone}`} className="bg-accent-green text-white text-[10px] font-medium px-2 py-1 rounded hover:bg-accent-green/90 transition-colors">
+            Call
           </a>
         </div>
       </div>

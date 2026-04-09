@@ -13,7 +13,7 @@ export function ChatWidget() {
     {
       role: "assistant",
       content:
-        "Hi, I'm the Project Mosaic Deal Assistant. Ask me anything about the Tile Center Group LBO — deal structure, returns, initiatives, financials, or risks.",
+        "Hi, I'm the SEP Deal Assistant. Ask me anything about Project Mosaic — deal structure, returns, initiatives, financials, risks, or Southeast Precision Partners.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -78,8 +78,8 @@ export function ChatWidget() {
           {/* Header */}
           <div className="bg-accent-blue px-4 py-3 flex items-center gap-2">
             <div className="w-2 h-2 bg-white/80 rounded-full animate-pulse" />
-            <span className="text-white text-sm font-semibold">Deal Assistant</span>
-            <span className="text-white/60 text-xs ml-auto">Powered by Claude</span>
+            <span className="text-white text-sm font-semibold">SEP Deal Assistant</span>
+            <span className="text-white/60 text-xs ml-auto">Always On</span>
           </div>
 
           {/* Messages */}
