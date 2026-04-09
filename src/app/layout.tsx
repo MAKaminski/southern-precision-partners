@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ChatWidget } from "@/components/ChatWidget";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -43,6 +44,8 @@ export default function RootLayout({
         <footer className="border-t border-border-custom py-6 text-center text-xs text-text-secondary">
           &copy; {new Date().getFullYear()} Southern Precision Partners. All rights reserved. Confidential.
         </footer>
+
+        <ChatWidget />
       </body>
     </html>
   );

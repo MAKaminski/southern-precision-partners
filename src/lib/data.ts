@@ -164,7 +164,18 @@ export const keyRisks: string[] = [
   "Debt service: $2.7M total debt at entry; model requires >$300K/yr free cash flow to service",
 ];
 
-// ─── Financials (P&L) ───────────────────────────────────────────────────────
+// ─── EBITDA Bridge (Baseline → Normalized → Year 1 Pro-Forma) ────────────────
+export const ebitdaBridgeNormalization = {
+  baselineEbitda: 334_000,
+  rentReclamation: 90_000,
+  florenceOptimization: 28_000,
+  normalizedDay1: 452_000,
+  scfFloat: 56_800,
+  cogsReduction: 45_200,
+  year1ProForma: 554_000,
+};
+
+// ─── Financials — PRE-Initiative (Organic 5% Growth) ─────────────────────────
 export interface FinancialYear {
   year: string;
   label: string;
@@ -173,16 +184,98 @@ export interface FinancialYear {
   ebitdaMargin: number;
 }
 
-export const financialYears: FinancialYear[] = [
-  { year: "2023A", label: "2023A", revenue: 4_200_000, ebitda: 420_000, ebitdaMargin: 10.0 },
-  { year: "2024A", label: "2024A", revenue: 4_650_000, ebitda: 490_000, ebitdaMargin: 10.5 },
-  { year: "2025A", label: "2025A", revenue: 4_950_000, ebitda: 545_000, ebitdaMargin: 11.0 },
-  { year: "2026E", label: "2026E", revenue: 4_200_000, ebitda: 749_000, ebitdaMargin: 17.8 },
-  { year: "2027E", label: "2027E", revenue: 4_650_000, ebitda: 877_000, ebitdaMargin: 18.9 },
-  { year: "2028E", label: "2028E", revenue: 4_950_000, ebitda: 933_000, ebitdaMargin: 18.8 },
-  { year: "2029E", label: "2029E", revenue: 4_950_000, ebitda: 749_000, ebitdaMargin: 17.8 },
-  { year: "2030E", label: "2030E", revenue: 4_410_000, ebitda: 877_000, ebitdaMargin: 18.9 },
+export const financialYearsPreInitiative: FinancialYear[] = [
+  { year: "2026E", label: "Yr 1", revenue: 4_800_000, ebitda: 553_920, ebitdaMargin: 11.5 },
+  { year: "2027E", label: "Yr 2", revenue: 5_040_000, ebitda: 624_960, ebitdaMargin: 12.4 },
+  { year: "2028E", label: "Yr 3", revenue: 5_292_000, ebitda: 701_719, ebitdaMargin: 13.3 },
+  { year: "2029E", label: "Yr 4", revenue: 5_556_600, ebitda: 785_148, ebitdaMargin: 14.1 },
+  { year: "2030E", label: "Yr 5", revenue: 5_834_430, ebitda: 875_165, ebitdaMargin: 15.0 },
 ];
+
+// ─── Financials — POST-Initiative (Organic + Growth Initiatives) ─────────────
+export const financialYearsPostInitiative: FinancialYear[] = [
+  { year: "2026E", label: "Yr 1", revenue: 4_950_000, ebitda: 683_100, ebitdaMargin: 13.8 },
+  { year: "2027E", label: "Yr 2", revenue: 5_690_000, ebitda: 848_100, ebitdaMargin: 14.9 },
+  { year: "2028E", label: "Yr 3", revenue: 5_942_000, ebitda: 848_100, ebitdaMargin: 14.3 },
+  { year: "2029E", label: "Yr 4", revenue: 6_036_600, ebitda: 958_100, ebitdaMargin: 15.9 },
+  { year: "2030E", label: "Yr 5", revenue: 6_314_430, ebitda: 958_100, ebitdaMargin: 15.2 },
+];
+
+// Combined for chart (used on summary page)
+export const financialYears: FinancialYear[] = financialYearsPostInitiative;
+
+// ─── Growth Initiative Phase Targets ─────────────────────────────────────────
+export interface InitiativePhaseTarget {
+  phase: string;
+  years: string;
+  salesImpact: number;
+  ebitdaImpact: number;
+  projectedEbitda: number;
+  projectedMargin: number;
+}
+
+export const initiativePhaseTargets: InitiativePhaseTarget[] = [
+  { phase: "Phase 1: Efficiency Engine", years: "Yr 1", salesImpact: 150_000, ebitdaImpact: 129_100, projectedEbitda: 683_100, projectedMargin: 13.8 },
+  { phase: "Phase 2: Commercial & Digital", years: "Yr 2–3", salesImpact: 650_000, ebitdaImpact: 165_000, projectedEbitda: 848_100, projectedMargin: 14.5 },
+  { phase: "Phase 3: Scale & Geo Expansion", years: "Yr 4–5", salesImpact: 480_000, ebitdaImpact: 110_000, projectedEbitda: 958_100, projectedMargin: 16.4 },
+];
+
+// ─── Scenario 1 — 10% LP Debt IO ────────────────────────────────────────────
+export interface CashFlowYear {
+  year: string;
+  sales: number;
+  ebitdaPct: number;
+  ebitda: number;
+  lpInterest: number;
+  sellerNote: number;
+  capitalReserve: number;
+  taxes: number;
+  distributableFCF: number;
+  managingMember: number;
+  juniorPartner: number;
+  seniorLPEquity?: number;
+}
+
+export const scenario1CashFlows: CashFlowYear[] = [
+  { year: "Yr 1", sales: 4_800_000, ebitdaPct: 11.5, ebitda: 553_920, lpInterest: -240_000, sellerNote: -69_600, capitalReserve: -55_000, taxes: -47_330, distributableFCF: 141_990, managingMember: 35_497, juniorPartner: 35_497 },
+  { year: "Yr 2", sales: 5_040_000, ebitdaPct: 12.4, ebitda: 624_960, lpInterest: -240_000, sellerNote: -69_600, capitalReserve: -57_750, taxes: -64_403, distributableFCF: 193_207, managingMember: 48_302, juniorPartner: 48_302 },
+  { year: "Yr 3", sales: 5_292_000, ebitdaPct: 13.3, ebitda: 701_719, lpInterest: -240_000, sellerNote: -69_600, capitalReserve: -60_638, taxes: -82_870, distributableFCF: 248_611, managingMember: 62_153, juniorPartner: 62_153 },
+  { year: "Yr 4", sales: 5_556_600, ebitdaPct: 14.1, ebitda: 785_148, lpInterest: -240_000, sellerNote: -69_600, capitalReserve: -63_669, taxes: -102_970, distributableFCF: 308_909, managingMember: 77_227, juniorPartner: 77_227 },
+  { year: "Yr 5", sales: 5_834_430, ebitdaPct: 15.0, ebitda: 875_165, lpInterest: -240_000, sellerNote: -69_600, capitalReserve: -66_853, taxes: -124_678, distributableFCF: 374_034, managingMember: 264_154, juniorPartner: 109_880 },
+];
+
+export const scenario1 = {
+  name: "Scenario 1 — 10% LP Debt Only",
+  lpRate: "10%",
+  lpStructure: "IO, 60-month balloon",
+  totalDeal: 3_000_000,
+  lpPrincipal: 2_400_000,
+  sellerNote: 300_000,
+  exitEV: 9_000_000,
+  lpCoverage: "2.30×",
+};
+
+// ─── Scenario 2 — 7% LP + 5% Equity Kicker ──────────────────────────────────
+export const scenario2CashFlows: CashFlowYear[] = [
+  { year: "Yr 1", sales: 4_800_000, ebitdaPct: 11.5, ebitda: 553_920, lpInterest: -168_000, sellerNote: -69_600, capitalReserve: -55_000, taxes: -65_330, distributableFCF: 195_990, managingMember: 48_998, juniorPartner: 48_998, seniorLPEquity: 0 },
+  { year: "Yr 2", sales: 5_040_000, ebitdaPct: 12.4, ebitda: 624_960, lpInterest: -168_000, sellerNote: -69_600, capitalReserve: -57_750, taxes: -82_403, distributableFCF: 247_208, managingMember: 61_802, juniorPartner: 61_802, seniorLPEquity: 0 },
+  { year: "Yr 3", sales: 5_292_000, ebitdaPct: 13.3, ebitda: 701_719, lpInterest: -168_000, sellerNote: -69_600, capitalReserve: -60_638, taxes: -100_870, distributableFCF: 302_611, managingMember: 75_653, juniorPartner: 75_653, seniorLPEquity: 0 },
+  { year: "Yr 4", sales: 5_556_600, ebitdaPct: 14.1, ebitda: 785_148, lpInterest: -168_000, sellerNote: -69_600, capitalReserve: -63_669, taxes: -120_970, distributableFCF: 362_909, managingMember: 90_727, juniorPartner: 90_727, seniorLPEquity: 0 },
+  { year: "Yr 5", sales: 5_834_430, ebitdaPct: 15.0, ebitda: 875_165, lpInterest: -168_000, sellerNote: -69_600, capitalReserve: -66_853, taxes: -142_678, distributableFCF: 428_034, managingMember: 328_735, juniorPartner: 80_180, seniorLPEquity: 19_120 },
+];
+
+export const scenario2 = {
+  name: "Scenario 2 — 7% LP + 5% Equity Kicker",
+  lpRate: "7%",
+  lpStructure: "IO + 5% common equity, refi allowed after Mo 12",
+  totalDeal: 3_000_000,
+  lpPrincipal: 2_400_000,
+  sellerNote: 300_000,
+  exitEV: 9_000_000,
+  postDebtEV: 6_600_000,
+  lpCoverage: "3.29×",
+  exitSplit: { seniorLP5pct: 330_000, juniorPartner15pct: 940_500, managingMember80pct: 5_330_000 },
+};
 
 // ─── Income Statement Line Items ─────────────────────────────────────────────
 export interface IncomeStatementLine {
@@ -191,26 +284,27 @@ export interface IncomeStatementLine {
   values: (number | null)[];
 }
 
-export const incomeStatement: IncomeStatementLine[] = [
-  { label: "Revenue", isHeader: true, values: [4_200_000, 4_650_000, 4_950_000, 4_200_000, 4_650_000, 4_950_000, 4_950_000, 4_410_000] },
-  { label: "COGS (57.5%)", values: [-2_415_000, -2_673_750, -2_846_250, -2_415_000, -2_673_750, -2_846_250, -2_846_250, -2_535_750] },
-  { label: "Gross Profit (42.5%)", isHeader: true, values: [1_785_000, 1_976_250, 2_103_750, 1_785_000, 1_976_250, 2_103_750, 2_103_750, 1_874_250] },
-  { label: "Wages (14%)", values: [-588_000, -651_000, -693_000, -588_000, -651_000, -693_000, -693_000, -617_400] },
-  { label: "Owner Compensation", values: [-220_000, -220_000, -220_000, -220_000, -220_000, -220_000, -220_000, -220_000] },
-  { label: "Rent", values: [-20_000, -20_000, -20_000, -20_000, -20_000, -20_000, -20_000, -20_000] },
-  { label: "Marketing", values: [-40_000, -40_000, -40_000, -40_000, -40_000, -40_000, -40_000, -40_000] },
-  { label: "Delivery", values: [-65_000, -65_000, -65_000, -65_000, -65_000, -65_000, -65_000, -65_000] },
-  { label: "Technology", values: [-18_000, -18_000, -18_000, -18_000, -18_000, -18_000, -18_000, -18_000] },
-  { label: "Professional Fees", values: [-35_000, -35_000, -35_000, -35_000, -35_000, -35_000, -35_000, -35_000] },
-  { label: "Insurance", values: [-28_000, -28_000, -28_000, -28_000, -28_000, -28_000, -28_000, -28_000] },
-  { label: "Miscellaneous", values: [-22_000, -22_000, -22_000, -22_000, -22_000, -22_000, -22_000, -22_000] },
-  { label: "EBITDA", isHeader: true, values: [420_000, 490_000, 545_000, 749_000, 877_000, 933_000, 749_000, 877_000] },
-  { label: "D&A", values: [-25_000, -25_000, -25_000, -61_364, -61_364, -61_364, -61_364, -61_364] },
-  { label: "Interest Expense", values: [0, 0, 0, -258_000, -258_000, -258_000, -258_000, -258_000] },
-  { label: "Pre-Tax Income", isHeader: true, values: [395_000, 465_000, 520_000, 429_636, 557_636, 613_636, 429_636, 557_636] },
+// Pre-initiative (organic only) cash flow — Scenario 1 (10% IO)
+export const incomeStatementPreInitiative: IncomeStatementLine[] = [
+  { label: "Revenue", isHeader: true, values: [4_800_000, 5_040_000, 5_292_000, 5_556_600, 5_834_430] },
+  { label: "EBITDA", isHeader: true, values: [553_920, 624_960, 701_719, 785_148, 875_165] },
+  { label: "EBITDA Margin", values: [11.5, 12.4, 13.3, 14.1, 15.0] },
+  { label: "LP Interest (10% IO)", values: [-240_000, -240_000, -240_000, -240_000, -240_000] },
+  { label: "Seller Note (P&I)", values: [-69_600, -69_600, -69_600, -69_600, -69_600] },
+  { label: "Capital Reserve", values: [-55_000, -57_750, -60_638, -63_669, -66_853] },
+  { label: "Est. Taxes (25%)", values: [-47_330, -64_403, -82_870, -102_970, -124_678] },
+  { label: "Distributable FCF", isHeader: true, values: [141_990, 193_207, 248_611, 308_909, 374_034] },
 ];
 
-export const incomeStatementYears = ["2023A", "2024A", "2025A", "2026E", "2027E", "2028E", "2029E", "2030E"];
+// Post-initiative cash flow
+export const incomeStatementPostInitiative: IncomeStatementLine[] = [
+  { label: "Revenue", isHeader: true, values: [4_950_000, 5_690_000, 5_942_000, 6_036_600, 6_314_430] },
+  { label: "EBITDA", isHeader: true, values: [683_100, 848_100, 848_100, 958_100, 958_100] },
+  { label: "EBITDA Margin", values: [13.8, 14.9, 14.3, 15.9, 15.2] },
+  { label: "Initiative EBITDA Uplift", values: [129_100, 223_140, 146_381, 172_952, 82_935] },
+];
+
+export const incomeStatementYears = ["Yr 1", "Yr 2", "Yr 3", "Yr 4", "Yr 5"];
 
 // ─── Debt Facilities ─────────────────────────────────────────────────────────
 export interface DebtFacility {
@@ -239,19 +333,14 @@ export interface BridgeItem {
 }
 
 export const ebitdaBridge: BridgeItem[] = [
-  { name: "Base EBITDA", value: 554_000, isBase: true },
-  { name: "Organic Growth", value: 323_000 },
-  { name: "SCF Discount", value: 59_500 },
-  { name: "COGS Audit", value: 44_600 },
-  { name: "Marketing", value: 25_000 },
-  { name: "Commercial Sales", value: 90_000 },
-  { name: "Digital", value: 40_000 },
-  { name: "Inventory Velocity", value: 15_000 },
-  { name: "Commission Re-align", value: 20_000 },
-  { name: "Delivery Center", value: 35_000 },
-  { name: "Geo Expansion", value: 60_000 },
-  { name: "Lean Ops", value: 15_000 },
-  { name: "Real Estate Savings", value: 20_000 },
+  { name: "Baseline EBITDA", value: 334_000, isBase: true },
+  { name: "Rent Reclamation", value: 90_000 },
+  { name: "Florence Optimization", value: 28_000 },
+  { name: "SCF Float (2%)", value: 56_800 },
+  { name: "COGS Reduction (1.5%)", value: 45_200 },
+  { name: "Phase 1 Initiatives", value: 129_100 },
+  { name: "Phase 2 Initiatives", value: 165_000 },
+  { name: "Phase 3 Initiatives", value: 110_000 },
 ];
 
 // ─── Sensitivity Matrix (MOIC) ──────────────────────────────────────────────
