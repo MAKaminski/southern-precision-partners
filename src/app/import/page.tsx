@@ -40,6 +40,20 @@ export default function ImportPage() {
       });
       const data = await res.json();
       if (data.success) {
+        // Also save to Supabase database
+        try {
+          const dbRes = await fetch("/api/contacts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contacts: data.targets }),
+          });
+          const dbData = await dbRes.json();
+          if (dbData.success) {
+            data.message += ` Also saved ${dbData.imported} to database.`;
+          }
+        } catch {
+          // DB save is best-effort
+        }
         setResult(data);
       } else {
         setError(data.error || "Import failed");
