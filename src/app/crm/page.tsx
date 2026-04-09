@@ -1,91 +1,97 @@
 "use client";
 
 import { useState } from "react";
-import { lenderCRM } from "@/lib/crm-data";
+import { initiativeGroups } from "@/lib/crm-grouped";
 
-const statusColors: Record<string, string> = {
+const phaseColors: Record<number, string> = {
+  1: "bg-accent-blue/10 text-accent-blue border-accent-blue/20",
+  2: "bg-accent-green/10 text-accent-green border-accent-green/20",
+  3: "bg-accent-amber/10 text-accent-amber border-accent-amber/20",
+};
+
+const statusBadge: Record<string, string> = {
   ready: "bg-accent-blue/10 text-accent-blue",
   "in-progress": "bg-accent-amber/10 text-accent-amber",
   contacted: "bg-accent-green/10 text-accent-green",
   "follow-up": "bg-accent-purple/10 text-accent-purple",
+  closed: "bg-accent-green/20 text-accent-green",
 };
 
 export default function CRMPage() {
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [expandedGroup, setExpandedGroup] = useState<number | null>(0);
+  const totalContacts = initiativeGroups.reduce((sum, g) => sum + g.contacts.length, 0);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Lender CRM</h1>
-          <p className="text-sm text-text-secondary mt-1">
-            {lenderCRM.length} lenders ranked by outreach priority. Click &quot;Start Outreach&quot; to initiate contact sequence.
-          </p>
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="text-2xl font-bold text-foreground">Initiative CRM</h1>
+        <div className="flex gap-2 text-xs">
+          <span className="text-text-secondary">{initiativeGroups.length} initiatives</span>
+          <span className="text-text-secondary">|</span>
+          <span className="text-text-secondary">{totalContacts} contacts</span>
         </div>
-        <div className="flex gap-2">
-          {Object.entries(statusColors).map(([status, color]) => (
-            <span key={status} className={`text-[10px] font-medium px-2 py-1 rounded capitalize ${color}`}>
-              {status}
-            </span>
-          ))}
-        </div>
+      </div>
+      <p className="text-sm text-text-secondary mb-6">
+        Contacts organized by the deal initiative they support. Click any group to expand contacts ranked by outreach priority.
+      </p>
+
+      {/* Phase legend */}
+      <div className="flex gap-3 mb-6">
+        <span className="text-[10px] font-medium px-2 py-1 rounded bg-accent-blue/10 text-accent-blue">Phase 1 — Financial Engineering</span>
+        <span className="text-[10px] font-medium px-2 py-1 rounded bg-accent-green/10 text-accent-green">Phase 2 — Revenue Acceleration</span>
+        <span className="text-[10px] font-medium px-2 py-1 rounded bg-accent-amber/10 text-accent-amber">Phase 3 — Scale &amp; Exit</span>
       </div>
 
       <div className="space-y-3">
-        {lenderCRM.map((lender, i) => (
-          <div key={lender.company} className="bg-surface border border-border-custom rounded-lg overflow-hidden">
-            {/* Header row */}
+        {initiativeGroups.map((group, gi) => (
+          <div key={gi} className={`border rounded-lg overflow-hidden ${phaseColors[group.phase]}`}>
+            {/* Group header */}
             <div
-              className="flex items-center gap-4 px-4 py-3 cursor-pointer hover:bg-border-custom/20 transition-colors"
-              onClick={() => setExpandedId(expandedId === i ? null : i)}
+              className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-white/50 transition-colors"
+              onClick={() => setExpandedGroup(expandedGroup === gi ? null : gi)}
             >
-              <div className="w-8 h-8 rounded-full bg-accent-blue/10 flex items-center justify-center text-accent-blue text-sm font-bold shrink-0">
-                {lender.priority}
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style={{ backgroundColor: group.color, color: "white" }}>
+                P{group.phase}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <a href={lender.url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-accent-blue hover:underline" onClick={(e) => e.stopPropagation()}>
-                    {lender.company}
-                  </a>
-                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${statusColors[lender.status]}`}>
-                    {lender.status}
-                  </span>
-                </div>
-                <p className="text-xs text-text-secondary">{lender.type} | Target: {lender.facilityTarget}</p>
+                <div className="text-sm font-semibold text-foreground">{group.initiative}</div>
+                <div className="text-xs text-text-secondary">{group.description}</div>
               </div>
-              <div className="text-xs text-text-secondary">
-                {lender.contacts.length} contact{lender.contacts.length !== 1 ? "s" : ""}
-              </div>
-              <svg className={`w-4 h-4 text-text-secondary transition-transform ${expandedId === i ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+              <span className="text-xs font-semibold text-accent-green shrink-0">{group.ebitdaImpact}</span>
+              <span className="text-xs text-text-secondary shrink-0">{group.contacts.length} contacts</span>
+              <svg className={`w-4 h-4 text-text-secondary transition-transform ${expandedGroup === gi ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
 
             {/* Expanded contacts */}
-            {expandedId === i && (
-              <div className="border-t border-border-custom px-4 py-3 bg-background">
-                <div className="text-xs font-semibold text-text-secondary uppercase mb-3">Contacts (Outreach Order)</div>
-                <div className="space-y-3">
-                  {lender.contacts.map((contact, ci) => (
+            {expandedGroup === gi && (
+              <div className="border-t border-border-custom bg-background px-4 py-3">
+                <div className="space-y-2">
+                  {group.contacts.map((contact, ci) => (
                     <div key={ci} className="flex items-start gap-3 p-3 bg-surface border border-border-custom rounded-lg">
-                      <div className="w-6 h-6 rounded-full bg-accent-green/10 flex items-center justify-center text-accent-green text-[10px] font-bold shrink-0 mt-0.5">
-                        {ci + 1}
+                      <div className="w-6 h-6 rounded-full bg-accent-blue/10 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5" style={{ color: group.color }}>
+                        {contact.priority}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-foreground">{contact.name}</div>
-                        <div className="text-xs text-text-secondary">{contact.title}</div>
-                        <div className="flex flex-wrap gap-3 mt-1.5">
+                        <div className="flex items-center gap-2">
+                          {contact.url ? (
+                            <a href={contact.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-accent-blue hover:underline">{contact.company}</a>
+                          ) : (
+                            <span className="text-sm font-medium text-foreground">{contact.company}</span>
+                          )}
+                          <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${statusBadge[contact.status]}`}>{contact.status}</span>
+                        </div>
+                        <div className="text-xs text-text-secondary">{contact.name} — {contact.title}</div>
+                        <div className="flex flex-wrap gap-3 mt-1">
                           <a href={`mailto:${contact.email}`} className="text-xs text-accent-blue hover:underline">{contact.email}</a>
                           <span className="text-xs text-text-secondary">{contact.phone}</span>
                         </div>
-                        {contact.notes && (
-                          <p className="text-[11px] text-text-secondary mt-1.5 italic">{contact.notes}</p>
-                        )}
+                        {contact.notes && <p className="text-[11px] text-text-secondary mt-1 italic">{contact.notes}</p>}
                       </div>
                       <a
-                        href={`mailto:${contact.email}?subject=Project%20Mosaic%20—%20${encodeURIComponent(lender.company)}%20Facility%20Inquiry&body=${encodeURIComponent(`Dear ${contact.name},\n\nI'm reaching out regarding a supply chain finance / factoring facility for a tile distribution business we are acquiring in Georgia.\n\nTarget facility: ${lender.facilityTarget}\nDeal size: $3.1M LBO\nAnnual revenue: $4.8M+ with 5% growth\n\nWould you be available for a brief call to discuss?\n\nBest regards,\nKeith Piper\nManaging Partner, Southern Precision Partners\ndeals@sep-partners.com`)}`}
+                        href={`mailto:${contact.email}?subject=${encodeURIComponent(`Project Mosaic — ${group.initiative} Inquiry`)}&body=${encodeURIComponent(`Dear ${contact.name},\n\nI'm reaching out regarding ${group.initiative.toLowerCase()} for a tile distribution business we are acquiring in Georgia.\n\nWe are specifically interested in your capabilities related to: ${group.description}\n\nDeal size: $3.1M LBO | Annual revenue: $4.8M+ | 5% organic growth\n\nWould you be available for a brief call to discuss?\n\nBest regards,\nKeith Piper\nManaging Partner, Southern Precision Partners\ndeals@sep-partners.com\n(704) 920-8593`)}`}
                         className="shrink-0 bg-accent-blue text-white text-xs font-medium px-3 py-1.5 rounded hover:bg-accent-blue/90 transition-colors"
-                        onClick={(e) => e.stopPropagation()}
                       >
-                        Start Outreach
+                        Reach Out
                       </a>
                     </div>
                   ))}

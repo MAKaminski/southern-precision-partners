@@ -28,19 +28,13 @@ export default function RootLayout({
             <span className="text-sm font-semibold tracking-tight text-foreground">
               Project Mosaic
             </span>
-            <div className="flex gap-6">
-              <a href="/" className="text-sm text-text-secondary hover:text-foreground transition-colors">
-                Summary
-              </a>
-              <a href="/details" className="text-sm text-text-secondary hover:text-foreground transition-colors">
-                Details
-              </a>
-              <a href="/crm" className="text-sm text-text-secondary hover:text-foreground transition-colors">
-                CRM
-              </a>
-              <a href="/outreach" className="text-sm text-text-secondary hover:text-foreground transition-colors">
-                Outreach
-              </a>
+            <div className="flex gap-4">
+              <a href="/" className="text-sm text-text-secondary hover:text-foreground transition-colors">Summary</a>
+              <a href="/details" className="text-sm text-text-secondary hover:text-foreground transition-colors">Details</a>
+              <a href="/crm" className="text-sm text-text-secondary hover:text-foreground transition-colors">CRM</a>
+              <a href="/outreach" className="text-sm text-text-secondary hover:text-foreground transition-colors">Outreach</a>
+              <a href="/map" className="text-sm text-text-secondary hover:text-foreground transition-colors">Map</a>
+              <a href="/submit" className="text-sm text-text-secondary hover:text-foreground transition-colors">Submit Deal</a>
             </div>
           </div>
         </nav>

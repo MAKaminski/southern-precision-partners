@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { outreachCampaigns, emailTemplates } from "@/lib/crm-data";
-import type { OutreachTarget } from "@/lib/crm-data";
+import { expandedCampaigns } from "@/lib/outreach-expanded";
+import { emailTemplates } from "@/lib/crm-data";
+import type { OutreachTarget } from "@/lib/outreach-expanded";
 
 const statusColors: Record<string, string> = {
   ready: "bg-accent-blue/10 text-accent-blue",
@@ -12,132 +13,154 @@ const statusColors: Record<string, string> = {
   closed: "bg-accent-green/20 text-accent-green",
 };
 
+const regionKeys = ["columbia", "florence", "charleston", "greenville", "myrtleBeach"] as const;
+type RegionKey = (typeof regionKeys)[number];
+
+const regionLabels: Record<RegionKey, string> = {
+  columbia: "Columbia",
+  florence: "Florence",
+  charleston: "Charleston",
+  greenville: "Greenville",
+  myrtleBeach: "Myrtle Beach",
+};
+
 export default function OutreachPage() {
-  const [activeRegion, setActiveRegion] = useState<"columbia" | "florence">("columbia");
+  const [activeRegion, setActiveRegion] = useState<RegionKey>("columbia");
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
-  const campaign = outreachCampaigns[activeRegion];
+  const [filterType, setFilterType] = useState<string>("all");
+  const campaign = expandedCampaigns[activeRegion];
+
+  const allTypes = Array.from(new Set(campaign.targets.map((t) => t.type))).sort();
+  const filteredTargets = filterType === "all" ? campaign.targets : campaign.targets.filter((t) => t.type === filterType);
+  const totalTargets = Object.values(expandedCampaigns).reduce((sum, c) => sum + c.targets.length, 0);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-foreground">Growth Outreach — SC Expansion</h1>
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="text-2xl font-bold text-foreground">Growth Outreach — SC Expansion</h1>
+        <span className="text-xs text-text-secondary bg-surface border border-border-custom px-2 py-1 rounded">
+          {totalTargets} total targets across {regionKeys.length} markets
+        </span>
+      </div>
       <p className="text-sm text-text-secondary mt-1 mb-6">
-        Pre-built outreach campaigns for Columbia and Florence, SC. Click any target to launch email.
+        Pre-built outreach campaigns across South Carolina. Click any target to preview email template and send.
       </p>
 
       {/* Region tabs */}
-      <div className="flex gap-2 mb-6">
-        {(["columbia", "florence"] as const).map((region) => (
+      <div className="flex flex-wrap gap-2 mb-4">
+        {regionKeys.map((region) => {
+          const c = expandedCampaigns[region];
+          return (
+            <button
+              key={region}
+              onClick={() => { setActiveRegion(region); setFilterType("all"); }}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                activeRegion === region
+                  ? "bg-accent-blue text-white"
+                  : "bg-surface border border-border-custom text-text-secondary hover:text-foreground"
+              }`}
+            >
+              {regionLabels[region]} ({c.targets.length})
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Campaign header */}
+      <div className="bg-accent-blue/5 border border-accent-blue/15 rounded-lg p-4 mb-4">
+        <h2 className="text-sm font-semibold text-foreground">{campaign.name}</h2>
+        <p className="text-xs text-text-secondary mt-1">{campaign.description}</p>
+        <div className="flex gap-4 mt-2 text-xs">
+          <span className="text-text-secondary">Targets: <b className="text-foreground">{campaign.targets.length}</b></span>
+          <span className="text-text-secondary">Rev Potential: <b className="text-accent-green">{campaign.revenueTarget}</b></span>
+          <span className="text-text-secondary">Ready: <b className="text-accent-blue">{campaign.targets.filter(t => t.status === "ready").length}</b></span>
+        </div>
+      </div>
+
+      {/* Type filter */}
+      <div className="flex flex-wrap gap-1 mb-4">
+        <button
+          onClick={() => setFilterType("all")}
+          className={`text-[10px] px-2 py-1 rounded transition-colors ${filterType === "all" ? "bg-accent-blue text-white" : "bg-surface border border-border-custom text-text-secondary"}`}
+        >
+          All ({campaign.targets.length})
+        </button>
+        {allTypes.map((type) => (
           <button
-            key={region}
-            onClick={() => setActiveRegion(region)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              activeRegion === region
-                ? "bg-accent-blue text-white"
-                : "bg-surface border border-border-custom text-text-secondary hover:text-foreground"
-            }`}
+            key={type}
+            onClick={() => setFilterType(type)}
+            className={`text-[10px] px-2 py-1 rounded transition-colors ${filterType === type ? "bg-accent-blue text-white" : "bg-surface border border-border-custom text-text-secondary"}`}
           >
-            {region === "columbia" ? "Columbia, SC" : "Florence, SC"}
+            {type} ({campaign.targets.filter(t => t.type === type).length})
           </button>
         ))}
       </div>
 
-      {/* Campaign header */}
-      <div className="bg-accent-blue/5 border border-accent-blue/15 rounded-lg p-4 mb-6">
-        <h2 className="text-sm font-semibold text-foreground">{campaign.name}</h2>
-        <p className="text-xs text-text-secondary mt-1">{campaign.description}</p>
-        <div className="flex gap-4 mt-2 text-xs">
-          <span className="text-text-secondary">
-            Targets: <b className="text-foreground">{campaign.targets.length}</b>
-          </span>
-          <span className="text-text-secondary">
-            Est. Revenue Potential: <b className="text-accent-green">
-              {activeRegion === "columbia" ? "$515K–$1.08M/yr" : "$225K–$450K/yr"}
-            </b>
-          </span>
-          <span className="text-text-secondary">
-            Ready: <b className="text-accent-blue">{campaign.targets.filter(t => t.status === "ready").length}</b>
-          </span>
-        </div>
-      </div>
-
       {/* Target list */}
-      <div className="space-y-3">
-        {campaign.targets.map((target, i) => (
-          <TargetCard
-            key={i}
-            target={target}
-            onPreview={() => setPreviewTemplate(previewTemplate === target.template ? null : target.template)}
-            showPreview={previewTemplate === target.template}
-          />
+      <div className="space-y-2">
+        {filteredTargets.map((target, i) => (
+          <TargetCard key={i} target={target} onPreview={() => setPreviewTemplate(previewTemplate === `${i}-${target.template}` ? null : `${i}-${target.template}`)} showPreview={previewTemplate === `${i}-${target.template}`} />
         ))}
       </div>
 
       {/* Template preview modal */}
-      {previewTemplate && emailTemplates[previewTemplate] && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={() => setPreviewTemplate(null)}>
-          <div className="bg-background border border-border-custom rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="sticky top-0 bg-background border-b border-border-custom px-5 py-3 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-foreground">Email Template Preview</h3>
-              <button onClick={() => setPreviewTemplate(null)} className="text-text-secondary hover:text-foreground">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-              </button>
-            </div>
-            <div className="px-5 py-4">
-              <div className="text-xs text-text-secondary mb-1">Subject:</div>
-              <div className="text-sm font-medium text-foreground mb-4">{emailTemplates[previewTemplate].subject}</div>
-              <div className="text-xs text-text-secondary mb-1">Body:</div>
-              <pre className="text-sm text-foreground whitespace-pre-wrap font-sans leading-relaxed bg-surface border border-border-custom rounded-lg p-4">
-                {emailTemplates[previewTemplate].body}
-              </pre>
+      {previewTemplate && (() => {
+        const templateKey = previewTemplate.split("-").slice(1).join("-");
+        const template = emailTemplates[templateKey];
+        if (!template) return null;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={() => setPreviewTemplate(null)}>
+            <div className="bg-background border border-border-custom rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="sticky top-0 bg-background border-b border-border-custom px-5 py-3 flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-foreground">Email Template Preview</h3>
+                <button onClick={() => setPreviewTemplate(null)} className="text-text-secondary hover:text-foreground">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+              <div className="px-5 py-4">
+                <div className="text-xs text-text-secondary mb-1">Subject:</div>
+                <div className="text-sm font-medium text-foreground mb-4">{template.subject}</div>
+                <div className="text-xs text-text-secondary mb-1">Body:</div>
+                <pre className="text-sm text-foreground whitespace-pre-wrap font-sans leading-relaxed bg-surface border border-border-custom rounded-lg p-4">{template.body}</pre>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
 
 function TargetCard({ target, onPreview, showPreview }: { target: OutreachTarget; onPreview: () => void; showPreview: boolean }) {
   const template = emailTemplates[target.template];
-  const mailtoBody = template ? template.body.replace("[Contact Name]", target.contactName) : "";
-  const mailtoUrl = `mailto:${target.email}?subject=${encodeURIComponent(template?.subject || "")}&body=${encodeURIComponent(mailtoBody)}`;
+  const mailtoBody = template ? template.body.replace("[Contact Name]", target.contactTitle) : "";
+  const mailtoUrl = `mailto:?subject=${encodeURIComponent(template?.subject || "Tile Center Group — Introduction")}&body=${encodeURIComponent(mailtoBody)}`;
 
   return (
-    <div className="bg-surface border border-border-custom rounded-lg p-4">
+    <div className={`bg-surface border border-border-custom rounded-lg p-3 ${showPreview ? "ring-2 ring-accent-blue/30" : ""}`}>
       <div className="flex items-start gap-3">
-        <div className="w-8 h-8 rounded-full bg-accent-blue/10 flex items-center justify-center text-accent-blue text-sm font-bold shrink-0">
+        <div className="w-6 h-6 rounded-full bg-accent-blue/10 flex items-center justify-center text-accent-blue text-[10px] font-bold shrink-0 mt-0.5">
           P{target.priority}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-semibold text-foreground">{target.company}</span>
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-surface border border-border-custom text-text-secondary">{target.type}</span>
-            <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${statusColors[target.status]}`}>{target.status}</span>
+            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-background border border-border-custom text-text-secondary">{target.type}</span>
+            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${statusColors[target.status]}`}>{target.status}</span>
           </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 text-xs text-text-secondary">
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 text-xs text-text-secondary">
             <span>{target.location}</span>
-            <span>{target.contactName} — {target.contactTitle}</span>
-            <span>{target.phone}</span>
-            <span className="text-accent-green font-medium">Est: {target.estimatedRevenue}</span>
-          </div>
-          <div className="text-xs text-text-secondary mt-1">
-            Channel: <span className="text-foreground">{target.channel}</span>
+            <span>{target.contactTitle}</span>
+            <span className="text-accent-green font-medium">{target.estimatedRevenue}</span>
+            <span>via {target.channel}</span>
           </div>
         </div>
-        <div className="flex gap-2 shrink-0">
-          <button
-            onClick={onPreview}
-            className={`text-xs font-medium px-3 py-1.5 rounded border transition-colors ${
-              showPreview ? "bg-accent-blue/10 text-accent-blue border-accent-blue/30" : "bg-surface border-border-custom text-text-secondary hover:text-foreground"
-            }`}
-          >
+        <div className="flex gap-1.5 shrink-0">
+          <button onClick={onPreview} className="text-[10px] font-medium px-2 py-1 rounded border border-border-custom text-text-secondary hover:text-foreground transition-colors">
             Preview
           </button>
-          <a
-            href={mailtoUrl}
-            className="bg-accent-blue text-white text-xs font-medium px-3 py-1.5 rounded hover:bg-accent-blue/90 transition-colors"
-          >
-            Send Email
+          <a href={mailtoUrl} className="bg-accent-blue text-white text-[10px] font-medium px-2 py-1 rounded hover:bg-accent-blue/90 transition-colors">
+            Send
           </a>
         </div>
       </div>
