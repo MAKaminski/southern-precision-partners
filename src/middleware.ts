@@ -1,22 +1,21 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
-// Pages that require authentication
-const protectedPaths = ["/details", "/crm", "/outreach", "/map"];
-// Pages that are always public
-const publicPaths = ["/", "/submit", "/auth/signin", "/api"];
+// All deal-related pages require authentication
+const protectedPaths = ["/deals", "/details", "/crm", "/outreach", "/map"];
+// Always public
+const publicPaths = ["/", "/about", "/submit", "/auth/signin", "/api"];
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
 
-  // Allow public paths and API routes
-  if (publicPaths.some((p) => pathname.startsWith(p)) || pathname === "/") {
+  // Allow public pages, API routes, and static assets
+  if (publicPaths.some((p) => pathname === p || pathname.startsWith(p + "/")) && !pathname.startsWith("/deals")) {
     return NextResponse.next();
   }
 
-  // Check if path is protected
+  // Protect deal pages and internal tools — must be logged in
   const isProtected = protectedPaths.some((p) => pathname.startsWith(p));
-
   if (isProtected && !req.auth) {
     const signInUrl = new URL("/auth/signin", req.url);
     signInUrl.searchParams.set("callbackUrl", pathname);

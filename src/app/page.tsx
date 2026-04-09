@@ -21,7 +21,8 @@ export default function HomePage() {
             in the I-85 and I-77 Industrial Corridors.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a href="/deals/mosaic" className="inline-flex items-center justify-center bg-blue-600 text-white text-sm font-semibold px-6 py-3 rounded-lg hover:bg-blue-500 transition-colors">
+            <a href="/deals/mosaic" className="inline-flex items-center justify-center bg-blue-600 text-white text-sm font-semibold px-6 py-3 rounded-lg hover:bg-blue-500 transition-colors gap-2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
               View Current Deal — Project Mosaic
             </a>
             <a href="/submit" className="inline-flex items-center justify-center bg-white/10 border border-white/20 text-white text-sm font-semibold px-6 py-3 rounded-lg hover:bg-white/20 transition-colors">

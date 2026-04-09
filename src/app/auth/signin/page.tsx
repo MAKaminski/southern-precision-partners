@@ -7,7 +7,7 @@ import { Suspense } from "react";
 
 function SignInForm() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/details";
+  const callbackUrl = searchParams.get("callbackUrl") || "/deals/mosaic";
   const [mode, setMode] = useState<"choose" | "email">("choose");
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +35,8 @@ function SignInForm() {
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-foreground">Investor Access</h1>
           <p className="text-sm text-text-secondary mt-2">
-            Project Mosaic is a confidential deal. Sign in to access the full details, CRM, and outreach tools.
+            Register to access confidential deal materials. All users are registered as Investors by default.
+            Partners with authorized email addresses receive full Partner access.
           </p>
         </div>
 

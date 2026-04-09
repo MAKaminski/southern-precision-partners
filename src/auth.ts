@@ -2,9 +2,14 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 
-// Simple in-memory investor registry (in production, use a database)
-// Investors who sign up via email are stored here for the session
-const registeredEmails = new Set<string>();
+// Partner email — gets full Partner role with ability to switch views
+const PARTNER_EMAILS = ["michael@modularequity.com"];
+
+export type UserRole = "partner" | "investor";
+
+function determineRole(email: string): UserRole {
+  return PARTNER_EMAILS.includes(email.toLowerCase()) ? "partner" : "investor";
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -16,19 +21,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       id: "email-signup",
       name: "Email",
       credentials: {
-        email: { label: "Email", type: "email", placeholder: "investor@example.com" },
-        name: { label: "Full Name", type: "text", placeholder: "Jane Smith" },
-        firm: { label: "Firm Name", type: "text", placeholder: "Acme Capital" },
+        email: { label: "Email", type: "email" },
+        name: { label: "Full Name", type: "text" },
+        firm: { label: "Firm Name", type: "text" },
       },
       async authorize(credentials) {
         const email = credentials?.email as string;
         const name = credentials?.name as string;
         const firm = credentials?.firm as string;
-
         if (!email || !name) return null;
-
-        // Register the investor
-        registeredEmails.add(email);
 
         return {
           id: email,
@@ -36,7 +37,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name,
           image: null,
           firm,
-        } as { id: string; email: string; name: string; image: null; firm?: string };
+          role: determineRole(email),
+        } as { id: string; email: string; name: string; image: null; firm?: string; role: UserRole };
       },
     }),
   ],
@@ -45,19 +47,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
-      if (user && "firm" in user) {
-        token.firm = (user as { firm?: string }).firm;
+      if (user) {
+        const u = user as { firm?: string; role?: UserRole; email?: string };
+        token.firm = u.firm || "";
+        token.role = u.role || determineRole(u.email || "");
       }
       return token;
     },
     async session({ session, token }) {
-      if (token.firm) {
-        (session as { firm?: string }).firm = token.firm as string;
-      }
-      return session;
+      return {
+        ...session,
+        firm: (token.firm as string) || "",
+        role: (token.role as UserRole) || "investor",
+      };
     },
   },
-  session: {
-    strategy: "jwt",
-  },
+  session: { strategy: "jwt" },
 });
