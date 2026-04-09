@@ -45,6 +45,7 @@ export default function RootLayout({
                 <a href="/crm" className="text-xs text-text-secondary hover:text-foreground transition-colors">CRM</a>
                 <a href="/outreach" className="text-xs text-text-secondary hover:text-foreground transition-colors">Outreach</a>
                 <a href="/map" className="text-xs text-text-secondary hover:text-foreground transition-colors">Map</a>
+                <a href="/import" className="text-xs text-text-secondary hover:text-foreground transition-colors">Import</a>
                 <a href="/submit" className="text-xs text-text-secondary hover:text-foreground transition-colors">Submit</a>
                 <div className="border-l border-border-custom pl-3 ml-1">
                   <AuthNav />
