@@ -23,13 +23,13 @@ export interface CapStackTranche {
 }
 
 export const capStack: CapStackTranche[] = [
-  { name: "LP Debt (Pete — Senior)", amount: 2_400_000, pct: 72.7, terms: "10% + 5% equity kicker, 5-yr bullet", color: "#2563EB" },
-  { name: "Managing Partner Equity (Keith Piper)", amount: 300_000, pct: 9.1, terms: "80% ownership", color: "#059669" },
-  { name: "Junior Partner Equity", amount: 300_000, pct: 9.1, terms: "15% ownership", color: "#7C3AED" },
-  { name: "Seller Note", amount: 300_000, pct: 9.1, terms: "6%, 5-yr amort", color: "#D97706" },
+  { name: "LP Debt (Pete — Senior)", amount: 2_400_000, pct: 77.4, terms: "10% + 5% equity kicker, 5-yr bullet", color: "#2563EB" },
+  { name: "Managing Partner Equity (Keith Piper)", amount: 400_000, pct: 12.9, terms: "75% profit share + GP promote", color: "#059669" },
+  { name: "Junior Partner Equity", amount: 100_000, pct: 3.2, terms: "5% equity + 15% carry = 20% effective", color: "#7C3AED" },
+  { name: "Seller Note", amount: 200_000, pct: 6.5, terms: "6%, 5-yr amort", color: "#D97706" },
 ];
 
-export const totalRaise = 3_300_000;
+export const totalRaise = 3_100_000;
 
 export interface UseOfFunds {
   label: string;
@@ -38,9 +38,8 @@ export interface UseOfFunds {
 
 export const usesOfFunds: UseOfFunds[] = [
   { label: "Business Acquisition", amount: 2_490_000 },
-  { label: "Real Estate", amount: 1_000_000 },
-  { label: "Working Capital", amount: 200_000 },
-  { label: "Fees", amount: 80_000 },
+  { label: "Working Capital / Reserves", amount: 400_000 },
+  { label: "Fees & Closing Costs", amount: 160_000 },
   { label: "MIP Reserve", amount: 50_000 },
 ];
 
@@ -67,20 +66,20 @@ export const investorReturns: InvestorReturn[] = [
   },
   {
     title: "Managing Partner — Keith Piper (Equity)",
-    invested: "$300K",
-    structure: "80% ownership",
-    proceeds: "$4.28M",
-    moic: "14.3×",
-    irr: "70%",
+    invested: "$400K",
+    structure: "75% profit share (GP promote)",
+    proceeds: "$4.95M",
+    moic: "12.4×",
+    irr: "65%",
     color: "#059669",
   },
   {
-    title: "Junior Partner (Equity)",
-    invested: "$300K",
-    structure: "15% ownership",
-    proceeds: "$802K",
-    moic: "2.67×",
-    irr: "21.7%",
+    title: "Junior Partner (Equity + Carry)",
+    invested: "$100K",
+    structure: "5% equity + 15% carried interest",
+    proceeds: "$1.34M",
+    moic: "13.4×",
+    irr: "68%",
     color: "#7C3AED",
   },
 ];
@@ -93,11 +92,15 @@ export interface Scenario {
   jpIrr: string;
 }
 
+// Bear: $875K×4.5=$3.94M EV, −$2.6M debt=$1.34M equity. After cap return($500K)=$837K. JP: $100K+20%×$837K=$267K → 2.67×
+// Base: $875K×6=$5.25M EV (or $9M target), −$2.6M=$6.4M. After cap($500K)=$5.9M. JP: $100K+20%×$5.9M=$1.28M → 12.8×
+// Bull: $875K×7.5=$6.56M, −$2.6M=$3.96M. After cap=$3.46M. JP: $100K+20%×$3.46M=$792K → 7.9×
+// Using $9M EV for base case (deal-specific target, not pure EBITDA multiple)
 export const scenarios: Scenario[] = [
-  { name: "Bear", exitMultiple: "4.5×", jpMoic: "2.02×", jpIrr: "15.1%" },
-  { name: "Base", exitMultiple: "6.0×", jpMoic: "2.67×", jpIrr: "21.7%" },
-  { name: "Bull", exitMultiple: "7.5×", jpMoic: "3.33×", jpIrr: "27.2%" },
-  { name: "Stretch", exitMultiple: "9.0×", jpMoic: "3.99×", jpIrr: "31.9%" },
+  { name: "Bear", exitMultiple: "4.5×", jpMoic: "6.7×", jpIrr: "46%" },
+  { name: "Base", exitMultiple: "6.0×", jpMoic: "13.4×", jpIrr: "68%" },
+  { name: "Bull", exitMultiple: "7.5×", jpMoic: "17.6×", jpIrr: "78%" },
+  { name: "Stretch", exitMultiple: "9.0×", jpMoic: "21.8×", jpIrr: "85%" },
 ];
 
 // ─── Value Creation Phases ───────────────────────────────────────────────────
@@ -236,45 +239,55 @@ export interface CashFlowYear {
   seniorLPEquity?: number;
 }
 
+// Operating distributions: 75/25 (GP/JP) sweep until $500K capital returned, then 75/20/5
 export const scenario1CashFlows: CashFlowYear[] = [
-  { year: "Yr 1", sales: 4_800_000, ebitdaPct: 11.5, ebitda: 553_920, lpInterest: -240_000, sellerNote: -69_600, capitalReserve: -55_000, taxes: -47_330, distributableFCF: 141_990, managingMember: 35_497, juniorPartner: 35_497 },
-  { year: "Yr 2", sales: 5_040_000, ebitdaPct: 12.4, ebitda: 624_960, lpInterest: -240_000, sellerNote: -69_600, capitalReserve: -57_750, taxes: -64_403, distributableFCF: 193_207, managingMember: 48_302, juniorPartner: 48_302 },
-  { year: "Yr 3", sales: 5_292_000, ebitdaPct: 13.3, ebitda: 701_719, lpInterest: -240_000, sellerNote: -69_600, capitalReserve: -60_638, taxes: -82_870, distributableFCF: 248_611, managingMember: 62_153, juniorPartner: 62_153 },
-  { year: "Yr 4", sales: 5_556_600, ebitdaPct: 14.1, ebitda: 785_148, lpInterest: -240_000, sellerNote: -69_600, capitalReserve: -63_669, taxes: -102_970, distributableFCF: 308_909, managingMember: 77_227, juniorPartner: 77_227 },
-  { year: "Yr 5", sales: 5_834_430, ebitdaPct: 15.0, ebitda: 875_165, lpInterest: -240_000, sellerNote: -69_600, capitalReserve: -66_853, taxes: -124_678, distributableFCF: 374_034, managingMember: 264_154, juniorPartner: 109_880 },
+  { year: "Yr 1", sales: 4_800_000, ebitdaPct: 11.5, ebitda: 553_920, lpInterest: -240_000, sellerNote: -46_400, capitalReserve: -55_000, taxes: -53_130, distributableFCF: 159_390, managingMember: 119_543, juniorPartner: 39_848 },
+  { year: "Yr 2", sales: 5_040_000, ebitdaPct: 12.4, ebitda: 624_960, lpInterest: -240_000, sellerNote: -46_400, capitalReserve: -57_750, taxes: -70_203, distributableFCF: 210_607, managingMember: 157_955, juniorPartner: 52_652 },
+  { year: "Yr 3", sales: 5_292_000, ebitdaPct: 13.3, ebitda: 701_719, lpInterest: -240_000, sellerNote: -46_400, capitalReserve: -60_638, taxes: -88_670, distributableFCF: 266_011, managingMember: 199_508, juniorPartner: 53_202 },
+  { year: "Yr 4", sales: 5_556_600, ebitdaPct: 14.1, ebitda: 785_148, lpInterest: -240_000, sellerNote: -46_400, capitalReserve: -63_669, taxes: -108_770, distributableFCF: 326_309, managingMember: 244_732, juniorPartner: 65_262 },
+  { year: "Yr 5", sales: 5_834_430, ebitdaPct: 15.0, ebitda: 875_165, lpInterest: -240_000, sellerNote: -46_400, capitalReserve: -66_853, taxes: -130_478, distributableFCF: 391_434, managingMember: 293_576, juniorPartner: 78_287 },
 ];
 
 export const scenario1 = {
   name: "Scenario 1 — 10% LP Debt Only",
   lpRate: "10%",
   lpStructure: "IO, 60-month balloon",
-  totalDeal: 3_000_000,
+  totalDeal: 3_100_000,
   lpPrincipal: 2_400_000,
-  sellerNote: 300_000,
+  gpEquity: 400_000,
+  jpEquity: 100_000,
+  sellerNote: 200_000,
   exitEV: 9_000_000,
-  lpCoverage: "2.30×",
+  lpCoverage: "2.31×",
+  profitSplit: "GP 75% / JP 20% / LP kicker 5%",
+  jpStructure: "5% equity + 15% carried interest",
 };
 
 // ─── Scenario 2 — 7% LP + 5% Equity Kicker ──────────────────────────────────
+// Scenario 2: 7% IO + 5% LP equity kicker. Profit split 75/20/5 (GP/JP/LP kicker)
 export const scenario2CashFlows: CashFlowYear[] = [
-  { year: "Yr 1", sales: 4_800_000, ebitdaPct: 11.5, ebitda: 553_920, lpInterest: -168_000, sellerNote: -69_600, capitalReserve: -55_000, taxes: -65_330, distributableFCF: 195_990, managingMember: 48_998, juniorPartner: 48_998, seniorLPEquity: 0 },
-  { year: "Yr 2", sales: 5_040_000, ebitdaPct: 12.4, ebitda: 624_960, lpInterest: -168_000, sellerNote: -69_600, capitalReserve: -57_750, taxes: -82_403, distributableFCF: 247_208, managingMember: 61_802, juniorPartner: 61_802, seniorLPEquity: 0 },
-  { year: "Yr 3", sales: 5_292_000, ebitdaPct: 13.3, ebitda: 701_719, lpInterest: -168_000, sellerNote: -69_600, capitalReserve: -60_638, taxes: -100_870, distributableFCF: 302_611, managingMember: 75_653, juniorPartner: 75_653, seniorLPEquity: 0 },
-  { year: "Yr 4", sales: 5_556_600, ebitdaPct: 14.1, ebitda: 785_148, lpInterest: -168_000, sellerNote: -69_600, capitalReserve: -63_669, taxes: -120_970, distributableFCF: 362_909, managingMember: 90_727, juniorPartner: 90_727, seniorLPEquity: 0 },
-  { year: "Yr 5", sales: 5_834_430, ebitdaPct: 15.0, ebitda: 875_165, lpInterest: -168_000, sellerNote: -69_600, capitalReserve: -66_853, taxes: -142_678, distributableFCF: 428_034, managingMember: 328_735, juniorPartner: 80_180, seniorLPEquity: 19_120 },
+  { year: "Yr 1", sales: 4_800_000, ebitdaPct: 11.5, ebitda: 553_920, lpInterest: -168_000, sellerNote: -46_400, capitalReserve: -55_000, taxes: -71_130, distributableFCF: 213_390, managingMember: 160_043, juniorPartner: 42_678, seniorLPEquity: 10_670 },
+  { year: "Yr 2", sales: 5_040_000, ebitdaPct: 12.4, ebitda: 624_960, lpInterest: -168_000, sellerNote: -46_400, capitalReserve: -57_750, taxes: -88_203, distributableFCF: 264_607, managingMember: 198_455, juniorPartner: 52_921, seniorLPEquity: 13_230 },
+  { year: "Yr 3", sales: 5_292_000, ebitdaPct: 13.3, ebitda: 701_719, lpInterest: -168_000, sellerNote: -46_400, capitalReserve: -60_638, taxes: -106_670, distributableFCF: 320_011, managingMember: 240_008, juniorPartner: 64_002, seniorLPEquity: 16_001 },
+  { year: "Yr 4", sales: 5_556_600, ebitdaPct: 14.1, ebitda: 785_148, lpInterest: -168_000, sellerNote: -46_400, capitalReserve: -63_669, taxes: -126_770, distributableFCF: 380_309, managingMember: 285_232, juniorPartner: 76_062, seniorLPEquity: 19_015 },
+  { year: "Yr 5", sales: 5_834_430, ebitdaPct: 15.0, ebitda: 875_165, lpInterest: -168_000, sellerNote: -46_400, capitalReserve: -66_853, taxes: -148_478, distributableFCF: 445_434, managingMember: 334_076, juniorPartner: 89_087, seniorLPEquity: 22_272 },
 ];
 
 export const scenario2 = {
   name: "Scenario 2 — 7% LP + 5% Equity Kicker",
   lpRate: "7%",
-  lpStructure: "IO + 5% common equity, refi allowed after Mo 12",
-  totalDeal: 3_000_000,
+  lpStructure: "IO + 5% common equity kicker, refi allowed after Mo 12",
+  totalDeal: 3_100_000,
   lpPrincipal: 2_400_000,
-  sellerNote: 300_000,
+  gpEquity: 400_000,
+  jpEquity: 100_000,
+  sellerNote: 200_000,
   exitEV: 9_000_000,
   postDebtEV: 6_600_000,
-  lpCoverage: "3.29×",
-  exitSplit: { seniorLP5pct: 330_000, juniorPartner15pct: 940_500, managingMember80pct: 5_330_000 },
+  lpCoverage: "3.30×",
+  profitSplit: "GP 75% / JP 20% / LP kicker 5%",
+  jpStructure: "5% equity + 15% carried interest",
+  exitSplit: { seniorLP5pct: 330_000, juniorPartner20pct: 1_340_000, managingMember75pct: 4_975_000 },
 };
 
 // ─── Income Statement Line Items ─────────────────────────────────────────────
@@ -290,7 +303,7 @@ export const incomeStatementPreInitiative: IncomeStatementLine[] = [
   { label: "EBITDA", isHeader: true, values: [553_920, 624_960, 701_719, 785_148, 875_165] },
   { label: "EBITDA Margin", values: [11.5, 12.4, 13.3, 14.1, 15.0] },
   { label: "LP Interest (10% IO)", values: [-240_000, -240_000, -240_000, -240_000, -240_000] },
-  { label: "Seller Note (P&I)", values: [-69_600, -69_600, -69_600, -69_600, -69_600] },
+  { label: "Seller Note (P&I)", values: [-46_400, -46_400, -46_400, -46_400, -46_400] },
   { label: "Capital Reserve", values: [-55_000, -57_750, -60_638, -63_669, -66_853] },
   { label: "Est. Taxes (25%)", values: [-47_330, -64_403, -82_870, -102_970, -124_678] },
   { label: "Distributable FCF", isHeader: true, values: [141_990, 193_207, 248_611, 308_909, 374_034] },
@@ -384,40 +397,46 @@ export interface FullScenario {
   jp: { proceeds: string; moic: string; irr: string };
 }
 
+// Exit waterfall: Post-debt equity → return capital ($400K GP + $100K JP) → split 75/20/5
+// Bear: $9M×0.5=$4.5M EV, −$2.6M debt=$1.9M equity. Cap return $500K. Remaining $1.4M → GP 75%=$1.05M+$400K=$1.45M, JP 20%=$280K+$100K=$380K
+// Base: $9M EV, −$2.4M debt=$6.6M. Cap $500K. Rem $6.1M → GP=$4.575M+$400K=$4.975M, JP=$1.22M+$100K=$1.32M
+// Bull: $9M×1.25=$11.25M, −$2.4M=$8.85M. Cap $500K. Rem $8.35M → GP=$6.263M+$400K=$6.663M, JP=$1.77M+$100K=$1.87M
+// Stretch: $9M×1.5=$13.5M, −$2.4M=$11.1M. Cap $500K. Rem $10.6M → GP=$7.95M+$400K=$8.35M, JP=$2.12M+$100K=$2.22M
 export const fullScenarios: FullScenario[] = [
   {
     name: "Bear",
     exitMultiple: "4.5×",
     lp: { proceeds: "$3.21M", moic: "1.34×", irr: "5.4%" },
-    mp: { proceeds: "$2.86M", moic: "9.5×", irr: "57%" },
-    jp: { proceeds: "$605K", moic: "2.02×", irr: "15.1%" },
+    mp: { proceeds: "$1.45M", moic: "3.6×", irr: "29%" },
+    jp: { proceeds: "$380K", moic: "3.8×", irr: "31%" },
   },
   {
     name: "Base",
-    exitMultiple: "6.0×",
+    exitMultiple: "$9M EV",
     lp: { proceeds: "$3.51M", moic: "1.46×", irr: "6.2%" },
-    mp: { proceeds: "$4.28M", moic: "14.3×", irr: "70%" },
-    jp: { proceeds: "$802K", moic: "2.67×", irr: "21.7%" },
+    mp: { proceeds: "$4.98M", moic: "12.4×", irr: "65%" },
+    jp: { proceeds: "$1.34M", moic: "13.4×", irr: "68%" },
   },
   {
     name: "Bull",
     exitMultiple: "7.5×",
     lp: { proceeds: "$3.81M", moic: "1.59×", irr: "7.0%" },
-    mp: { proceeds: "$5.70M", moic: "19.0×", irr: "80%" },
-    jp: { proceeds: "$999K", moic: "3.33×", irr: "27.2%" },
+    mp: { proceeds: "$6.66M", moic: "16.7×", irr: "76%" },
+    jp: { proceeds: "$1.87M", moic: "18.7×", irr: "79%" },
   },
   {
     name: "Stretch",
     exitMultiple: "9.0×",
     lp: { proceeds: "$4.11M", moic: "1.71×", irr: "7.7%" },
-    mp: { proceeds: "$7.12M", moic: "23.7×", irr: "88%" },
-    jp: { proceeds: "$1.20M", moic: "3.99×", irr: "31.9%" },
+    mp: { proceeds: "$8.35M", moic: "20.9×", irr: "84%" },
+    jp: { proceeds: "$2.22M", moic: "22.2×", irr: "86%" },
   },
 ];
 
 // ─── Lender Comparisons ─────────────────────────────────────────────────────
 export interface SCFLender {
   name: string;
+  url: string;
   type: string;
   facilityFit: string;
   rate: string;
@@ -426,15 +445,16 @@ export interface SCFLender {
 }
 
 export const scfLenders: SCFLender[] = [
-  { name: "eCapital", type: "Reverse Factoring / SCF", facilityFit: "✓ $400K–$1M", rate: "3.0–4.0%", approval: "HIGH ✓", meetsTarget: "✓ YES at 3.0–3.5%" },
-  { name: "Riviera Finance", type: "Invoice Factoring", facilityFit: "✓ $200K–$2M", rate: "1–3% per 30d", approval: "HIGH ✓", meetsTarget: "⚠ MAYBE (tenor-dependent)" },
-  { name: "Triumph Business Capital", type: "Invoice Factoring / SCF", facilityFit: "✓ $500K–$5M", rate: "2.5–4.5%", approval: "HIGH ✓", meetsTarget: "⚠ Check rate" },
-  { name: "Resolve Pay", type: "B2B BNPL", facilityFit: "⚠ <$500K", rate: "2.61–3.5% flat", approval: "HIGH ✓", meetsTarget: "✓ YES" },
-  { name: "C2FO (as supplier)", type: "Dynamic Discounting", facilityFit: "N/A — per invoice", rate: "2% annualized", approval: "MEDIUM", meetsTarget: "✓ If large buyers exist" },
+  { name: "eCapital", url: "https://www.ecapital.com", type: "Reverse Factoring / SCF", facilityFit: "✓ $400K–$1M", rate: "3.0–4.0%", approval: "HIGH ✓", meetsTarget: "✓ YES at 3.0–3.5%" },
+  { name: "Riviera Finance", url: "https://www.rivierafinance.com", type: "Invoice Factoring", facilityFit: "✓ $200K–$2M", rate: "1–3% per 30d", approval: "HIGH ✓", meetsTarget: "⚠ MAYBE (tenor-dependent)" },
+  { name: "Triumph Business Capital", url: "https://www.triumphbusinesscapital.com", type: "Invoice Factoring / SCF", facilityFit: "✓ $500K–$5M", rate: "2.5–4.5%", approval: "HIGH ✓", meetsTarget: "⚠ Check rate" },
+  { name: "Resolve Pay", url: "https://www.resolvepay.com", type: "B2B BNPL", facilityFit: "⚠ <$500K", rate: "2.61–3.5% flat", approval: "HIGH ✓", meetsTarget: "✓ YES" },
+  { name: "C2FO", url: "https://www.c2fo.com", type: "Dynamic Discounting", facilityFit: "N/A — per invoice", rate: "2% annualized", approval: "MEDIUM", meetsTarget: "✓ If large buyers exist" },
 ];
 
 export interface ARLender {
   name: string;
+  url: string;
   type: string;
   rate: string;
   approval: string;
@@ -442,10 +462,10 @@ export interface ARLender {
 }
 
 export const arLenders: ARLender[] = [
-  { name: "eCapital", type: "Non-Recourse A/R", rate: "2.5–4.0% / 30d", approval: "HIGH ✓", meetsTarget: "✓ YES at volume" },
-  { name: "Riviera Finance", type: "Non-Recourse A/R", rate: "1–3% / 30d", approval: "HIGH ✓", meetsTarget: "✓ YES" },
-  { name: "Triumph Business Capital", type: "Non-Recourse A/R", rate: "1.5–3.5%", approval: "HIGH ✓", meetsTarget: "✓ YES likely" },
-  { name: "Bluevine", type: "Invoice Factoring", rate: "0.25–1.7%/week", approval: "HIGH ✓", meetsTarget: "✗ NO (APR too high)" },
+  { name: "eCapital", url: "https://www.ecapital.com", type: "Non-Recourse A/R", rate: "2.5–4.0% / 30d", approval: "HIGH ✓", meetsTarget: "✓ YES at volume" },
+  { name: "Riviera Finance", url: "https://www.rivierafinance.com", type: "Non-Recourse A/R", rate: "1–3% / 30d", approval: "HIGH ✓", meetsTarget: "✓ YES" },
+  { name: "Triumph Business Capital", url: "https://www.triumphbusinesscapital.com", type: "Non-Recourse A/R", rate: "1.5–3.5%", approval: "HIGH ✓", meetsTarget: "✓ YES likely" },
+  { name: "Bluevine", url: "https://www.bluevine.com", type: "Invoice Factoring", rate: "0.25–1.7%/week", approval: "HIGH ✓", meetsTarget: "✗ NO (APR too high)" },
 ];
 
 // ─── 90-Day Float Steps ──────────────────────────────────────────────────────

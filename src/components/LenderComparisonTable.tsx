@@ -21,7 +21,11 @@ export function LenderComparisonTable() {
             <tbody>
               {scfLenders.map((l) => (
                 <tr key={l.name} className="border-b border-border-custom/50">
-                  <td className="py-2 px-2 text-foreground font-medium">{l.name}</td>
+                  <td className="py-2 px-2 font-medium">
+                    <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-accent-blue hover:underline">
+                      {l.name}
+                    </a>
+                  </td>
                   <td className="py-2 px-2 text-text-secondary">{l.type}</td>
                   <td className="py-2 px-2 text-text-secondary">{l.facilityFit}</td>
                   <td className="py-2 px-2 text-text-secondary">{l.rate}</td>
@@ -51,7 +55,11 @@ export function LenderComparisonTable() {
             <tbody>
               {arLenders.map((l) => (
                 <tr key={l.name} className="border-b border-border-custom/50">
-                  <td className="py-2 px-2 text-foreground font-medium">{l.name}</td>
+                  <td className="py-2 px-2 font-medium">
+                    <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-accent-blue hover:underline">
+                      {l.name}
+                    </a>
+                  </td>
                   <td className="py-2 px-2 text-text-secondary">{l.type}</td>
                   <td className="py-2 px-2 text-text-secondary">{l.rate}</td>
                   <td className="py-2 px-2 text-text-secondary">{l.approval}</td>
@@ -64,14 +72,20 @@ export function LenderComparisonTable() {
       </div>
 
       {/* Recommendation */}
-      <div className="bg-accent-blue/10 border border-accent-blue/20 rounded-lg p-4">
+      <div className="bg-accent-blue/5 border border-accent-blue/15 rounded-lg p-4">
         <div className="flex items-start gap-2">
-          <span className="text-accent-amber text-lg">★</span>
+          <span className="text-accent-amber text-lg">&#9733;</span>
           <div>
             <h4 className="text-sm font-semibold text-foreground mb-1">Recommended</h4>
             <p className="text-xs text-text-secondary leading-relaxed">
-              Run parallel RFP to eCapital + Riviera Finance for a combined SCF+A/R facility. Both can likely hit
-              the 3.0–3.5% target. Separately, pursue Live Oak Bank SBA 7(a) LOC for term debt. Layer in
+              Run parallel RFP to{" "}
+              <a href="https://www.ecapital.com" target="_blank" rel="noopener noreferrer" className="text-accent-blue hover:underline">eCapital</a>
+              {" + "}
+              <a href="https://www.rivierafinance.com" target="_blank" rel="noopener noreferrer" className="text-accent-blue hover:underline">Riviera Finance</a>
+              {" "}for a combined SCF+A/R facility. Both can likely hit
+              the 3.0–3.5% target. Separately, pursue{" "}
+              <a href="https://www.liveoakbank.com" target="_blank" rel="noopener noreferrer" className="text-accent-blue hover:underline">Live Oak Bank</a>
+              {" "}SBA 7(a) LOC for term debt. Layer in
               AmEx/Chase Ink business cards immediately for zero-cost vendor float while facilities are being set up.
             </p>
           </div>
