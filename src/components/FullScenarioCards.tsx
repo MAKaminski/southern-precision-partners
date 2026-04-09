@@ -18,7 +18,7 @@ export function FullScenarioCards() {
           </div>
           <div className="space-y-3">
             <InvestorRow label="LP (Pete — Debt)" invested="$2.4M" data={s.lp} color="text-accent-blue" />
-            <InvestorRow label="Managing Partner" invested="$300K" data={s.mp} color="text-accent-green" />
+            <InvestorRow label="Managing Partner (Keith Piper)" invested="$300K" data={s.mp} color="text-accent-green" />
             <InvestorRow label="Junior Partner" invested="$300K" data={s.jp} color="text-accent-purple" />
           </div>
         </div>

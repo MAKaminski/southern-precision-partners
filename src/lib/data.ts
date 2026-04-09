@@ -23,10 +23,10 @@ export interface CapStackTranche {
 }
 
 export const capStack: CapStackTranche[] = [
-  { name: "LP Debt (Pete — Senior)", amount: 2_400_000, pct: 72.7, terms: "10% + 5% equity kicker, 5-yr bullet", color: "#3B82F6" },
-  { name: "Managing Partner Equity", amount: 300_000, pct: 9.1, terms: "80% ownership", color: "#10B981" },
-  { name: "Junior Partner Equity", amount: 300_000, pct: 9.1, terms: "15% ownership", color: "#8B5CF6" },
-  { name: "Seller Note", amount: 300_000, pct: 9.1, terms: "6%, 5-yr amort", color: "#F59E0B" },
+  { name: "LP Debt (Pete — Senior)", amount: 2_400_000, pct: 72.7, terms: "10% + 5% equity kicker, 5-yr bullet", color: "#2563EB" },
+  { name: "Managing Partner Equity (Keith Piper)", amount: 300_000, pct: 9.1, terms: "80% ownership", color: "#059669" },
+  { name: "Junior Partner Equity", amount: 300_000, pct: 9.1, terms: "15% ownership", color: "#7C3AED" },
+  { name: "Seller Note", amount: 300_000, pct: 9.1, terms: "6%, 5-yr amort", color: "#D97706" },
 ];
 
 export const totalRaise = 3_300_000;
@@ -63,16 +63,16 @@ export const investorReturns: InvestorReturn[] = [
     proceeds: "$3.51M",
     moic: "1.46×",
     irr: "6.2% (debt) + equity kicker upside",
-    color: "#3B82F6",
+    color: "#2563EB",
   },
   {
-    title: "Managing Partner (Equity)",
+    title: "Managing Partner — Keith Piper (Equity)",
     invested: "$300K",
     structure: "80% ownership",
     proceeds: "$4.28M",
     moic: "14.3×",
     irr: "70%",
-    color: "#10B981",
+    color: "#059669",
   },
   {
     title: "Junior Partner (Equity)",
@@ -81,7 +81,7 @@ export const investorReturns: InvestorReturn[] = [
     proceeds: "$802K",
     moic: "2.67×",
     irr: "21.7%",
-    color: "#8B5CF6",
+    color: "#7C3AED",
   },
 ];
 
@@ -123,7 +123,7 @@ export const phases: Phase[] = [
     number: 1,
     title: "Financial Engineering",
     years: "Year 1",
-    color: "#3B82F6",
+    color: "#2563EB",
     initiatives: [
       { name: "SCF Integration", description: "2% vendor discount via supply chain finance", ebitdaImpact: "+$59.5K", phase: 1, firstYear: 2026 },
       { name: "Direct COGS Audit", description: "1.5% rebate from vendor renegotiation", ebitdaImpact: "+$44.6K", phase: 1, firstYear: 2026 },
@@ -136,7 +136,7 @@ export const phases: Phase[] = [
     number: 2,
     title: "Revenue Acceleration",
     years: "Years 2–3",
-    color: "#10B981",
+    color: "#059669",
     initiatives: [
       { name: "Commercial Sales / Project Financing", description: "90-day float for builders", revenueImpact: "+$450K", ebitdaImpact: "+$90K", phase: 2, firstYear: 2027 },
       { name: "Digital / 3D Visualizer", description: "E-commerce + 3D design tool", revenueImpact: "+$200K", ebitdaImpact: "+$40K", phase: 2, firstYear: 2027 },
@@ -148,7 +148,7 @@ export const phases: Phase[] = [
     number: 3,
     title: "Scale & Exit Prep",
     years: "Years 4–5",
-    color: "#F59E0B",
+    color: "#D97706",
     initiatives: [
       { name: "Delivery Profit Center", description: "Tiered fees, leased truck", revenueImpact: "+$80K", ebitdaImpact: "+$35K", phase: 3, firstYear: 2029 },
       { name: "Geographic Expansion", description: "Location 3 buildout", revenueImpact: "+$400K", ebitdaImpact: "+$60K", phase: 3, firstYear: 2029 },
@@ -375,9 +375,10 @@ export const floatSteps: FloatStep[] = [
 
 // ─── SEP Partners Contact Info ───────────────────────────────────────────────
 export const contactInfo = {
-  name: "Michael Kaminski",
-  company: "Southern Equity Partners",
-  companyShort: "SEP",
+  name: "Keith Piper",
+  title: "Managing Partner",
+  company: "Southern Precision Partners",
+  companyShort: "SPP",
   email: "deals@sep-partners.com",
   phone: "(404) 555-0120",
   website: "www.sep-partners.com",

@@ -32,11 +32,11 @@ export function EBITDABridgeChart() {
     <div className="h-[400px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={waterfallData} barCategoryGap="20%">
-          <CartesianGrid strokeDasharray="3 3" stroke="#1F2937" />
-          <XAxis dataKey="name" tick={{ fill: "#9CA3AF", fontSize: 10 }} axisLine={{ stroke: "#1F2937" }} angle={-45} textAnchor="end" height={100} />
-          <YAxis tickFormatter={formatTick} tick={{ fill: "#9CA3AF", fontSize: 12 }} axisLine={{ stroke: "#1F2937" }} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+          <XAxis dataKey="name" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={{ stroke: "#E2E8F0" }} angle={-45} textAnchor="end" height={100} />
+          <YAxis tickFormatter={formatTick} tick={{ fill: "#64748B", fontSize: 12 }} axisLine={{ stroke: "#E2E8F0" }} />
           <Tooltip
-            contentStyle={{ backgroundColor: "#111827", border: "1px solid #1F2937", borderRadius: "8px", color: "#F9FAFB" }}
+            contentStyle={{ backgroundColor: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "8px", color: "#1E293B", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)" }}
             formatter={(value) => formatTick(Number(value))}
           />
           {/* Invisible base */}
@@ -44,7 +44,7 @@ export function EBITDABridgeChart() {
           {/* Visible portion */}
           <Bar dataKey="value" stackId="a" radius={[4, 4, 0, 0]}>
             {waterfallData.map((entry, index) => (
-              <Cell key={index} fill={entry.isBase ? "#3B82F6" : "#10B981"} />
+              <Cell key={index} fill={entry.isBase ? "#2563EB" : "#059669"} />
             ))}
           </Bar>
         </BarChart>

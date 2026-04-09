@@ -26,10 +26,10 @@ export function SensitivityHeatmap({
 
   function getColor(val: number): string {
     const ratio = (val - min) / (max - min);
-    // Dark red → dark green
+    // Red → Green on light background
     const r = Math.round(220 * (1 - ratio));
-    const g = Math.round(220 * ratio);
-    return `rgba(${r}, ${g}, 60, 0.25)`;
+    const g = Math.round(180 * ratio);
+    return `rgba(${r}, ${g}, 60, 0.15)`;
   }
 
   return (

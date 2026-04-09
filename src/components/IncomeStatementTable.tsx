@@ -51,7 +51,7 @@ export function IncomeStatementTable() {
                     key={i}
                     className={`py-1.5 px-2 text-right font-mono ${
                       row.isHeader ? "font-semibold text-foreground" : "text-text-secondary"
-                    } ${val !== null && val < 0 ? "text-red-400/80" : ""}`}
+                    } ${val !== null && val < 0 ? "text-red-600/80" : ""}`}
                   >
                     {formatVal(val)}
                   </td>

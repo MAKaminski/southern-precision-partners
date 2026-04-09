@@ -95,7 +95,8 @@ export default function SummaryPage() {
       <section className="bg-surface border border-border-custom rounded-lg p-6 text-center">
         <div className="flex flex-col sm:flex-row justify-center gap-4 mb-4">
           <a
-            href="#"
+            href="/project-mosaic-lbo-model.csv"
+            download="Project_Mosaic_LBO_Model.csv"
             className="inline-flex items-center justify-center bg-accent-blue text-white text-sm font-medium px-5 py-2 rounded-lg hover:bg-accent-blue/90 transition-colors"
           >
             Download LBO Model
@@ -108,7 +109,7 @@ export default function SummaryPage() {
           </a>
         </div>
         <p className="text-xs text-text-secondary">
-          {contactInfo.name} | {contactInfo.company} |{" "}
+          {contactInfo.name} | {contactInfo.title} | {contactInfo.company} |{" "}
           <a href={`mailto:${contactInfo.email}`} className="text-accent-blue hover:underline">
             {contactInfo.email}
           </a>

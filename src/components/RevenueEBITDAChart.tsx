@@ -20,16 +20,16 @@ export function RevenueEBITDAChart() {
     <div className="h-[350px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} barGap={4}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1F2937" />
-          <XAxis dataKey="year" tick={{ fill: "#9CA3AF", fontSize: 12 }} axisLine={{ stroke: "#1F2937" }} />
-          <YAxis tickFormatter={formatTick} tick={{ fill: "#9CA3AF", fontSize: 12 }} axisLine={{ stroke: "#1F2937" }} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+          <XAxis dataKey="year" tick={{ fill: "#64748B", fontSize: 12 }} axisLine={{ stroke: "#E2E8F0" }} />
+          <YAxis tickFormatter={formatTick} tick={{ fill: "#64748B", fontSize: 12 }} axisLine={{ stroke: "#E2E8F0" }} />
           <Tooltip
-            contentStyle={{ backgroundColor: "#111827", border: "1px solid #1F2937", borderRadius: "8px", color: "#F9FAFB" }}
+            contentStyle={{ backgroundColor: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: "8px", color: "#1E293B", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)" }}
             formatter={(value) => formatTick(Number(value))}
           />
-          <Legend wrapperStyle={{ color: "#9CA3AF", fontSize: 12 }} />
-          <Bar dataKey="Revenue" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="EBITDA" fill="#10B981" radius={[4, 4, 0, 0]} />
+          <Legend wrapperStyle={{ color: "#64748B", fontSize: 12 }} />
+          <Bar dataKey="Revenue" fill="#2563EB" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="EBITDA" fill="#059669" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
