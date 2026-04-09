@@ -35,6 +35,12 @@ export default function RootLayout({
               <a href="/details" className="text-sm text-text-secondary hover:text-foreground transition-colors">
                 Details
               </a>
+              <a href="/crm" className="text-sm text-text-secondary hover:text-foreground transition-colors">
+                CRM
+              </a>
+              <a href="/outreach" className="text-sm text-text-secondary hover:text-foreground transition-colors">
+                Outreach
+              </a>
             </div>
           </div>
         </nav>
