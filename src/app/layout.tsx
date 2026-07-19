@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SessionWrapper } from "@/components/SessionWrapper";
 import { MainNav } from "@/components/MainNav";
 import { ChatWidget } from "@/components/ChatWidget";
@@ -29,14 +30,14 @@ export default function RootLayout({
           {/* Navigation */}
           <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border-custom">
             <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-              <a href="/" className="flex items-center gap-2">
+              <Link href="/" className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded bg-[#0F172A] flex items-center justify-center text-white text-[10px] font-bold">
                   SEP
                 </div>
                 <span className="text-sm font-semibold tracking-tight text-foreground hidden sm:inline">
                   Southeast Precision Partners
                 </span>
-              </a>
+              </Link>
               <MainNav />
             </div>
           </nav>

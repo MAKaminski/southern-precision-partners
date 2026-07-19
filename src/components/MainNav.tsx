@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { AuthNav } from "@/components/AuthNav";
 import { hasClearance, type Clearance } from "@/lib/access";
@@ -17,10 +18,10 @@ const LINKS: { href: string; label: string; level: "public" | "confidential" | "
   { href: "/", label: "Home", level: "public" },
   { href: "/about", label: "About", level: "public" },
   { href: "/deals/mosaic", label: "Project Mosaic", level: "confidential" },
-  { href: "/delivery", label: "Delivery Plan", level: "confidential" },
-  { href: "/forecast", label: "Forecast", level: "confidential" },
   { href: "/details", label: "Details", level: "confidential" },
   { href: "/customers", label: "Customers", level: "internal" },
+  { href: "/delivery", label: "Delivery Plan", level: "internal" },
+  { href: "/forecast", label: "Forecast", level: "internal" },
   { href: "/crm", label: "CRM", level: "internal" },
   { href: "/outreach", label: "Outreach", level: "internal" },
   { href: "/map", label: "Map", level: "internal" },
@@ -40,26 +41,26 @@ export function MainNav() {
   return (
     <div className="flex items-center gap-3">
       {publicLinks.map((l) => (
-        <a
+        <Link
           key={l.href}
           href={l.href}
           className="text-xs text-text-secondary hover:text-foreground transition-colors"
         >
           {l.label}
-        </a>
+        </Link>
       ))}
 
       {restrictedLinks.length > 0 && (
         <>
           <span className="text-border-custom">|</span>
           {restrictedLinks.map((l) => (
-            <a
+            <Link
               key={l.href}
               href={l.href}
               className="text-xs text-text-secondary hover:text-foreground transition-colors"
             >
               {l.label}
-            </a>
+            </Link>
           ))}
         </>
       )}

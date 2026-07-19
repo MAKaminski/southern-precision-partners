@@ -16,8 +16,12 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
-  // Role is carried on the session (see auth.ts session callback).
-  const role = (req.auth as { role?: Clearance } | null)?.role ?? (req.auth ? "investor" : null);
+  // auth() returns a truthy but userless object (e.g. a server-configuration
+  // error) when it fails to resolve a session — never treat that as signed
+  // in. A real session always carries a `user`. Fail closed on anything else.
+  const session = req.auth as { role?: Clearance; user?: unknown } | null;
+  const isAuthenticated = Boolean(session?.user);
+  const role: Clearance = isAuthenticated ? session?.role ?? "investor" : null;
 
   if (hasClearance(role, level)) {
     return NextResponse.next();
@@ -27,11 +31,11 @@ export default auth((req) => {
 
   // API routes: respond with machine-readable 401/403 instead of an HTML redirect.
   if (isApi) {
-    const status = req.auth ? 403 : 401;
+    const status = isAuthenticated ? 403 : 401;
     return NextResponse.json(
       {
         success: false,
-        error: req.auth
+        error: isAuthenticated
           ? "You do not have clearance to access this resource."
           : "Authentication required.",
         classification: level,
@@ -41,7 +45,7 @@ export default auth((req) => {
   }
 
   // Pages: not signed in → sign-in; signed in but under-cleared → unauthorized.
-  if (!req.auth) {
+  if (!isAuthenticated) {
     const signInUrl = new URL("/auth/signin", req.url);
     signInUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(signInUrl);

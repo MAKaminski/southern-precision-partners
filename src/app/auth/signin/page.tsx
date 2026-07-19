@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import Link from "next/link";
 
 function SignInForm() {
   const searchParams = useSearchParams();
@@ -149,8 +150,8 @@ function SignInForm() {
         {/* Public access note */}
         <div className="text-center mt-6">
           <p className="text-xs text-text-secondary">
-            The <a href="/" className="text-accent-blue hover:underline">deal summary</a> and{" "}
-            <a href="/submit" className="text-accent-blue hover:underline">deal submission form</a> are available without sign-in.
+            The <Link href="/" className="text-accent-blue hover:underline">deal summary</Link> and{" "}
+            <Link href="/submit" className="text-accent-blue hover:underline">deal submission form</Link> are available without sign-in.
           </p>
         </div>
       </div>

@@ -83,11 +83,7 @@ export const ROUTE_RULES: RouteRule[] = [
   // ── Confidential: investor-facing deal materials ──
   { prefix: "/deals", level: "confidential" },
   { prefix: "/details", level: "confidential" },
-  { prefix: "/delivery", level: "confidential" }, // delivery plan / execution tracking
-  { prefix: "/forecast", level: "confidential" }, // forecast P&L model
   { prefix: "/api/download-model", level: "confidential" },
-  { prefix: "/api/delivery", level: "confidential" },
-  { prefix: "/api/forecast", level: "confidential" },
 
   // ── Internal: SEP operations & contact PII ──
   { prefix: "/crm", level: "internal" },
@@ -95,9 +91,13 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: "/map", level: "internal" },
   { prefix: "/import", level: "internal" },
   { prefix: "/customers", level: "internal" }, // customer records incl. PII / aliases / notes
+  { prefix: "/delivery", level: "internal" }, // delivery plan / execution tracking — partner-only
+  { prefix: "/forecast", level: "internal" }, // forecast P&L model — partner-only
   { prefix: "/api/contacts", level: "internal" },
   { prefix: "/api/import-contacts", level: "internal" },
   { prefix: "/api/customers", level: "internal" },
+  { prefix: "/api/delivery", level: "internal" },
+  { prefix: "/api/forecast", level: "internal" },
 
   // ── Explicitly public API surfaces ──
   { prefix: "/api/submit-deal", level: "public" }, // inbound deal submissions
