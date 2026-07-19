@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
 // All deal-related pages require authentication
-const protectedPaths = ["/deals", "/details", "/crm", "/outreach", "/map", "/import"];
+const protectedPaths = ["/deals", "/details", "/crm", "/outreach", "/map", "/import", "/delivery", "/forecast", "/customers"];
 // Always public
 const publicPaths = ["/", "/about", "/submit", "/auth/signin", "/api"];
 
