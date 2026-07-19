@@ -362,7 +362,8 @@ if (await isEmpty("revenue_matrix")) {
       if (!field) return;
       for (const { col, year } of years) {
         const v = asNum(cellVal(row.getCell(col)));
-        if (v !== null) byYear.get(year)[field] = v;
+        // Keep first occurrence: Revenue ($) block precedes an Accounts (counts) block with identical labels.
+        if (v !== null && byYear.get(year)[field] === null) byYear.get(year)[field] = v;
       }
     });
     for (const v of byYear.values()) {
