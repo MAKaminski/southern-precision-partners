@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "verify:financials": "node --experimental-strip-types scripts/verify-financials.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.86.1",
