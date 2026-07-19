@@ -3,6 +3,32 @@
 Running log of platform/process enhancements. One entry is added roughly
 each review cycle; each entry links to the PR/commit that implemented it.
 
+## 2026-07-19 — Closed a false-alarm: `proxy.ts` is correct, not an auth-bypass bug
+
+**Status: Done (verification + process fix, no code change to `src/proxy.ts`)**
+
+Linear [MOD-16](https://linear.app/modular-equity/issue/MOD-16) rated it
+**Urgent** that PR #5 renamed `middleware.ts` → `proxy.ts`, treating
+`AGENTS.md`'s "breaking changes, read `node_modules/next/dist/docs/`" note as
+a likely-fabricated prompt-injection risk. That review ran without
+`node_modules` installed, so it couldn't check.
+
+This cycle ran `npm install` and read the actual bundled docs:
+`node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/proxy.md`
+confirms this pinned Next.js build (16.2.3) really did rename the file
+convention — `middleware.ts` is deprecated, `proxy.ts` is current — and the
+build (`npm run build`) only recognizes it under the `proxy.ts` name.
+`src/proxy.ts` is therefore correct as-is; MOD-16 is resolved as
+not-a-bug. Added a note to `AGENTS.md` telling future sessions to run
+`npm install` before assuming that instruction is stale/injected, so this
+false alarm (and the wasted duplicate-investigation cycle it caused) doesn't
+repeat.
+
+**Still open from MOD-17:** 4+ open draft PRs (#18, #13, #6, #4) sit
+unmerged, including a verified Seller Note fix (#6) — a human needs to
+review/merge the backlog; no new duplicate PR was opened for that this
+cycle.
+
 ## 2026-07-19 — CRITICAL: production auth is completely broken (missing AUTH_SECRET)
 
 **Status: Diagnosed, NOT fixed — requires a human to set a Vercel env var**
