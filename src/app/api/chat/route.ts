@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
         const { default: Anthropic } = await import("@anthropic-ai/sdk");
         const client = new Anthropic({ apiKey });
         const response = await client.messages.create({
-          model: "claude-sonnet-4-20250514",
+          model: process.env.ANTHROPIC_CHAT_MODEL || "claude-sonnet-5",
           max_tokens: 1024,
           system: `You are the deal assistant for Southeast Precision Partners. Answer questions about Project Mosaic (Tile Center Group LBO). Be concise and professional. Key data: EV $2.49M, Revenue $4.95M, EBITDA $554K, Total raise $3.1M, GP Keith Piper $400K/79%, JP $100K/16%, LP $2.4M debt. Base exit $9M. GP MOIC 13.05x, JP 10.76x.`,
           messages: messages.map((m: { role: string; content: string }) => ({
