@@ -103,6 +103,7 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: "/api/submit-deal", level: "public" }, // inbound deal submissions
   { prefix: "/api/chat", level: "public" }, // guarded at the response layer, not the route
   { prefix: "/api/auth", level: "public" }, // NextAuth handlers
+  { prefix: "/api/health", level: "public" }, // config/readiness status — booleans only, no secret values
 ];
 
 /** Classify a pathname. Longest matching prefix wins; unlisted → public. */
