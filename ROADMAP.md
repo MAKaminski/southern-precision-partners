@@ -3,6 +3,41 @@
 Running log of platform/process enhancements. One entry is added roughly
 each review cycle; each entry links to the PR/commit that implemented it.
 
+## 2026-07-19 — Persist deal submissions to Supabase instead of dropping them
+
+**Status: Done**
+
+`src/app/api/submit-deal/route.ts` (the `/submit` page's backend) only
+`console.log`'d incoming deal submissions — nothing was written to a
+database or emailed out, so every real investor/seller lead through the
+live public form was silently lost with no record (Linear MOD-11, filed
+earlier today, High priority, previously unaddressed by any open PR).
+
+- Added a `deal_submissions` table to the `southern-precision-partners`
+  Supabase project (migration `add_deal_submissions_table`), RLS-enabled
+  with no anon/authenticated policies — same deny-by-default pattern as
+  every other table in this schema (`customers`, `delivery_tasks`, etc.).
+- Wired the route to insert via the existing service-role client
+  (`getSppDb()` from `src/lib/spp-db.ts`) rather than adding a new one.
+- If Supabase isn't configured (or the insert fails), the route now logs
+  the full submission with its reference number instead of dropping it
+  silently — a fallback trace, not a swallow — and still returns success
+  to the submitter either way, so the form UX is unaffected.
+- Verified the insert path directly against the live table (test row
+  inserted and deleted via the Supabase SQL tool) and the graceful-fallback
+  path locally (`npm run dev`, unconfigured Supabase key → still logs +
+  returns `200`).
+
+**Why this over other backlog items this cycle:** every open draft PR
+(#24, #23, #21, #20, #19, #18, #13, #6, #4 — tracked in MOD-17) already
+covers a different area, so this doesn't add another overlapping change to
+the pile. MOD-21 (Urgent — Vercel `AUTH_SECRET` missing) remains the
+highest-priority open item but needs Vercel dashboard access this session
+doesn't have; MOD-11 (Southeast vs Southern brand inconsistency) was
+considered but deferred — it needs a human product decision (email/domain
+identity is genuinely ambiguous across `sep-partners.com` vs the
+`southern-precision-partners` repo/deploy domain, not a mechanical fix).
+
 ## 2026-07-19 — CRITICAL: production auth is completely broken (missing AUTH_SECRET)
 
 **Status: Diagnosed, NOT fixed — requires a human to set a Vercel env var**
