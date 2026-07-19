@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { getCustomer } from "@/lib/spp-queries";
 
 export const dynamic = "force-dynamic";
@@ -16,9 +17,9 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-      <a href="/customers" className="text-[10px] text-accent-blue hover:underline uppercase tracking-wide">
+      <Link href="/customers" className="text-[10px] text-accent-blue hover:underline uppercase tracking-wide">
         &larr; Customer CRM
-      </a>
+      </Link>
 
       <header className="flex items-end justify-between flex-wrap gap-3">
         <div>
