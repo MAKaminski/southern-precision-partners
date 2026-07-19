@@ -4,8 +4,8 @@ import { requireClearance } from "@/lib/guard";
 
 /** PATCH { id, value } — update a single forecast_pnl cell (edit the model in place). */
 export async function PATCH(req: NextRequest) {
-  // Forecast P&L model — authorized investors & partners.
-  const guard = await requireClearance("confidential");
+  // Forecast P&L model — SEP partners only.
+  const guard = await requireClearance("internal");
   if (!guard.ok) return guard.response;
 
   const db = getSppDb();
