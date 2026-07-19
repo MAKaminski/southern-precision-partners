@@ -3,6 +3,37 @@
 Running log of platform/process enhancements. One entry is added roughly
 each review cycle; each entry links to the PR/commit that implemented it.
 
+## 2026-07-19 — Wire `audit:financials` into CI so financial-model drift fails the build
+
+**Status: Done**
+
+`scripts/audit-financials.ts` (added in an earlier cycle) checks that the
+cash-flow and income-statement tables in `src/lib/data.ts` reconcile
+internally (taxes ≈ 25% of pretax FCF, distributable FCF = pretax − taxes,
+partner allocations sum to distributable FCF). It has caught real bugs
+(the Seller Note $300K/$200K mismatch, the $23,200/yr tax/FCF error) — but
+it only ran when someone remembered to run it by hand. `.github/workflows/ci.yml`
+ran lint/typecheck/build on every PR and push to `main`, but never this
+script, so a financial-model regression could still merge undetected.
+
+- Added `npm run audit:financials` as a CI step, after `build`.
+- Bumped CI's `actions/setup-node` from Node 20 → 22: the audit script uses
+  Node 22's built-in TypeScript execution (no ts-node/tsx dependency) —
+  running it under Node 20 would fail on every PR regardless of whether the
+  financial data is actually correct, which would be a worse outcome
+  (a red build that trains people to ignore CI) than not running it at all.
+- Verified locally against current `main` (post SBA-restructure): `npm run
+  lint` (0 errors, 6 pre-existing warnings), `npm run typecheck` (clean),
+  `npm run build` (succeeds), `npm run audit:financials` (all checks pass).
+
+**Not addressed this cycle (tracked separately):** the broader gap this
+partially closes — [Linear MOD-9](https://linear.app/modular-equity/issue/MOD-9)
+("Add automated tests for IRR/MOIC/waterfall calculations") — since
+`audit-financials.ts` checks internal consistency, not a real test
+framework (no Vitest/Jest), and doesn't cover the GP/JP/LP waterfall
+`AUDIT-FOLLOWUP` items below, which still reflect the pre-SBA-restructure
+capital structure and need a product decision before they can be fixed.
+
 ## 2026-07-19 — CRITICAL: production auth is completely broken (missing AUTH_SECRET)
 
 **Status: Diagnosed, NOT fixed — requires a human to set a Vercel env var**
