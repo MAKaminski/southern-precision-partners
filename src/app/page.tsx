@@ -59,7 +59,7 @@ export default function HomePage() {
             <div className="bg-background border border-border-custom rounded-xl p-6 hover:border-accent-blue/30 hover:shadow-lg transition-all">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <span className="text-[10px] font-medium text-accent-blue bg-accent-blue/10 px-2 py-0.5 rounded uppercase">Active — April 2026</span>
+                  <span className="text-[10px] font-medium text-accent-blue bg-accent-blue/10 px-2 py-0.5 rounded uppercase">Active — Target Close Q3 2026</span>
                   <h3 className="text-xl font-bold text-foreground mt-2">Project Mosaic</h3>
                   <p className="text-sm text-text-secondary mt-1">Tile Center Group — Leveraged Buyout | Georgia</p>
                 </div>

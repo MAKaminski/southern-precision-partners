@@ -22,14 +22,18 @@ export interface CapStackTranche {
   color: string;
 }
 
+// Sources: SBA term loan (Live Oak Bank) + Managing Partner + Seller financing,
+// each 80%/10%/10% of the $2.8M purchase price, plus the existing JP tranche.
+// Junior Partner is carried over unchanged from the prior structure — it wasn't
+// part of the new SBA-based plan, so confirm before relying on it downstream.
 export const capStack: CapStackTranche[] = [
-  { name: "LP Debt (Pete — Senior)", amount: 2_400_000, pct: 77.4, terms: "10% + 5% equity kicker, 5-yr bullet", color: "#2563EB" },
-  { name: "Managing Partner Equity (Keith Piper)", amount: 400_000, pct: 12.9, terms: "79% profit share", color: "#059669" },
-  { name: "Junior Partner Equity", amount: 100_000, pct: 3.2, terms: "5% equity + 11% carry = 16% effective", color: "#7C3AED" },
-  { name: "Seller Note", amount: 200_000, pct: 6.5, terms: "6%, 5-yr amort", color: "#D97706" },
+  { name: "SBA Term Loan (Live Oak Bank)", amount: 2_240_000, pct: 77.2, terms: "10%, 15-yr term, acquisition financing", color: "#2563EB" },
+  { name: "Managing Partner Equity (Keith Piper)", amount: 280_000, pct: 9.7, terms: "10% of purchase price", color: "#059669" },
+  { name: "Junior Partner Equity", amount: 100_000, pct: 3.4, terms: "5% equity + 11% carry = 16% effective", color: "#7C3AED" },
+  { name: "Seller Note", amount: 280_000, pct: 9.7, terms: "10% seller financing", color: "#D97706" },
 ];
 
-export const totalRaise = 3_100_000;
+export const totalRaise = 2_900_000;
 
 export interface UseOfFunds {
   label: string;
@@ -37,10 +41,8 @@ export interface UseOfFunds {
 }
 
 export const usesOfFunds: UseOfFunds[] = [
-  { label: "Business Acquisition", amount: 2_490_000 },
-  { label: "Working Capital / Reserves", amount: 400_000 },
-  { label: "Fees & Closing Costs", amount: 160_000 },
-  { label: "MIP Reserve", amount: 50_000 },
+  { label: "Business Acquisition", amount: 2_800_000 },
+  { label: "Working Capital / Reserves", amount: 100_000 },
 ];
 
 // ─── Investor Returns ────────────────────────────────────────────────────────
@@ -54,16 +56,17 @@ export interface InvestorReturn {
   color: string;
 }
 
+// The former "LP (Pete — Debt)" row is removed: the SBA term loan is
+// straight bank debt (principal + interest, tracked in debtFacilities),
+// not an equity/kicker position with a MOIC — it doesn't belong in an
+// investor-returns table the way the old debt-with-equity-kicker LP did.
+// AUDIT-FOLLOWUP: Keith's invested/proceeds/MOIC/IRR below still reflect
+// the prior $400K/79%-profit-share structure, not the new $280K (10% of
+// purchase price) equity figure — the full exit-waterfall model (this
+// table, `scenario1`/`scenario2`, `fullScenarios`, `scenarios`) needs a
+// rebuild against the new SBA-based capital structure, not just a
+// find-and-replace. Tracked in ROADMAP.md.
 export const investorReturns: InvestorReturn[] = [
-  {
-    title: "LP (Pete — Debt)",
-    invested: "$2.4M",
-    structure: "Bullet debt + 5% equity kicker",
-    proceeds: "$3.51M",
-    moic: "1.46×",
-    irr: "6.2% (debt) + equity kicker upside",
-    color: "#2563EB",
-  },
   {
     title: "Managing Partner — Keith Piper (Equity)",
     invested: "$400K",
@@ -350,8 +353,9 @@ export interface DebtFacility {
 }
 
 export const debtFacilities: DebtFacility[] = [
-  { name: "LP Debt (Pete)", lender: "Senior LP", amount: "$2.4M", rate: "10%", structure: "5-yr bullet", maturity: "2031", recourse: "Non-recourse" },
-  { name: "Seller Note", lender: "Seller", amount: "$300K", rate: "6%", structure: "5-yr amort", maturity: "2031", recourse: "Non-recourse" },
+  { name: "SBA Term Loan", lender: "Live Oak Bank", amount: "$2.24M", rate: "10%", structure: "15-yr term, amortizing", maturity: "2041", recourse: "SBA-guaranteed" },
+  { name: "SBA Working Capital LOC", lender: "Live Oak Bank", amount: "$250K revolving", rate: "TBD", structure: "Revolving", maturity: "Ongoing", recourse: "SBA-guaranteed" },
+  { name: "Seller Note", lender: "Seller", amount: "$280K", rate: "10%", structure: "Term TBD", maturity: "TBD", recourse: "Non-recourse" },
   { name: "SCF Facility", lender: "TBD", amount: "$700K revolving", rate: "3.5%", structure: "Revolving", maturity: "Ongoing", recourse: "Non-recourse" },
   { name: "A/R Factoring", lender: "TBD", amount: "$400K revolving", rate: "3.0%", structure: "Revolving", maturity: "Ongoing", recourse: "Non-recourse" },
 ];

@@ -3,6 +3,77 @@
 Running log of platform/process enhancements. One entry is added roughly
 each review cycle; each entry links to the PR/commit that implemented it.
 
+## 2026-07-19 — CRITICAL: production auth is completely broken (missing AUTH_SECRET)
+
+**Status: Diagnosed, NOT fixed — requires a human to set a Vercel env var**
+
+Nobody has been able to sign in (Google OR email) since **2026-04-09**. Vercel
+runtime error logs show `[auth][error] MissingSecret: Please define a
+"secret"` — 1,945 occurrences, 25 affected users, still firing as of this
+entry. `AUTH_SECRET` (required by NextAuth v5 in production) has never been
+set in the Vercel project's environment variables. No code change can fix
+this — an agent has no way to write Vercel env vars, and a secret shouldn't
+be hardcoded into the repo anyway.
+
+**Action needed:** In Vercel → Project Settings → Environment Variables, add
+`AUTH_SECRET` (Production, and Preview if desired) with a random 32-byte
+value, e.g. generate one locally with `openssl rand -base64 32`. Redeploy
+after adding it.
+
+**Why this matters beyond login being broken:** while `auth()` was failing
+with this error, `src/proxy.ts`'s clearance check had a fail-open bug (fixed
+in #5 today) that treated the resulting truthy-but-userless error object as
+an authenticated "investor" session. That means confidential pages
+(`/details`, `/deals/mosaic`) were likely reachable by anonymous visitors
+for the ~3.5 months this has been broken, until the #5 fix deployed. Worth
+confirming nothing was scraped/leaked in that window.
+
+## 2026-07-19 — Capital structure update: SBA financing replaces "Pete" LP debt
+
+**Status: Partially done — Sources/Uses updated; downstream returns model NOT rebuilt**
+
+Per direction: the deal now targets ~$17M Year-5 sales (per the "Mosaic"
+planning sheet in Google Drive, last edited 2026-07-19), financed as
+$2.8M purchase price via:
+- SBA Term Loan (Live Oak Bank): $2.24M, 10%, 15-yr term
+- SBA Working Capital LOC (Live Oak Bank): $250K revolving (separate facility,
+  not part of the initial raise)
+- Managing Partner (Keith Piper) equity: $280K (10% of purchase price)
+- Seller financing: $280K (10%)
+- Junior Partner: $100K — carried over unchanged; **not mentioned in the new
+  plan, needs confirmation it still applies**
+
+Updated: `capStack`, `totalRaise`, `usesOfFunds`, `debtFacilities` in
+`src/lib/data.ts`; the Sources & Uses tab and capital-structure panel in the
+downloadable XLSX (`download-model/route.ts`); the chatbot KB and system
+prompt (`chat/route.ts`); the CRM outreach email template; `FullScenarioCards`
+(removed the LP row — bank debt doesn't have a MOIC the way the old
+debt-with-equity-kicker LP did); removed the LP row from `investorReturns`.
+Also fixed the stale "April 2026" target-close date to "Q3 2026" in three
+places (`/`, `/deals/mosaic`, downloadable model).
+
+**NOT done — flagged `AUDIT-FOLLOWUP` in-code everywhere it applies:** the
+exit-waterfall / MOIC / IRR model (`investorReturns` GP/JP rows,
+`scenario1`/`scenario2`/`scenario1CashFlows`/`scenario2CashFlows`,
+`fullScenarios`, `scenarios`, the chatbot's waterfall/returns KB entries, the
+XLSX waterfall tab) all still reflect the **prior** $400K/79%-profit-share
+Keith equity and $2.4M LP-debt structure. These are cascading calculations
+(interest → taxes → distributable FCF → GP/JP split → MOIC/IRR) — updating
+the equity/debt inputs without re-deriving the whole chain would silently
+introduce new inconsistencies, exactly the kind `audit-financials.ts` exists
+to catch. This needs a deliberate model rebuild against the new $280K Keith
+equity figure, not a find-and-replace. `kpiStats`' "Enterprise Value: $2.49M"
+/ "Entry Multiple: 4.5×" also weren't touched and now sit inconsistently next
+to the new $2.8M purchase price — same reason (depends on resolving which
+EBITDA/revenue basis is authoritative: the live site's $554K pro-forma vs.
+the planning sheet's $380K 2026 baseline).
+
+## Process notes
+
+- `README.md` now documents required environment variables (`AUTH_SECRET`,
+  `AUTH_GOOGLE_ID`/`AUTH_GOOGLE_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, etc.) —
+  added today after discovering `AUTH_SECRET` was never configured.
+
 ## 2026-07-19 — Delivery Plan: full inline editing + filters
 
 **Status: Done**

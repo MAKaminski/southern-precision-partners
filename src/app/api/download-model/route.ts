@@ -64,7 +64,7 @@ export async function GET() {
   es.getRow(1).height = 32;
 
   es.mergeCells("A2:F2");
-  es.getCell("A2").value = "Tile Center Group — Leveraged Buyout | Southeast Precision Partners | April 2026";
+  es.getCell("A2").value = "Tile Center Group — Leveraged Buyout | Southeast Precision Partners | Target Close: Q3 2026";
   es.getCell("A2").font = { size: 10, italic: true, color: { argb: "FF64748B" }, name: "Calibri" }; es.getCell("A2").alignment = { horizontal: "center" };
 
   // Left column: Deal overview
@@ -104,12 +104,15 @@ export async function GET() {
   const csData: [string, string | number][] = [
     ["", ""],
     ["CAPITAL STRUCTURE", ""],
-    ["LP Debt (Pete — Senior)", 2400000],
-    ["GP Equity (Keith Piper)", 400000],
+    ["SBA Term Loan (Live Oak Bank, 10%, 15-yr)", 2240000],
+    ["GP Equity (Keith Piper, 10% of price)", 280000],
     ["JP Equity (5% + 11% carry)", 100000],
-    ["Seller Note (6%, 5-yr amort)", 200000],
-    ["Total Sources", 3100000],
+    ["Seller Note (10% seller financing)", 280000],
+    ["Total Sources", 2900000],
     ["", ""],
+    // AUDIT-FOLLOWUP: waterfall % and returns below still reflect the prior
+    // $400K/79%-profit-share structure — needs a full model rebuild against
+    // the new $280K equity figure, not a find-and-replace. See ROADMAP.md.
     ["PROFIT DISTRIBUTION WATERFALL", ""],
     ["1. Return of invested capital", "$500K (GP $400K + JP $100K)"],
     ["2. Remaining profits split:", ""],
@@ -343,10 +346,10 @@ export async function GET() {
   su.addRow(["Source", "Amount", "% of Total", "Terms"]); sub(su, 2, 4);
 
   const sources: [string, number, number, string][] = [
-    ["LP Debt (Pete — Senior)", 2400000, 0.774, "10% IO (or 7% + 5% kicker)"],
-    ["GP Equity (Keith Piper)", 400000, 0.129, "79% profit share"],
-    ["JP Equity (5% + 11% Carry)", 100000, 0.032, "5% equity + 11% carried interest = 16% effective"],
-    ["Seller Note", 200000, 0.065, "6%, 5-yr amortization"],
+    ["SBA Term Loan (Live Oak Bank)", 2240000, 0.772, "10%, 15-yr term, acquisition financing"],
+    ["GP Equity (Keith Piper)", 280000, 0.097, "10% of purchase price"],
+    ["JP Equity (5% + 11% Carry)", 100000, 0.034, "5% equity + 11% carried interest = 16% effective"],
+    ["Seller Note", 280000, 0.097, "10% seller financing"],
   ];
   const sStart = su.rowCount + 1;
   sources.forEach(s => { const r = su.addRow(s); r.getCell(2).numFmt = CUR_D; r.getCell(3).numFmt = PCT; });
@@ -356,10 +359,10 @@ export async function GET() {
   su.addRow([]);
   su.addRow(["Use of Funds", "Amount", "", ""]); hdr(su, su.rowCount, 4);
   const uStart = su.rowCount + 1;
-  [["Business Acquisition", 2490000], ["Working Capital / Reserves", 400000], ["Fees & Closing", 160000], ["MIP Reserve", 50000]].forEach(u => {
+  [["Business Acquisition", 2800000], ["Working Capital / Reserves", 100000]].forEach(u => {
     su.addRow([u[0], u[1], "", ""]).getCell(2).numFmt = CUR_D;
   });
-  su.addRow(["Total Uses", { formula: `SUM(B${uStart}:B${uStart+3})` }, "", ""]);
+  su.addRow(["Total Uses", { formula: `SUM(B${uStart}:B${uStart+1})` }, "", ""]);
   tot(su, su.rowCount, 4); su.getCell(`B${su.rowCount}`).numFmt = CUR_D;
 
   su.addRow([]);
