@@ -18,7 +18,7 @@ const regions: Region[] = [
   { name: "Charleston, SC", coords: { cx: 385, cy: 310 }, status: "target", metrics: { builders: 45, population: "820K metro", constructionGrowth: "+11.3% YoY", medianHome: "$425K" }, description: "Highest growth market in SC. Premium tile demand from luxury coastal homes. High ASP opportunity." },
   { name: "Greenville, SC", coords: { cx: 230, cy: 195 }, status: "target", metrics: { builders: 28, population: "950K metro (Upstate)", constructionGrowth: "+7.6% YoY", medianHome: "$310K" }, description: "BMW/Michelin corridor driving commercial + residential growth. I-85 industrial corridor alignment." },
   { name: "Myrtle Beach, SC", coords: { cx: 430, cy: 250 }, status: "target", metrics: { builders: 22, population: "480K metro", constructionGrowth: "+12.8% YoY", medianHome: "$295K" }, description: "Fastest-growing metro. Hospitality renovation cycle + new residential. High seasonal demand." },
-  { name: "Charlotte, NC", coords: { cx: 255, cy: 155 }, status: "target", metrics: { builders: 60, population: "2.7M metro", constructionGrowth: "+10.2% YoY", medianHome: "$395K" }, description: "SPP headquarters market. Massive builder base. I-77 corridor. Future Phase 3+ expansion." },
+  { name: "Charlotte, NC", coords: { cx: 255, cy: 155 }, status: "target", metrics: { builders: 60, population: "2.7M metro", constructionGrowth: "+10.2% YoY", medianHome: "$395K" }, description: "SEP headquarters market. Massive builder base. I-77 corridor. Future Phase 3+ expansion." },
 ];
 
 const statusConfig = {
