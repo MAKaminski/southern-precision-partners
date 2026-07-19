@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { getCurrentQuarterLabel } from "@/lib/utils";
 
 const industries = [
   "Select an option",
@@ -96,7 +97,7 @@ export default function SubmitPage() {
 
       {/* Buy Box */}
       <div className="bg-accent-blue/5 border border-accent-blue/15 rounded-lg p-5 mb-8">
-        <h2 className="text-sm font-semibold text-accent-blue mb-3">Q1 2026 Current Buy Box</h2>
+        <h2 className="text-sm font-semibold text-accent-blue mb-3">{getCurrentQuarterLabel()} Current Buy Box</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <BuyBoxItem label="Business Type" value="Founder-Led with clear operational levers" />
           <BuyBoxItem label="Target Geography" value="NC, SC, VA, TN, GA" />

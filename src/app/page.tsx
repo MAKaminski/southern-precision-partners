@@ -1,4 +1,7 @@
+import { getCurrentQuarterLabel } from "@/lib/utils";
+
 export default function HomePage() {
+  const currentQuarter = getCurrentQuarterLabel();
   return (
     <div>
       {/* Hero */}
@@ -8,7 +11,7 @@ export default function HomePage() {
         <div className="relative max-w-5xl mx-auto px-4 py-24 sm:py-32 text-center">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full px-4 py-1.5 mb-6">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs text-white/70 font-medium">Actively Acquiring — Q1 2026</span>
+            <span className="text-xs text-white/70 font-medium">Actively Acquiring — {currentQuarter}</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-tight mb-4">
             Strategic Continuity for<br />
@@ -36,7 +39,7 @@ export default function HomePage() {
       <section className="max-w-5xl mx-auto px-4 py-16">
         <div className="text-center mb-10">
           <h2 className="text-2xl font-bold text-foreground">Current Buy Box</h2>
-          <p className="text-sm text-text-secondary mt-2">Our acquisition criteria as of Q1 2026</p>
+          <p className="text-sm text-text-secondary mt-2">Our acquisition criteria as of {currentQuarter}</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <BuyBoxCard icon="target" title="Business Type" value="Founder-Led" description="Clear operational levers for margin expansion and/or revenue growth" />
