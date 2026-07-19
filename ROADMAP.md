@@ -3,6 +3,60 @@
 Running log of platform/process enhancements. One entry is added roughly
 each review cycle; each entry links to the PR/commit that implemented it.
 
+## 2026-07-19 — Add first automated test suite (`src/lib/data.test.ts`)
+
+**Status: Done**
+
+Zero test coverage existed anywhere in the repo (no `test` script, no test
+framework, no `__tests__`/`*.test.ts` files). `scripts/audit-financials.ts`
+(added in an earlier cycle) was the only automated check on the financial
+model, and it wasn't wired into CI — see the still-open PR for that.
+Meanwhile this model has repeatedly shipped real arithmetic drift to the
+live deal page (Seller Note $200K vs $300K, a $23,200/yr tax/FCF mismatch),
+each caught by a human review pass rather than a check.
+
+Added `src/lib/data.test.ts` using Node's built-in test runner (`node:test`
+/ `node:assert/strict` — no new dependency, same "Node 22 built-in TS
+execution" pattern `audit-financials.ts` already established) and a
+`npm test` script. 14 tests, covering:
+
+- `capStack` tranches sum to `totalRaise`; each tranche's `pct` matches
+  `amount / totalRaise`
+- `usesOfFunds` sums to `totalRaise`
+- SBA Term Loan / Seller Note amounts match between `capStack` (numeric)
+  and `debtFacilities` (display strings like `"$2.24M"`) — this is the
+  exact class of bug the $200K/$300K Seller Note incident was
+- `ebitdaMargin` fields match `ebitda / revenue` for both pre- and
+  post-initiative financial-year tables
+- `ebitdaBridge` reconciles: baseline + pre-initiative levers → Yr1
+  pre-initiative EBITDA; full bridge total → Yr5 post-initiative EBITDA
+- `scenario1CashFlows` / `scenario2CashFlows` / `incomeStatementPreInitiative`
+  / `incomeStatementPostInitiative`: taxes ≈ 25% of pretax FCF,
+  distributable FCF = pretax − taxes, partner allocations sum correctly
+  (same checks as `audit-financials.ts`, now as real assertions instead of
+  a script that only runs when someone remembers to)
+- `sensitivityMoicMatrix` base cell is addressable and the matrix is
+  monotonically increasing across both axes (catches copy/paste errors in
+  the hand-entered table)
+
+Deliberately **not** covered: `investorReturns`, `scenarios`, and
+`fullScenarios` — these are the tables already flagged elsewhere in this
+file as not yet reconciled to the new SBA capital structure (still
+reflecting the prior $400K/79%-profit-share numbers). Writing tests against
+known-broken, already-tracked figures would just make CI red for a reason
+everyone already knows about; they're candidates for tests once that model
+rebuild happens.
+
+`src/lib/data.test.ts` is excluded from `tsc --noEmit`'s project in
+`tsconfig.json` (same reason `scripts/` already is: Node's native TS
+execution needs the `.ts` extension in import specifiers, which `tsc`
+rejects by default) — mirrors the existing precedent instead of a new one.
+
+**Follow-up (not in this change):** `npm test` isn't wired into
+`.github/workflows/ci.yml` yet. Left out of scope here to avoid touching
+the same file as the still-open "wire audit:financials into CI" PR — once
+either merges, the other's CI step should be added to the same workflow.
+
 ## 2026-07-19 — CRITICAL: production auth is completely broken (missing AUTH_SECRET)
 
 **Status: Diagnosed, NOT fixed — requires a human to set a Vercel env var**
