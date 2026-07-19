@@ -11,6 +11,7 @@ import { EBITDABridgeChart } from "@/components/EBITDABridgeChart";
 import { SensitivityHeatmap } from "@/components/SensitivityHeatmap";
 import { FullScenarioCards } from "@/components/FullScenarioCards";
 import { LenderComparisonTable } from "@/components/LenderComparisonTable";
+import { AcceptanceCostByChannel } from "@/components/AcceptanceCostByChannel";
 import {
   phases,
   usesOfFunds,
@@ -26,7 +27,7 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import { ClassificationBadge } from "@/components/ClassificationBadge";
 
-const tabs = ["Financials", "Deal Structure", "Initiatives", "Returns", "Lenders"] as const;
+const tabs = ["Financials", "Deal Structure", "Initiatives", "Acceptance Cost", "Returns", "Lenders"] as const;
 type Tab = (typeof tabs)[number];
 
 export default function DetailsPage() {
@@ -60,6 +61,7 @@ export default function DetailsPage() {
       {activeTab === "Financials" && <FinancialsTab />}
       {activeTab === "Deal Structure" && <DealStructureTab />}
       {activeTab === "Initiatives" && <InitiativesTab />}
+      {activeTab === "Acceptance Cost" && <AcceptanceCostByChannel />}
       {activeTab === "Returns" && <ReturnsTab />}
       {activeTab === "Lenders" && <LendersTab />}
     </div>
