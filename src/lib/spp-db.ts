@@ -17,9 +17,13 @@ let _client: SupabaseClient | null = null;
 
 export function getSppDb(): SupabaseClient | null {
   if (_client) return _client;
+  // Accept both our own var names and the ones the Vercel↔Supabase integration
+  // injects (unprefixed SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY).
   const url =
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "https://yscxrvuwwfpjuciuawcv.supabase.co";
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.SUPABASE_URL ||
+    "https://yscxrvuwwfpjuciuawcv.supabase.co";
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
   if (!key) return null;
   _client = createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },

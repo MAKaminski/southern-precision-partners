@@ -4,8 +4,15 @@ let _client: SupabaseClient | null = null;
 
 export function getSupabase(): SupabaseClient | null {
   if (_client) return _client;
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://yscxrvuwwfpjuciuawcv.supabase.co";
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Accept both our own var names and the ones the Vercel↔Supabase integration injects.
+  const url =
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.SUPABASE_URL ||
+    "https://yscxrvuwwfpjuciuawcv.supabase.co";
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_PUBLISHABLE_KEY;
   if (!key) return null;
   _client = createClient(url, key);
   return _client;
