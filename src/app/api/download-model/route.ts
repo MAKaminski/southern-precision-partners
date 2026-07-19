@@ -64,7 +64,7 @@ export async function GET() {
   es.getRow(1).height = 32;
 
   es.mergeCells("A2:F2");
-  es.getCell("A2").value = "Tile Center Group — Leveraged Buyout | Southeast Precision Partners | April 2026";
+  es.getCell("A2").value = "Tile Center Group — Leveraged Buyout | Southeast Precision Partners | Target Close: Q3 2026";
   es.getCell("A2").font = { size: 10, italic: true, color: { argb: "FF64748B" }, name: "Calibri" }; es.getCell("A2").alignment = { horizontal: "center" };
 
   // Left column: Deal overview

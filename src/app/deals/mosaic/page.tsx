@@ -18,7 +18,7 @@ export default function MosaicSummaryPage() {
         </Link>
         <h1 className="text-3xl font-bold text-foreground tracking-tight">Project Mosaic</h1>
         <p className="text-sm text-text-secondary">
-          Tile Center Group — Leveraged Buyout | April 2026 | Confidential
+          Tile Center Group — Leveraged Buyout | Target Close: Q3 2026 | Confidential
         </p>
         <div className="flex flex-wrap items-center justify-center gap-2">
           <ClassificationBadge level="confidential" />
