@@ -14,8 +14,20 @@
  * customers / customer_annual_sales / ar_transactions upsert on natural keys, so
  * re-running is safe and non-duplicating.
  */
+import { readFileSync } from "node:fs";
 import ExcelJS from "exceljs";
 import { createClient } from "@supabase/supabase-js";
+
+// In sandboxed environments Node's global fetch (undici) ignores HTTPS_PROXY and
+// hits the raw egress filter. Route it through the agent proxy so the Supabase
+// host (allowed via the proxy) is reachable. No-op when HTTPS_PROXY is unset.
+const proxyUri = process.env.HTTPS_PROXY || process.env.https_proxy;
+if (proxyUri) {
+  const { setGlobalDispatcher, ProxyAgent } = await import("undici");
+  const caPath = process.env.NODE_EXTRA_CA_CERTS;
+  const ca = caPath ? readFileSync(caPath) : undefined;
+  setGlobalDispatcher(new ProxyAgent({ uri: proxyUri, requestTls: ca ? { ca } : undefined }));
+}
 
 const XLSX_PATH =
   process.argv[2] ||
@@ -165,14 +177,21 @@ for (const [year, sheet] of Object.entries(AR)) {
       running_balance: bal, is_credit_memo: isCredit, line_key,
       raw: { row: r, sheet, values: row.values.map((x) => (x === undefined ? null : unwrap(x))) },
     });
-
-    let agg = arAgg.get(key);
-    if (!agg) { agg = { invSum: 0, paySum: 0, invCnt: 0, payCnt: 0, firstD: null, lastD: null }; arAgg.set(key, agg); }
-    if (invAmt !== null && !isCredit) { agg.invSum += invAmt; agg.invCnt += 1; }
-    if (payAmt !== null) { agg.paySum += payAmt; agg.payCnt += 1; }
-    const d = invDate || payDate;
-    if (d) { if (!agg.firstD || d < agg.firstD) agg.firstD = d; if (!agg.lastD || d > agg.lastD) agg.lastD = d; }
   });
+}
+
+// Dedup AR by line_key ONCE, then derive per-customer aggregates from the deduped
+// set so the customer rollups always match the ar_transactions ledger exactly.
+const arByLineKey = new Map();
+for (const t of arRows) if (!arByLineKey.has(t.line_key)) arByLineKey.set(t.line_key, t);
+const arDedup = [...arByLineKey.values()];
+for (const t of arDedup) {
+  let agg = arAgg.get(t._key);
+  if (!agg) { agg = { invSum: 0, paySum: 0, invCnt: 0, payCnt: 0, firstD: null, lastD: null }; arAgg.set(t._key, agg); }
+  if (t.invoice_amount !== null && !t.is_credit_memo) { agg.invSum += t.invoice_amount; agg.invCnt += 1; }
+  if (t.payment_amount !== null) { agg.paySum += t.payment_amount; agg.payCnt += 1; }
+  const d = t.invoice_date || t.payment_date;
+  if (d) { if (!agg.firstD || d < agg.firstD) agg.firstD = d; if (!agg.lastD || d > agg.lastD) agg.lastD = d; }
 }
 
 // Build customer upsert rows with derived lifetime metrics
@@ -226,20 +245,17 @@ for (const [key, byYear] of annualByKey.entries()) {
 console.log(`Annual sales rows: ${annualRows.length}`);
 await chunkInsert("customer_annual_sales", annualRows, { onConflict: "customer_id,year" });
 
-// AR
+// AR — insert the already-deduped set, resolving customer_id by name_key
 let arSkipNoCust = 0;
 const arFinal = [];
-const seenLineKey = new Set();
-for (const t of arRows) {
+for (const t of arDedup) {
   const cid = idByKey.get(t._key);
   if (!cid) { arSkipNoCust++; continue; }
-  if (seenLineKey.has(t.line_key)) continue; // in-file dupe guard
-  seenLineKey.add(t.line_key);
   const rest = { ...t };
   delete rest._key;
   arFinal.push({ ...rest, customer_id: cid });
 }
-console.log(`AR transactions: ${arFinal.length} (skipped ${arSkipNoCust} w/o customer, ${arRows.length - arFinal.length - arSkipNoCust} in-file dupes)`);
+console.log(`AR transactions: ${arFinal.length} (skipped ${arSkipNoCust} w/o customer, ${arRows.length - arDedup.length} in-file dupes)`);
 await chunkInsert("ar_transactions", arFinal, { onConflict: "line_key" });
 
 // ===== 2) delivery_tasks (seed-if-empty) =====
