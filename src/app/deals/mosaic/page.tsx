@@ -5,6 +5,7 @@ import { ReturnScenarioTable } from "@/components/ReturnScenarioTable";
 import { PhaseTimeline } from "@/components/PhaseTimeline";
 import { kpiStats, investorReturns, keyRisks, contactInfo, usesOfFunds } from "@/lib/data";
 import { formatCurrency } from "@/lib/utils";
+import { ClassificationBadge } from "@/components/ClassificationBadge";
 
 export default function MosaicSummaryPage() {
   return (
@@ -18,9 +19,12 @@ export default function MosaicSummaryPage() {
         <p className="text-sm text-text-secondary">
           Tile Center Group — Leveraged Buyout | April 2026 | Confidential
         </p>
-        <span className="inline-block bg-accent-amber/10 text-accent-amber text-xs font-medium px-3 py-1 rounded">
-          For discussion purposes only
-        </span>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <ClassificationBadge level="confidential" />
+          <span className="inline-block bg-accent-amber/10 text-accent-amber text-xs font-medium px-3 py-1 rounded">
+            For discussion purposes only
+          </span>
+        </div>
       </header>
 
       {/* Section 1: The Business */}

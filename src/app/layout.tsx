@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { SessionWrapper } from "@/components/SessionWrapper";
-import { AuthNav } from "@/components/AuthNav";
+import { MainNav } from "@/components/MainNav";
 import { ChatWidget } from "@/components/ChatWidget";
+import { PageClassificationFooter } from "@/components/PageClassificationFooter";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -36,21 +37,7 @@ export default function RootLayout({
                   Southeast Precision Partners
                 </span>
               </a>
-              <div className="flex items-center gap-3">
-                <a href="/" className="text-xs text-text-secondary hover:text-foreground transition-colors">Home</a>
-                <a href="/about" className="text-xs text-text-secondary hover:text-foreground transition-colors">About</a>
-                <span className="text-border-custom">|</span>
-                <a href="/deals/mosaic" className="text-xs text-text-secondary hover:text-foreground transition-colors">Project Mosaic</a>
-                <a href="/details" className="text-xs text-text-secondary hover:text-foreground transition-colors">Details</a>
-                <a href="/crm" className="text-xs text-text-secondary hover:text-foreground transition-colors">CRM</a>
-                <a href="/outreach" className="text-xs text-text-secondary hover:text-foreground transition-colors">Outreach</a>
-                <a href="/map" className="text-xs text-text-secondary hover:text-foreground transition-colors">Map</a>
-                <a href="/import" className="text-xs text-text-secondary hover:text-foreground transition-colors">Import</a>
-                <a href="/submit" className="text-xs text-text-secondary hover:text-foreground transition-colors">Submit</a>
-                <div className="border-l border-border-custom pl-3 ml-1">
-                  <AuthNav />
-                </div>
-              </div>
+              <MainNav />
             </div>
           </nav>
 
@@ -77,8 +64,11 @@ export default function RootLayout({
                   </p>
                 </div>
               </div>
-              <div className="border-t border-white/10 pt-4 text-[10px] text-center">
-                &copy; {new Date().getFullYear()} Southeast Precision Partners, LLC. All Rights Reserved. | Confidential
+              <div className="border-t border-white/10 pt-4 space-y-2">
+                <PageClassificationFooter />
+                <div className="text-[10px] text-center">
+                  &copy; {new Date().getFullYear()} Southeast Precision Partners, LLC. All Rights Reserved.
+                </div>
               </div>
             </div>
           </footer>

@@ -24,6 +24,7 @@ import {
   irrMatrix,
 } from "@/lib/data";
 import { formatCurrency } from "@/lib/utils";
+import { ClassificationBadge } from "@/components/ClassificationBadge";
 
 const tabs = ["Financials", "Deal Structure", "Initiatives", "Returns", "Lenders"] as const;
 type Tab = (typeof tabs)[number];
@@ -33,7 +34,10 @@ export default function DetailsPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-foreground mb-6">Project Mosaic — Deep Dive</h1>
+      <div className="flex items-center gap-3 mb-6">
+        <h1 className="text-2xl font-bold text-foreground">Project Mosaic — Deep Dive</h1>
+        <ClassificationBadge level="confidential" showAudience={false} />
+      </div>
 
       {/* Tab bar */}
       <div className="flex gap-1 border-b border-border-custom mb-8 overflow-x-auto">
