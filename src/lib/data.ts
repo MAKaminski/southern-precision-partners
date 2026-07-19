@@ -347,7 +347,7 @@ export interface DebtFacility {
 
 export const debtFacilities: DebtFacility[] = [
   { name: "LP Debt (Pete)", lender: "Senior LP", amount: "$2.4M", rate: "10%", structure: "5-yr bullet", maturity: "2031", recourse: "Non-recourse" },
-  { name: "Seller Note", lender: "Seller", amount: "$300K", rate: "6%", structure: "5-yr amort", maturity: "2031", recourse: "Non-recourse" },
+  { name: "Seller Note", lender: "Seller", amount: "$200K", rate: "6%", structure: "5-yr amort", maturity: "2031", recourse: "Non-recourse" },
   { name: "SCF Facility", lender: "TBD", amount: "$700K revolving", rate: "3.5%", structure: "Revolving", maturity: "Ongoing", recourse: "Non-recourse" },
   { name: "A/R Factoring", lender: "TBD", amount: "$400K revolving", rate: "3.0%", structure: "Revolving", maturity: "Ongoing", recourse: "Non-recourse" },
 ];
@@ -412,11 +412,6 @@ export interface FullScenario {
   jp: { proceeds: string; moic: string; irr: string };
 }
 
-// Exit waterfall: Post-debt equity → return capital ($400K GP + $100K JP) → split 75/20/5
-// Bear: $9M×0.5=$4.5M EV, −$2.6M debt=$1.9M equity. Cap return $500K. Remaining $1.4M → GP 75%=$1.05M+$400K=$1.45M, JP 20%=$280K+$100K=$380K
-// Base: $9M EV, −$2.4M debt=$6.6M. Cap $500K. Rem $6.1M → GP=$4.575M+$400K=$4.975M, JP=$1.22M+$100K=$1.32M
-// Bull: $9M×1.25=$11.25M, −$2.4M=$8.85M. Cap $500K. Rem $8.35M → GP=$6.263M+$400K=$6.663M, JP=$1.77M+$100K=$1.87M
-// Stretch: $9M×1.5=$13.5M, −$2.4M=$11.1M. Cap $500K. Rem $10.6M → GP=$7.95M+$400K=$8.35M, JP=$2.12M+$100K=$2.22M
 // Exit waterfall: Post-debt equity → return capital ($500K) → split 79/16/5 (GP/JP/LP)
 // GP MOIC is 16-22% higher than JP MOIC across all scenarios
 export const fullScenarios: FullScenario[] = [
