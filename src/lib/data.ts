@@ -307,8 +307,8 @@ export const incomeStatementPreInitiative: IncomeStatementLine[] = [
   { label: "LP Interest (10% IO)", values: [-240_000, -240_000, -240_000, -240_000, -240_000] },
   { label: "Seller Note (P&I)", values: [-46_400, -46_400, -46_400, -46_400, -46_400] },
   { label: "Capital Reserve", values: [-55_000, -57_750, -60_638, -63_669, -66_853] },
-  { label: "Est. Taxes (25%)", values: [-47_330, -64_403, -82_870, -102_970, -124_678] },
-  { label: "Distributable FCF", isHeader: true, values: [141_990, 193_207, 248_611, 308_909, 374_034] },
+  { label: "Est. Taxes (25%)", values: [-53_130, -70_203, -88_670, -108_770, -130_478] },
+  { label: "Distributable FCF", isHeader: true, values: [159_390, 210_607, 266_011, 326_309, 391_434] },
   { label: "→ GP (Keith Piper — 79%)", values: [132_294, 174_804, 220_789, 270_836, 324_890] },
   { label: "→ JP (5% eq + 11% carry — 16%)", values: [27_096, 35_803, 45_222, 55_473, 66_544] },
   { label: "→ LP (Senior Debt Yield)", values: [240_000, 240_000, 240_000, 240_000, 240_000] },
@@ -317,7 +317,11 @@ export const incomeStatementPreInitiative: IncomeStatementLine[] = [
 // Post-initiative cash flow (same debt service, higher EBITDA → higher FCF)
 // Post-init FCF = EBITDA - LP Interest - Seller Note - Reserve - Taxes(25%)
 // Yr1: 683100-240000-46400-55000-0.25*(683100-240000-46400-55000) = 683100-341400 - 0.25*341700 = 341700-85425 = 256275
-// Approximate post-initiative distributions (75/20/5 split on FCF)
+// GP/JP rows below are 79%/16% of distributable FCF (normalized split), which
+// leaves 5% unaccounted for — this table still uses the no-kicker 10% IO debt
+// terms (Scenario 1), which has no LP equity-kicker row to absorb that 5%.
+// AUDIT-FOLLOWUP: reconcile whether this table should add a "→ LP (5% equity
+// kicker)" row or use the 83/17 no-kicker split instead. Tracked on roadmap.
 export const incomeStatementPostInitiative: IncomeStatementLine[] = [
   { label: "Revenue", isHeader: true, values: [4_950_000, 5_690_000, 5_942_000, 6_036_600, 6_314_430] },
   { label: "EBITDA", isHeader: true, values: [683_100, 848_100, 848_100, 958_100, 958_100] },
