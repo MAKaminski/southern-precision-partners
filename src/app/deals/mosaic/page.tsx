@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { KPICard } from "@/components/KPICard";
 import { CapStackBar } from "@/components/CapStackBar";
 import { InvestorReturnCard } from "@/components/InvestorReturnCard";
@@ -11,9 +12,9 @@ export default function MosaicSummaryPage() {
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-10">
       {/* Hero */}
       <header className="text-center space-y-3">
-        <a href="/" className="text-[10px] text-accent-blue hover:underline uppercase tracking-wide">
+        <Link href="/" className="text-[10px] text-accent-blue hover:underline uppercase tracking-wide">
           &larr; Southeast Precision Partners
-        </a>
+        </Link>
         <h1 className="text-3xl font-bold text-foreground tracking-tight">Project Mosaic</h1>
         <p className="text-sm text-text-secondary">
           Tile Center Group — Leveraged Buyout | April 2026 | Confidential
