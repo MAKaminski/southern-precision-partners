@@ -1,0 +1,34 @@
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { getSppDb } from "@/lib/spp-db";
+
+/** PATCH { id, value } — update a single forecast_pnl cell (edit the model in place). */
+export async function PATCH(req: NextRequest) {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const db = getSppDb();
+  if (!db) return NextResponse.json({ error: "database not configured" }, { status: 503 });
+
+  let body: { id?: string; value?: number | null };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "invalid json" }, { status: 400 });
+  }
+  if (!body.id) return NextResponse.json({ error: "id required" }, { status: 400 });
+  const value =
+    body.value === null || body.value === undefined || Number.isNaN(Number(body.value))
+      ? null
+      : Number(body.value);
+
+  const { data, error } = await db
+    .from("forecast_pnl")
+    .update({ value })
+    .eq("id", body.id)
+    .select()
+    .maybeSingle();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!data) return NextResponse.json({ error: "not found" }, { status: 404 });
+  return NextResponse.json({ ok: true, row: data });
+}

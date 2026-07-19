@@ -41,6 +41,10 @@ export default function RootLayout({
                 <a href="/about" className="text-xs text-text-secondary hover:text-foreground transition-colors">About</a>
                 <span className="text-border-custom">|</span>
                 <a href="/deals/mosaic" className="text-xs text-text-secondary hover:text-foreground transition-colors">Project Mosaic</a>
+                <a href="/delivery" className="text-xs text-text-secondary hover:text-foreground transition-colors">Delivery Plan</a>
+                <a href="/forecast" className="text-xs text-text-secondary hover:text-foreground transition-colors">Forecast</a>
+                <a href="/customers" className="text-xs text-text-secondary hover:text-foreground transition-colors">Customers</a>
+                <span className="text-border-custom">|</span>
                 <a href="/details" className="text-xs text-text-secondary hover:text-foreground transition-colors">Details</a>
                 <a href="/crm" className="text-xs text-text-secondary hover:text-foreground transition-colors">CRM</a>
                 <a href="/outreach" className="text-xs text-text-secondary hover:text-foreground transition-colors">Outreach</a>
