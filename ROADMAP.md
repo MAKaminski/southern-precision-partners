@@ -3,6 +3,32 @@
 Running log of platform/process enhancements. One entry is added roughly
 each review cycle; each entry links to the PR/commit that implemented it.
 
+## 2026-07-19 — Delivery Plan: full inline editing + filters
+
+**Status: Done**
+
+Every column in the Delivery Plan table (`/delivery`) is now click-to-edit
+and persists to `delivery_tasks` via `PATCH /api/delivery/[id]` — previously
+only Status was editable. Added `EditableCell` (generic inline text/number/
+date editor with optimistic update + revert-on-failure, same pattern as the
+existing `DeliveryStatusSelect`) and `DeliveryPlanTable` (client component
+handling filtering + rendering). Added filters for Year, Owner, System,
+Status, and Start-date range.
+
+Also fixed a bug found along the way: `/api/delivery` and `/api/forecast`
+were still guarding at `"confidential"` clearance after the page-level tier
+was changed to `"internal"` (partner-only) — meant an authenticated investor
+could still write to those endpoints even though they can't view the pages.
+Both now guard at `"internal"` to match.
+
+**Backlog — not yet started:** Customer Forecast tab. The 2026 column on
+`/customers` is YTD only, not a full-year figure — customer sales need a
+month-by-month full-year estimate to make the numbers comparable across
+years and to unify existing + new customer sales forecasting. Will need
+more info per customer (typical tile purchase volume, our penetration %)
+to build real numbers, not just a UI. Explicitly deferred per 2026-07-19
+product direction — do not build until asked.
+
 ## 2026-07-19 — Fix incorrect tax/FCF figures in Pre-Initiative income statement + add financial audit script
 
 **Status: Done**
