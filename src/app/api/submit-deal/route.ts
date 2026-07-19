@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "Thank you for your submission. Our team will review and respond within 48 hours.",
-      reference: `SPP-${Date.now().toString(36).toUpperCase()}`,
+      reference: `SEP-${Date.now().toString(36).toUpperCase()}`,
     });
   } catch {
     return NextResponse.json({ success: false, message: "Submission failed. Please try again." }, { status: 400 });

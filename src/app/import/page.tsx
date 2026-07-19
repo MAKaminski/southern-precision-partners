@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ClassificationBadge } from "@/components/ClassificationBadge";
 
 interface ImportResult {
   success: boolean;
@@ -77,6 +78,9 @@ export default function ImportPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="mb-3">
+        <ClassificationBadge level="internal" />
+      </div>
       <h1 className="text-2xl font-bold text-foreground mb-1">Import Contacts</h1>
       <p className="text-sm text-text-secondary mb-6">
         Upload a CSV of real business contacts to add to the outreach system. The importer auto-detects

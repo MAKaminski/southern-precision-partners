@@ -289,7 +289,7 @@ We'd welcome the opportunity to discuss how we can support your upcoming project
 
 Best regards,
 Keith Piper | Managing Partner
-Southern Precision Partners
+Southeast Precision Partners
 deals@sep-partners.com`,
   },
   "volume-builder": {
@@ -309,7 +309,7 @@ We work with several builders in your area and understand the timeline pressures
 
 Best regards,
 Keith Piper | Managing Partner
-Southern Precision Partners
+Southeast Precision Partners
 deals@sep-partners.com`,
   },
   "showroom-partner": {
@@ -328,7 +328,7 @@ Would you be open to a visit to discuss how we might work together?
 
 Best regards,
 Keith Piper | Managing Partner
-Southern Precision Partners
+Southeast Precision Partners
 deals@sep-partners.com`,
   },
   "contractor-intro": {
@@ -347,7 +347,7 @@ We'd love to earn your business. Can we set up a quick call?
 
 Best regards,
 Keith Piper | Managing Partner
-Southern Precision Partners
+Southeast Precision Partners
 deals@sep-partners.com`,
   },
   "government-rfp": {
@@ -367,7 +367,7 @@ Please advise on your vendor registration process and any upcoming RFPs for floo
 
 Respectfully,
 Keith Piper | Managing Partner
-Southern Precision Partners
+Southeast Precision Partners
 deals@sep-partners.com`,
   },
   "hospitality-reno": {
@@ -386,7 +386,7 @@ Are you planning any renovations in the next 12 months? We'd welcome the opportu
 
 Best regards,
 Keith Piper | Managing Partner
-Southern Precision Partners
+Southeast Precision Partners
 deals@sep-partners.com`,
   },
   "institutional-intro": {
@@ -405,7 +405,7 @@ We would appreciate the opportunity to discuss your flooring needs. May we sched
 
 Best regards,
 Keith Piper | Managing Partner
-Southern Precision Partners
+Southeast Precision Partners
 deals@sep-partners.com`,
   },
 };

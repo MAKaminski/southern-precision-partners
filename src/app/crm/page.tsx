@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { initiativeGroups } from "@/lib/crm-grouped";
+import { ClassificationBadge } from "@/components/ClassificationBadge";
 
 const phaseColors: Record<number, string> = {
   1: "bg-accent-blue/10 text-accent-blue border-accent-blue/20",
@@ -23,6 +24,9 @@ export default function CRMPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="mb-3">
+        <ClassificationBadge level="internal" />
+      </div>
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-bold text-foreground">Initiative CRM</h1>
         <div className="flex gap-2 text-xs">
@@ -88,7 +92,7 @@ export default function CRMPage() {
                         {contact.notes && <p className="text-[11px] text-text-secondary mt-1 italic">{contact.notes}</p>}
                       </div>
                       <a
-                        href={`mailto:${contact.email}?subject=${encodeURIComponent(`Project Mosaic — ${group.initiative} Inquiry`)}&body=${encodeURIComponent(`Dear ${contact.name},\n\nI'm reaching out regarding ${group.initiative.toLowerCase()} for a tile distribution business we are acquiring in Georgia.\n\nWe are specifically interested in your capabilities related to: ${group.description}\n\nDeal size: $3.1M LBO | Annual revenue: $4.8M+ | 5% organic growth\n\nWould you be available for a brief call to discuss?\n\nBest regards,\nKeith Piper\nManaging Partner, Southern Precision Partners\ndeals@sep-partners.com\n(704) 920-8593`)}`}
+                        href={`mailto:${contact.email}?subject=${encodeURIComponent(`Project Mosaic — ${group.initiative} Inquiry`)}&body=${encodeURIComponent(`Dear ${contact.name},\n\nI'm reaching out regarding ${group.initiative.toLowerCase()} for a tile distribution business we are acquiring in Georgia.\n\nWe are specifically interested in your capabilities related to: ${group.description}\n\nDeal size: $3.1M LBO | Annual revenue: $4.8M+ | 5% organic growth\n\nWould you be available for a brief call to discuss?\n\nBest regards,\nKeith Piper\nManaging Partner, Southeast Precision Partners\ndeals@sep-partners.com\n(704) 920-8593`)}`}
                         className="shrink-0 bg-accent-blue text-white text-xs font-medium px-3 py-1.5 rounded hover:bg-accent-blue/90 transition-colors"
                       >
                         Reach Out

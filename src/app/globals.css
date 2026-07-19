@@ -10,6 +10,7 @@
   --accent-green: #059669;
   --accent-amber: #D97706;
   --accent-purple: #7C3AED;
+  --accent-red: #DC2626;
 }
 
 @theme inline {
@@ -22,6 +23,7 @@
   --color-accent-green: var(--accent-green);
   --color-accent-amber: var(--accent-amber);
   --color-accent-purple: var(--accent-purple);
+  --color-accent-red: var(--accent-red);
 }
 
 body {

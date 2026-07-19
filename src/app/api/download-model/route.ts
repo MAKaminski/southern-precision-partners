@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import ExcelJS from "exceljs";
+import { requireClearance } from "@/lib/guard";
 
 const YEARS = ["Yr 1", "Yr 2", "Yr 3", "Yr 4", "Yr 5"];
 const SALES = [4800000, 5040000, 5292000, 5556600, 5834430];
@@ -43,8 +44,12 @@ function bdr(ws: ExcelJS.Worksheet, r1: number, r2: number, c1: number, c2: numb
 function col(c: number) { return String.fromCharCode(64 + c); }
 
 export async function GET() {
+  // Confidential deal model — authorized investors & partners only.
+  const guard = await requireClearance("confidential");
+  if (!guard.ok) return guard.response;
+
   const wb = new ExcelJS.Workbook();
-  wb.creator = "Southern Precision Partners";
+  wb.creator = "Southeast Precision Partners";
   wb.created = new Date();
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -59,7 +64,7 @@ export async function GET() {
   es.getRow(1).height = 32;
 
   es.mergeCells("A2:F2");
-  es.getCell("A2").value = "Tile Center Group — Leveraged Buyout | Southern Precision Partners | April 2026";
+  es.getCell("A2").value = "Tile Center Group — Leveraged Buyout | Southeast Precision Partners | April 2026";
   es.getCell("A2").font = { size: 10, italic: true, color: { argb: "FF64748B" }, name: "Calibri" }; es.getCell("A2").alignment = { horizontal: "center" };
 
   // Left column: Deal overview

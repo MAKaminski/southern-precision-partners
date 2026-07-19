@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { KPICard } from "@/components/KPICard";
 import { CapStackBar } from "@/components/CapStackBar";
 import { InvestorReturnCard } from "@/components/InvestorReturnCard";
@@ -5,22 +6,26 @@ import { ReturnScenarioTable } from "@/components/ReturnScenarioTable";
 import { PhaseTimeline } from "@/components/PhaseTimeline";
 import { kpiStats, investorReturns, keyRisks, contactInfo, usesOfFunds } from "@/lib/data";
 import { formatCurrency } from "@/lib/utils";
+import { ClassificationBadge } from "@/components/ClassificationBadge";
 
 export default function MosaicSummaryPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-10">
       {/* Hero */}
       <header className="text-center space-y-3">
-        <a href="/" className="text-[10px] text-accent-blue hover:underline uppercase tracking-wide">
+        <Link href="/" className="text-[10px] text-accent-blue hover:underline uppercase tracking-wide">
           &larr; Southeast Precision Partners
-        </a>
+        </Link>
         <h1 className="text-3xl font-bold text-foreground tracking-tight">Project Mosaic</h1>
         <p className="text-sm text-text-secondary">
           Tile Center Group — Leveraged Buyout | April 2026 | Confidential
         </p>
-        <span className="inline-block bg-accent-amber/10 text-accent-amber text-xs font-medium px-3 py-1 rounded">
-          For discussion purposes only
-        </span>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <ClassificationBadge level="confidential" />
+          <span className="inline-block bg-accent-amber/10 text-accent-amber text-xs font-medium px-3 py-1 rounded">
+            For discussion purposes only
+          </span>
+        </div>
       </header>
 
       {/* Section 1: The Business */}

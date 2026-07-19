@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 interface Message {
   role: "user" | "assistant";
@@ -8,12 +9,15 @@ interface Message {
 }
 
 export function ChatWidget() {
+  const { data: session } = useSession();
+  const authorized = Boolean((session as { user?: unknown } | null)?.user);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content:
-        "Hi, I'm the SEP Deal Assistant. Ask me anything about Project Mosaic — deal structure, returns, initiatives, financials, risks, or Southeast Precision Partners.",
+      content: authorized
+        ? "Hi, I'm the SEP Deal Assistant. Ask me anything about Project Mosaic — deal structure, returns, initiatives, financials, risks, or Southeast Precision Partners."
+        : "Hi, I'm the SEP Assistant. I can answer general questions about Southeast Precision Partners and how to work with us. Confidential deal financials require an authorized investor sign-in.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -78,8 +82,19 @@ export function ChatWidget() {
           {/* Header */}
           <div className="bg-accent-blue px-4 py-3 flex items-center gap-2">
             <div className="w-2 h-2 bg-white/80 rounded-full animate-pulse" />
-            <span className="text-white text-sm font-semibold">SEP Deal Assistant</span>
-            <span className="text-white/60 text-xs ml-auto">Always On</span>
+            <span className="text-white text-sm font-semibold">
+              {authorized ? "SEP Deal Assistant" : "SEP Assistant"}
+            </span>
+            <span
+              className="text-[9px] font-semibold uppercase tracking-wide ml-auto px-1.5 py-0.5 rounded bg-white/15 text-white/90"
+              title={
+                authorized
+                  ? "You are signed in — confidential deal details are available."
+                  : "Public mode — general information only. Sign in for confidential deal details."
+              }
+            >
+              {authorized ? "Confidential" : "Public"}
+            </span>
           </div>
 
           {/* Messages */}

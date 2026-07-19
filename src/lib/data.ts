@@ -503,12 +503,104 @@ export const floatSteps: FloatStep[] = [
   { day: "Day 90", description: "Mosaic repays intermediary $49K + ~$500 fee" },
 ];
 
+// ─── Cost of Acceptance by Channel ───────────────────────────────────────────
+// Proxy model for merchant payment-acceptance cost at Tile Center Group.
+// A ~$5M B2B tile/stone distributor collects across cash, check/ACH, and cards.
+// Cards carry an "effective rate" = interchange + assessments + processor markup;
+// cash/check/ACH carry a small handling/deposit/float proxy. All defaults are
+// planning estimates to be refreshed with the target's actual processor statements.
+export interface AcceptanceChannel {
+  channel: string;
+  category: "Cash & Bank" | "Debit" | "Credit";
+  mixPct: number; // share of total collected $ that arrives via this channel
+  feeRate: number; // effective cost of acceptance, % of $ processed
+  color: string;
+  note: string;
+}
+
+// Default annual collected volume ≈ LTM revenue.
+export const acceptanceRevenueDefault = 4_950_000;
+
+export const acceptanceChannels: AcceptanceChannel[] = [
+  { channel: "Cash", category: "Cash & Bank", mixPct: 8, feeRate: 0.20, color: "#059669", note: "Deposit handling, shrink & armored-car proxy" },
+  { channel: "Check", category: "Cash & Bank", mixPct: 22, feeRate: 0.10, color: "#10B981", note: "Remote deposit + occasional NSF/bad-debt proxy" },
+  { channel: "ACH / Wire", category: "Cash & Bank", mixPct: 15, feeRate: 0.15, color: "#34D399", note: "Flat per-item fee amortized over B2B ticket size" },
+  { channel: "Debit", category: "Debit", mixPct: 5, feeRate: 0.80, color: "#0EA5E9", note: "Regulated + unregulated blend, PIN/signature" },
+  { channel: "Visa Credit", category: "Credit", mixPct: 22, feeRate: 2.30, color: "#2563EB", note: "Interchange + assessments + markup; commercial-heavy" },
+  { channel: "Mastercard Credit", category: "Credit", mixPct: 15, feeRate: 2.35, color: "#7C3AED", note: "Interchange + assessments + markup; commercial-heavy" },
+  { channel: "Amex", category: "Credit", mixPct: 8, feeRate: 3.30, color: "#D97706", note: "OptBlue / direct; highest discount rate" },
+  { channel: "Discover", category: "Credit", mixPct: 5, feeRate: 2.40, color: "#DC2626", note: "Interchange + assessments + markup" },
+];
+
+// Cost-out levers. Each applies a % reduction to the acceptance cost of the
+// channels it targets. Enabled levers stack multiplicatively on a channel's
+// remaining cost so combined reductions never exceed 100%. Operational levers
+// default ON; strategic pricing levers (ACH steering, surcharging) default OFF
+// and are surfaced as incremental upside.
+export interface CostOutLever {
+  id: string;
+  name: string;
+  description: string;
+  targetChannels: string[];
+  reductionPct: number;
+  enabledByDefault: boolean;
+  strategic?: boolean;
+}
+
+export const acceptanceCostOutLevers: CostOutLever[] = [
+  {
+    id: "interchange-plus",
+    name: "Interchange-plus repricing",
+    description: "Move off bundled/tiered pricing to interchange-plus and compete the processor markup down.",
+    targetChannels: ["Debit", "Visa Credit", "Mastercard Credit", "Amex", "Discover"],
+    reductionPct: 12,
+    enabledByDefault: true,
+  },
+  {
+    id: "level-2-3",
+    name: "Level 2 / Level 3 B2B data",
+    description: "Pass tax, invoice & line-item data on commercial cards to qualify for lower B2B interchange.",
+    targetChannels: ["Visa Credit", "Mastercard Credit"],
+    reductionPct: 18,
+    enabledByDefault: true,
+  },
+  {
+    id: "amex-optblue",
+    name: "Amex OptBlue / steering",
+    description: "Reprice Amex under OptBlue and steer large Amex spenders toward lower-cost tender.",
+    targetChannels: ["Amex"],
+    reductionPct: 25,
+    enabledByDefault: true,
+  },
+  {
+    id: "ach-steering",
+    name: "ACH steering for house accounts",
+    description: "Migrate a portion of large recurring card volume to ACH via terms & incentives.",
+    targetChannels: ["Visa Credit", "Mastercard Credit", "Amex", "Discover"],
+    reductionPct: 20,
+    enabledByDefault: false,
+    strategic: true,
+  },
+  {
+    id: "surcharge",
+    name: "Surcharge / cash-discount program",
+    description: "Compliantly pass credit-card fees to the buyer (GA permits up to 3%). Debit is exempt.",
+    targetChannels: ["Visa Credit", "Mastercard Credit", "Discover"],
+    reductionPct: 85,
+    enabledByDefault: false,
+    strategic: true,
+  },
+];
+
+// EBITDA baseline that acceptance savings drop straight through to.
+export const acceptanceBaseEbitda = 553_920;
+
 // ─── SEP Partners Contact Info ───────────────────────────────────────────────
 export const contactInfo = {
   name: "Keith Piper",
   title: "Managing Partner",
-  company: "Southern Precision Partners",
-  companyShort: "SPP",
+  company: "Southeast Precision Partners",
+  companyShort: "SEP",
   email: "deals@sep-partners.com",
   phone: "(404) 555-0120",
   website: "www.sep-partners.com",

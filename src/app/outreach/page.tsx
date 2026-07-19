@@ -5,6 +5,7 @@ import { expandedCampaigns, enrichTarget } from "@/lib/outreach-expanded";
 import { generatedCampaigns } from "@/lib/outreach-generator";
 import { emailTemplates } from "@/lib/crm-data";
 import type { OutreachTarget } from "@/lib/outreach-expanded";
+import { ClassificationBadge } from "@/components/ClassificationBadge";
 
 const statusColors: Record<string, string> = {
   ready: "bg-accent-blue/10 text-accent-blue",
@@ -58,6 +59,9 @@ export default function OutreachPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="mb-3">
+        <ClassificationBadge level="internal" />
+      </div>
       <div className="flex items-center justify-between mb-1">
         <h1 className="text-2xl font-bold text-foreground">Growth Outreach — SC Expansion</h1>
         <span className="text-xs text-text-secondary bg-surface border border-border-custom px-2 py-1 rounded">
