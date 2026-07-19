@@ -347,7 +347,7 @@ export interface DebtFacility {
 
 export const debtFacilities: DebtFacility[] = [
   { name: "LP Debt (Pete)", lender: "Senior LP", amount: "$2.4M", rate: "10%", structure: "5-yr bullet", maturity: "2031", recourse: "Non-recourse" },
-  { name: "Seller Note", lender: "Seller", amount: "$300K", rate: "6%", structure: "5-yr amort", maturity: "2031", recourse: "Non-recourse" },
+  { name: "Seller Note", lender: "Seller", amount: "$200K", rate: "6%", structure: "5-yr amort", maturity: "2031", recourse: "Non-recourse" },
   { name: "SCF Facility", lender: "TBD", amount: "$700K revolving", rate: "3.5%", structure: "Revolving", maturity: "Ongoing", recourse: "Non-recourse" },
   { name: "A/R Factoring", lender: "TBD", amount: "$400K revolving", rate: "3.0%", structure: "Revolving", maturity: "Ongoing", recourse: "Non-recourse" },
 ];
