@@ -503,8 +503,8 @@ export const floatSteps: FloatStep[] = [
 export const contactInfo = {
   name: "Keith Piper",
   title: "Managing Partner",
-  company: "Southern Precision Partners",
-  companyShort: "SPP",
+  company: "Southeast Precision Partners",
+  companyShort: "SEP",
   email: "deals@sep-partners.com",
   phone: "(404) 555-0120",
   website: "www.sep-partners.com",

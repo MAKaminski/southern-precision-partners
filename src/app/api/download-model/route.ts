@@ -44,7 +44,7 @@ function col(c: number) { return String.fromCharCode(64 + c); }
 
 export async function GET() {
   const wb = new ExcelJS.Workbook();
-  wb.creator = "Southern Precision Partners";
+  wb.creator = "Southeast Precision Partners";
   wb.created = new Date();
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -59,7 +59,7 @@ export async function GET() {
   es.getRow(1).height = 32;
 
   es.mergeCells("A2:F2");
-  es.getCell("A2").value = "Tile Center Group — Leveraged Buyout | Southern Precision Partners | April 2026";
+  es.getCell("A2").value = "Tile Center Group — Leveraged Buyout | Southeast Precision Partners | April 2026";
   es.getCell("A2").font = { size: 10, italic: true, color: { argb: "FF64748B" }, name: "Calibri" }; es.getCell("A2").alignment = { horizontal: "center" };
 
   // Left column: Deal overview
