@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { initiativeGroups } from "@/lib/crm-grouped";
+import { ClassificationBadge } from "@/components/ClassificationBadge";
 
 const phaseColors: Record<number, string> = {
   1: "bg-accent-blue/10 text-accent-blue border-accent-blue/20",
@@ -23,6 +24,9 @@ export default function CRMPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="mb-3">
+        <ClassificationBadge level="internal" />
+      </div>
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-bold text-foreground">Initiative CRM</h1>
         <div className="flex gap-2 text-xs">

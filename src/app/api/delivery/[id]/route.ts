@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { getSppDb } from "@/lib/spp-db";
+import { requireClearance } from "@/lib/guard";
 
 const ALLOWED_STATUS = ["not_started", "in_progress", "blocked", "done"];
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  // Delivery plan / execution data — authorized investors & partners.
+  const guard = await requireClearance("confidential");
+  if (!guard.ok) return guard.response;
 
   const { id } = await ctx.params;
   const db = getSppDb();

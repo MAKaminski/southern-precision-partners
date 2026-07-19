@@ -1,5 +1,6 @@
 import { getDeliveryTasks, sppDbConfigured, type DeliveryTask } from "@/lib/spp-queries";
 import { DeliveryStatusSelect } from "@/components/spp/DeliveryStatusSelect";
+import { ClassificationBadge } from "@/components/ClassificationBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -57,7 +58,10 @@ export default async function DeliveryPlanPage() {
         </a>
         <div className="flex items-end justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">Delivery Plan</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">Delivery Plan</h1>
+              <ClassificationBadge level="confidential" showAudience={false} />
+            </div>
             <p className="text-sm text-text-secondary">
               The real execution roadmap — 40 initiatives across a 5-year hold. Update status inline as work progresses.
             </p>

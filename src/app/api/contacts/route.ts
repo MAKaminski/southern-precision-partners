@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
+import { requireClearance } from "@/lib/guard";
 
 // GET /api/contacts?region=columbia&intent=4&type=builder&limit=50&offset=0
 export async function GET(req: NextRequest) {
+  // Internal contact PII — SEP partners only.
+  const guard = await requireClearance("internal");
+  if (!guard.ok) return guard.response;
+
   const { searchParams } = req.nextUrl;
   const region = searchParams.get("region");
   const minIntent = parseInt(searchParams.get("intent") || "1");
@@ -51,6 +56,9 @@ export async function GET(req: NextRequest) {
 
 // POST /api/contacts — bulk insert contacts
 export async function POST(req: NextRequest) {
+  const guard = await requireClearance("internal");
+  if (!guard.ok) return guard.response;
+
   try {
     const body = await req.json();
     const contacts = Array.isArray(body) ? body : body.contacts || [body];
@@ -101,6 +109,9 @@ export async function POST(req: NextRequest) {
 
 // PATCH /api/contacts — update contact status
 export async function PATCH(req: NextRequest) {
+  const guard = await requireClearance("internal");
+  if (!guard.ok) return guard.response;
+
   const { id, ...updates } = await req.json();
   if (!id) return NextResponse.json({ success: false, error: "Missing id" }, { status: 400 });
 

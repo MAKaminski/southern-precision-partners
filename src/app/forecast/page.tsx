@@ -1,5 +1,6 @@
 import { getForecast, sppDbConfigured } from "@/lib/spp-queries";
 import { ForecastWorkspace } from "@/components/spp/ForecastWorkspace";
+import { ClassificationBadge } from "@/components/ClassificationBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,10 @@ export default async function ForecastPage() {
         <a href="/deals/mosaic" className="text-[10px] text-accent-blue hover:underline uppercase tracking-wide">
           &larr; Project Mosaic
         </a>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">Forecast</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Forecast</h1>
+          <ClassificationBadge level="confidential" showAudience={false} />
+        </div>
         <p className="text-sm text-text-secondary">
           The operating model — Forecast vs Plan across 2022–2031. This is the live source of truth;
           edit any figure in the P&amp;L grid and it persists.

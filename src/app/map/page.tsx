@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ClassificationBadge } from "@/components/ClassificationBadge";
 
 interface Region {
   name: string;
@@ -32,6 +33,9 @@ export default function MapPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="mb-3">
+        <ClassificationBadge level="internal" />
+      </div>
       <h1 className="text-2xl font-bold text-foreground mb-1">Market Map — South Carolina Expansion</h1>
       <p className="text-sm text-text-secondary mb-6">
         Current service area and high-potential growth markets for Tile Center Group.

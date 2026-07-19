@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { getSppDb } from "@/lib/spp-db";
+import { requireClearance } from "@/lib/guard";
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  // Customer records incl. PII — SEP partners only.
+  const guard = await requireClearance("internal");
+  if (!guard.ok) return guard.response;
 
   const { id } = await ctx.params;
   const db = getSppDb();

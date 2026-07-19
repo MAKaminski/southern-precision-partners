@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import ExcelJS from "exceljs";
+import { requireClearance } from "@/lib/guard";
 
 const YEARS = ["Yr 1", "Yr 2", "Yr 3", "Yr 4", "Yr 5"];
 const SALES = [4800000, 5040000, 5292000, 5556600, 5834430];
@@ -43,6 +44,10 @@ function bdr(ws: ExcelJS.Worksheet, r1: number, r2: number, c1: number, c2: numb
 function col(c: number) { return String.fromCharCode(64 + c); }
 
 export async function GET() {
+  // Confidential deal model — authorized investors & partners only.
+  const guard = await requireClearance("confidential");
+  if (!guard.ok) return guard.response;
+
   const wb = new ExcelJS.Workbook();
   wb.creator = "Southeast Precision Partners";
   wb.created = new Date();

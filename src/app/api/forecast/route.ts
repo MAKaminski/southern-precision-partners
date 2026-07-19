@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { getSppDb } from "@/lib/spp-db";
+import { requireClearance } from "@/lib/guard";
 
 /** PATCH { id, value } — update a single forecast_pnl cell (edit the model in place). */
 export async function PATCH(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  // Forecast P&L model — authorized investors & partners.
+  const guard = await requireClearance("confidential");
+  if (!guard.ok) return guard.response;
 
   const db = getSppDb();
   if (!db) return NextResponse.json({ error: "database not configured" }, { status: 503 });

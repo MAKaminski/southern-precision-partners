@@ -1,5 +1,6 @@
 import { getCustomers, sppDbConfigured } from "@/lib/spp-queries";
 import { CustomersTable, type CustomerRow } from "@/components/spp/CustomersTable";
+import { ClassificationBadge } from "@/components/ClassificationBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,10 @@ export default async function CustomersPage() {
         <a href="/deals/mosaic" className="text-[10px] text-accent-blue hover:underline uppercase tracking-wide">
           &larr; Project Mosaic
         </a>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">Customer CRM</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Customer CRM</h1>
+          <ClassificationBadge level="internal" showAudience={false} />
+        </div>
         <p className="text-sm text-text-secondary">
           The acquired book of business — every customer with annual sales, lifetime value, and open A/R.
           Sourced from the operating company&apos;s records; click any row for the full ledger.
