@@ -3,6 +3,55 @@
 Running log of platform/process enhancements. One entry is added roughly
 each review cycle; each entry links to the PR/commit that implemented it.
 
+## 2026-07-20 — Wire `audit:financials` into CI; bump CI to Node 22; process check-in
+
+**Status: Done**
+
+`scripts/audit-financials.ts` (added 2026-07-19) has already caught two real
+investor-facing bugs this week (Seller Note $200K/$300K mismatch, a
+$23,200/yr tax/FCF error) — but `.github/workflows/ci.yml` never ran it, only
+lint/typecheck/build. Added it as a CI step after `build`, and bumped
+`actions/setup-node` from Node 20 → 22, since the script imports
+`src/lib/data.ts` with a `.ts` extension using Node 22's built-in TypeScript
+execution (fails on Node 20).
+
+**Process check-in this cycle (no code change, just current state for the
+next review):**
+
+- `AUTH_SECRET` is confirmed **still unset** — `main`'s `src/app/api/`
+  currently has no `/api/health` endpoint (that lives only in unmerged PR
+  #23), so this can't yet be checked with a single curl; it was previously
+  confirmed broken via Vercel's runtime-error API and no fix has landed.
+  This remains the single highest-priority open item (Linear MOD-21,
+  Urgent) — it needs a human with Vercel dashboard access.
+- The repo currently has **11 open draft PRs** (#4, #6, #13, #18, #19, #20,
+  #21, #23, #24, #25, #26), all opened against an older `main` commit
+  (`deea8dd`) that is now 5 commits behind current `main` (`2b6202f`).
+  Cross-checking their premises against current `main` found several are
+  now **stale/already resolved**, not just unreviewed:
+  - #6 / #20 (Seller Note $300K→$200K): moot — `main` already carries the
+    Seller Note at a consistent $280K (SBA-restructure PR #17).
+  - #20's `verify-financials` script: redundant — `scripts/audit-financials.ts`
+    already merged via PR #15.
+  - #21 (auth on `/api/contacts`, `/api/download-model`,
+    `/api/import-contacts`): redundant — `main`'s `src/lib/guard.ts` +
+    `requireClearance("internal")` (merged via PR #5) already gates
+    `/api/contacts` and `/api/download-model` at the handler level.
+  - #19 (verify `proxy.ts` is correct): moot — `main` has run with
+    `src/proxy.ts` for a while now with no reported regression.
+  - #13 (chatbot model un-pin) and #18 (stale "Q1 2026" label) are each
+    still genuinely unfixed on `main` — confirmed via direct grep, not
+    superseded by anything else.
+  - #24 (this CI wiring), #25 (persist deal submissions to Supabase — still
+    just `console.log`s on `main`), and #26 (test suite) are still genuinely
+    open and unaddressed; #24 is now implemented by this entry directly on
+    latest `main` instead of rebasing the stale PR.
+
+  **Recommendation:** a human merge/triage pass on the PR queue is overdue —
+  several of these can be closed as superseded without needing careful
+  reconciliation, which should make the remaining review lighter than the
+  raw count of 11 suggests.
+
 ## 2026-07-19 — CRITICAL: production auth is completely broken (missing AUTH_SECRET)
 
 **Status: Diagnosed, NOT fixed — requires a human to set a Vercel env var**
