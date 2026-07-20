@@ -265,3 +265,26 @@ doesn't have; MOD-11 (Southeast vs Southern brand inconsistency) was
 considered but deferred — it needs a human product decision (email/domain
 identity is genuinely ambiguous across `sep-partners.com` vs the
 `southern-precision-partners` repo/deploy domain, not a mechanical fix).
+## 2026-07-19 — `/api/health` status endpoint (AUTH_SECRET still missing, confirmed live)
+
+**Status: Done (endpoint); underlying config issue still NOT fixed**
+
+Re-checked the `MissingSecret` error below via Vercel's runtime-error API before
+starting this cycle: it's still firing — last occurrence 2026-07-19T16:57:09Z,
+~4 hours before this entry, 2,078 occurrences / 32 users total. `AUTH_SECRET`
+has still not been set in Vercel. Since the fix requires writing a Vercel
+project env var (outside what an agent can do), this cycle shipped the next
+best thing: `GET /api/health` (public, `src/app/api/health/route.ts`) reports
+`{ ok, checks: { authSecret, googleOAuth, supabase, anthropicApiKey } }` —
+booleans only, never secret values — with a `503` when a required one
+(`authSecret` or `supabase`) is missing. Previously the only way to notice
+this outage was to read provider error logs; now `curl .../api/health` (or
+any uptime monitor pointed at it) answers in one request. Verified locally:
+returns `503` with `authSecret: false` against an empty environment.
+
+Also checked whether the ~3.5-month exposure window (2026-04-09 to the `#5`
+proxy fail-closed fix, deployed 2026-07-19T16:09 UTC) can be conclusively
+audited for scraping/leakage: Vercel's `get_runtime_errors` tool caps lookback
+at 7 days, so this session's tool access can't confirm or rule that out.
+Flagging as still open — would need the Vercel dashboard's own log retention
+(if longer) or access logs from another source.
