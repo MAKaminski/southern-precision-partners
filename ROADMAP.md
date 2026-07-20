@@ -3,6 +3,42 @@
 Running log of platform/process enhancements. One entry is added roughly
 each review cycle; each entry links to the PR/commit that implemented it.
 
+## 2026-07-20 — Process: session started on a 17-commit-stale branch; documented the guard, finished PR #19 triage
+
+**Status: Done**
+
+This review cycle's branch (`claude/epic-babbage-g6arg6`, a fixed name reused
+every hour) still pointed at an old `main` commit — 17 merged commits behind,
+including PR #15 (the Pre-Initiative FCF/Taxes fix) and PR #28 (the full SBA
+capital-structure rebuild). Diagnosing the site against that stale checkout
+reproduced the *exact* $17,400/yr FCF bug PR #15 already fixed, plus a
+Seller Note `$200K`/`$300K` mismatch that no longer exists post-#28 — a full
+fix was built and a PR opened (#32) before the staleness was caught by
+comparing `HEAD..origin/main`. Closed #32 immediately as redundant/moot;
+no code from it landed.
+
+This is the same failure mode already visible across the PR queue (Seller
+Note fixed independently 3× — #2/#6/#12; the FCF bug diagnosed twice with
+different numbers — #7 vs #9) — it isn't a one-off. Ran
+`npm run audit:financials` against current `main` to confirm: **it already
+passes cleanly**, so there is no live financial-calculation bug to fix this
+cycle.
+
+- Added a "Before starting work: check branch freshness" section to
+  `AGENTS.md` — a permanent instruction (read by every session via
+  `CLAUDE.md`'s `@AGENTS.md` import) to `git fetch origin main` and diff
+  against `HEAD` before diagnosing anything, and to check open PRs before
+  starting a fix.
+- Closed PR **#19** — its own body already concluded (per the 2026-07-20 CI
+  entry above) that it was moot, but nobody had acted on that conclusion.
+  Finishes the triage pass PR #31 did for #6/#20/#21/#24/#26.
+
+**Still open, still genuinely unaddressed (do not duplicate):** #13
+(chatbot pinned to stale model ID), #18 (stale "Q1 2026" label), #23
+(`/api/health` endpoint), #25 (persist deal submissions to Supabase). None
+of these are superseded by anything on current `main` — they're waiting on
+a human merge pass, not on more diagnosis.
+
 ## 2026-07-20 — TEMPORARY: investor role granted full partner clearance
 
 **Status: Done — needs revert once Google sign-in is confirmed fixed**
