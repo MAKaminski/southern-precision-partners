@@ -99,6 +99,7 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: "/customers", level: "internal" }, // customer records incl. PII / aliases / notes
   { prefix: "/delivery", level: "internal" }, // delivery plan / execution tracking — partner-only
   { prefix: "/forecast", level: "internal" }, // forecast P&L model — partner-only
+  { prefix: "/erd", level: "internal" }, // live Supabase schema map — partner-only
   { prefix: "/api/contacts", level: "internal" },
   { prefix: "/api/import-contacts", level: "internal" },
   { prefix: "/api/customers", level: "internal" },

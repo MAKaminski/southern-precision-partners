@@ -205,6 +205,49 @@ export async function getEmployees(): Promise<EmployeeWithPlans[]> {
   }));
 }
 
+export interface ErdColumn {
+  column_name: string;
+  data_type: string;
+  is_nullable: boolean;
+  column_default: string | null;
+  is_primary_key: boolean;
+  is_unique: boolean;
+  is_composite_key_member: boolean;
+}
+
+export interface ErdTable {
+  table_name: string;
+  row_count: number;
+  columns: ErdColumn[];
+}
+
+export interface ErdRelationship {
+  constraint_name: string;
+  source_table: string;
+  source_column: string;
+  target_table: string;
+  target_column: string;
+  on_delete: string;
+  cardinality: "one-to-one" | "many-to-one";
+}
+
+export interface SchemaErd {
+  generated_at: string;
+  tables: ErdTable[];
+  relationships: ErdRelationship[];
+}
+
+/** Live introspection of the public schema — see get_schema_erd() in
+ * supabase/migrations/0003_schema_erd_function.sql. Never hand-maintained:
+ * always reflects exactly what's in the database right now. */
+export async function getSchemaErd(): Promise<SchemaErd | null> {
+  const db = getSppDb();
+  if (!db) return null;
+  const { data, error } = await db.rpc("get_schema_erd");
+  if (error) { console.error("getSchemaErd", error.message); return null; }
+  return data as SchemaErd;
+}
+
 /** True when the SPP database connection is configured (service-role key present). */
 export function sppDbConfigured(): boolean {
   return getSppDb() !== null;

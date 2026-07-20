@@ -20,5 +20,6 @@ export const NAV_LINKS: NavLink[] = [
   { href: "/outreach", label: "Outreach", level: "internal" },
   { href: "/map", label: "Map", level: "internal" },
   { href: "/import", label: "Import", level: "internal" },
+  { href: "/erd", label: "ERD", level: "internal" },
   { href: "/submit", label: "Submit", level: "public" },
 ];
