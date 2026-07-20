@@ -3,6 +3,23 @@
 Running log of platform/process enhancements. One entry is added roughly
 each review cycle; each entry links to the PR/commit that implemented it.
 
+## 2026-07-20 — TEMPORARY: investor role granted full partner clearance
+
+**Status: Done — needs revert once Google sign-in is confirmed fixed**
+
+Google OAuth sign-in is still broken (account-picker issue persists after the
+`prompt: "select_account"` fix in PR #27), so real partners cannot reliably
+reach the "partner" role. Per direct instruction, `src/lib/access.ts`'s
+`ROLE_RANK` now grants `investor` the same clearance rank as `partner` (2),
+so any authenticated investor can reach internal ops tooling (CRM, outreach,
+delivery, forecast — previously partner-only) in addition to confidential
+deal materials, not just the confidential tier.
+
+**This is a real widening of who can see internal ops data (contact PII,
+outreach templates, delivery/forecast) — intentional and temporary.**
+Revert `investor: 2` back to `investor: 1` in `src/lib/access.ts` once Google
+sign-in is confirmed working end-to-end.
+
 ## 2026-07-20 — Wire `audit:financials` into CI; bump CI to Node 22; process check-in
 
 **Status: Done**
