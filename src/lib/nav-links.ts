@@ -24,6 +24,7 @@ export const NAV_LINKS: NavLink[] = [
   { href: "/map", label: "Map", level: "internal" },
   { href: "/import", label: "Import", level: "internal" },
   { href: "/erd", label: "ERD", level: "internal" },
+  { href: "/sql", label: "SQL Console", level: "internal" },
   { href: "/systems", label: "Systems", level: "internal" },
   { href: "/submit", label: "Submit", level: "public" },
 ];

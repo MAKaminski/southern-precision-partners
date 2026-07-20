@@ -103,6 +103,8 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: "/hr", level: "internal" }, // staffing plan & pay rates — partner-only
   { prefix: "/marketing", level: "internal" }, // growth levers & revenue build — partner-only
   { prefix: "/systems", level: "internal" }, // platform tech-stack documentation — partner-only
+  { prefix: "/sql", level: "internal" }, // read-only SQL console over live Supabase data — partner-only
+  { prefix: "/api/sql", level: "internal" },
   { prefix: "/summary", level: "confidential" }, // monthly performance vs plan — investor-facing
   { prefix: "/api/contacts", level: "internal" },
   { prefix: "/api/import-contacts", level: "internal" },
