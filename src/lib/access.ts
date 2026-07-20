@@ -27,8 +27,14 @@ const CLASSIFICATION_RANK: Record<Classification, number> = {
   internal: 2,
 };
 
+// TEMPORARY (2026-07-20): investor == partner while Google OAuth sign-in is
+// broken (account-picker bug still unresolved) — real partners aren't
+// reliably able to reach the "partner" role, so investor is granted full
+// partner-level clearance (incl. internal ops tooling: CRM, outreach,
+// delivery, forecast) so authorized people aren't locked out. Revert
+// `investor` to 1 once Google sign-in is confirmed fixed — see ROADMAP.md.
 const ROLE_RANK: Record<UserRole, number> = {
-  investor: 1, // external SEP partners / prospective investors — deal materials
+  investor: 2, // external SEP partners / prospective investors — deal materials
   partner: 2, // SEP internal staff — everything, incl. internal ops tooling
 };
 
