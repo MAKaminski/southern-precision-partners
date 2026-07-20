@@ -75,7 +75,7 @@ export async function GET() {
     ["Location", "Georgia"],
     ["Managing Partner", "Keith Piper"],
     ["Deal Type", "Leveraged Buyout"],
-    ["Total Raise", 3100000],
+    ["Total Raise", 2800000],
     ["Enterprise Value", 2490000],
     ["Entry Multiple", "4.5x"],
     ["Exit EV Target", 9000000],
@@ -106,9 +106,9 @@ export async function GET() {
     ["CAPITAL STRUCTURE", ""],
     ["SBA Term Loan (Live Oak Bank, 10%, 15-yr)", 2240000],
     ["GP Equity (Keith Piper, 10% of price)", 280000],
-    ["JP Equity (5% + 11% carry)", 100000],
     ["Seller Note (10% seller financing)", 280000],
-    ["Total Sources", 2900000],
+    ["Total Sources", 2800000],
+    ["JP: no cash — equity vests 0%→20% over 5 yrs", ""],
     ["", ""],
     // AUDIT-FOLLOWUP: waterfall % and returns below still reflect the prior
     // $400K/79%-profit-share structure — needs a full model rebuild against
@@ -346,27 +346,27 @@ export async function GET() {
   su.addRow(["Source", "Amount", "% of Total", "Terms"]); sub(su, 2, 4);
 
   const sources: [string, number, number, string][] = [
-    ["SBA Term Loan (Live Oak Bank)", 2240000, 0.772, "10%, 15-yr term, acquisition financing"],
-    ["GP Equity (Keith Piper)", 280000, 0.097, "10% of purchase price"],
-    ["JP Equity (5% + 11% Carry)", 100000, 0.034, "5% equity + 11% carried interest = 16% effective"],
-    ["Seller Note", 280000, 0.097, "10% seller financing"],
+    ["SBA Term Loan (Live Oak Bank)", 2240000, 0.8, "10%, 15-yr term, acquisition financing"],
+    ["GP Equity (Keith Piper)", 280000, 0.1, "10% of purchase price"],
+    ["Seller Note", 280000, 0.1, "10% seller financing"],
   ];
   const sStart = su.rowCount + 1;
   sources.forEach(s => { const r = su.addRow(s); r.getCell(2).numFmt = CUR_D; r.getCell(3).numFmt = PCT; });
-  su.addRow(["Total Sources", { formula: `SUM(B${sStart}:B${sStart+3})` }, { formula: `SUM(C${sStart}:C${sStart+3})` }, ""]);
+  su.addRow(["Total Sources", { formula: `SUM(B${sStart}:B${sStart+2})` }, { formula: `SUM(C${sStart}:C${sStart+2})` }, ""]);
   tot(su, su.rowCount, 4); su.getCell(`B${su.rowCount}`).numFmt = CUR_D; su.getCell(`C${su.rowCount}`).numFmt = PCT;
+  su.addRow(["Note: JP has no cash investment — equity vests 0%→20% over the 5-yr hold", "", "", ""]);
 
   su.addRow([]);
   su.addRow(["Use of Funds", "Amount", "", ""]); hdr(su, su.rowCount, 4);
   const uStart = su.rowCount + 1;
-  [["Business Acquisition", 2800000], ["Working Capital / Reserves", 100000]].forEach(u => {
+  [["Business Acquisition", 2800000]].forEach(u => {
     su.addRow([u[0], u[1], "", ""]).getCell(2).numFmt = CUR_D;
   });
-  su.addRow(["Total Uses", { formula: `SUM(B${uStart}:B${uStart+1})` }, "", ""]);
+  su.addRow(["Total Uses", { formula: `SUM(B${uStart}:B${uStart})` }, "", ""]);
   tot(su, su.rowCount, 4); su.getCell(`B${su.rowCount}`).numFmt = CUR_D;
 
   su.addRow([]);
-  su.addRow(["Sources − Uses Check", { formula: `B${sStart+4}-B${su.rowCount-1}` }, "", ""]);
+  su.addRow(["Sources − Uses Check", { formula: `B${sStart+3}-B${su.rowCount-1}` }, "", ""]);
   su.getCell(`B${su.rowCount}`).numFmt = CUR_D;
 
   bdr(su, 1, su.rowCount, 1, 4);
