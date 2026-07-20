@@ -11,22 +11,52 @@ function SignInForm() {
   const callbackUrl = searchParams.get("callbackUrl") || "/deals/mosaic";
   const [mode, setMode] = useState<"choose" | "email">("choose");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleGoogleSignIn() {
     setLoading(true);
-    await signIn("google", { callbackUrl });
+    setError(null);
+    try {
+      const result = await signIn("google", { callbackUrl, redirect: false });
+      if (result?.error) {
+        setError("Google sign-in failed. Please try again or use email sign-up below.");
+        setLoading(false);
+      } else if (result?.url) {
+        window.location.href = result.url;
+      } else {
+        setLoading(false);
+      }
+    } catch {
+      setError("Something went wrong reaching the sign-in service. Please try again.");
+      setLoading(false);
+    }
   }
 
   async function handleEmailSignUp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     const form = new FormData(e.currentTarget);
-    await signIn("email-signup", {
-      email: form.get("email") as string,
-      name: form.get("name") as string,
-      firm: form.get("firm") as string,
-      callbackUrl,
-    });
+    try {
+      const result = await signIn("email-signup", {
+        email: form.get("email") as string,
+        name: form.get("name") as string,
+        firm: form.get("firm") as string,
+        callbackUrl,
+        redirect: false,
+      });
+      if (result?.error) {
+        setError("Couldn't create your account. Please check your details and try again.");
+        setLoading(false);
+      } else if (result?.url) {
+        window.location.href = result.url;
+      } else {
+        setLoading(false);
+      }
+    } catch {
+      setError("Something went wrong reaching the sign-in service. Please try again.");
+      setLoading(false);
+    }
   }
 
   return (
@@ -42,6 +72,11 @@ function SignInForm() {
         </div>
 
         <div className="bg-surface border border-border-custom rounded-xl p-6">
+          {error && (
+            <div className="mb-4 bg-red-500/10 border border-red-500/20 text-red-600 text-xs rounded-lg p-3">
+              {error}
+            </div>
+          )}
           {mode === "choose" ? (
             <div className="space-y-4">
               {/* Google Sign In */}
@@ -68,7 +103,10 @@ function SignInForm() {
 
               {/* Email Sign Up */}
               <button
-                onClick={() => setMode("email")}
+                onClick={() => {
+                  setError(null);
+                  setMode("email");
+                }}
                 className="w-full flex items-center justify-center gap-2 bg-accent-blue text-white rounded-lg px-4 py-3 text-sm font-medium hover:bg-accent-blue/90 transition-colors"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -86,7 +124,10 @@ function SignInForm() {
             <form onSubmit={handleEmailSignUp} className="space-y-4">
               <button
                 type="button"
-                onClick={() => setMode("choose")}
+                onClick={() => {
+                  setError(null);
+                  setMode("choose");
+                }}
                 className="text-xs text-accent-blue hover:underline mb-2"
               >
                 &larr; Back to sign-in options
