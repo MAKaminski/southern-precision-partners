@@ -3,8 +3,8 @@
 A single, explicit pipeline that data flows through in one direction:
 
 ```
-   RAW            NORMALIZATION        CLEANED            PROPER ERD              ANALYTICS
-(ingestion)   →   (typed/parsed)   →  (validated)   →  (normalized core)  →  (serving + pre-calc)
+   RAW            NORMALIZATION        CLEANED              CORE                 ANALYTICS
+(ingestion)   →   (typed/parsed)   →  (validated)   →  (normalized ERD)   →  (serving + pre-calc)
   raw.*             staging.*          staging.clean_*      core.*            analytics.*  +  serving.*
  immutable         rebuildable         rebuildable       source of truth      derived / mapping layer
 ```
@@ -49,7 +49,7 @@ time. Two sub-steps live here:
 Nothing in `staging` is read by the app. It exists so the `core` load is a trivial,
 auditable upsert from already-clean rows.
 
-## 3. `core` — the Proper ERD (source of truth)
+## 3. `core` — CORE: the normalized ERD (source of truth)
 
 Normalized relational model. **One entity, one table, one primary key — no PK
 duplication anywhere.** Facts reference dimensions by foreign key; a fact never repeats a

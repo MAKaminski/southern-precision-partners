@@ -3,7 +3,7 @@
 -- Applied to the dedicated Supabase project `southern-precision-partners`
 -- (ref yscxrvuwwfpjuciuawcv). See docs/DATA_ARCHITECTURE.md for the full design.
 --
--- Pipeline:  raw -> staging -> core (proper ERD) -> analytics + serving
+-- Pipeline:  raw -> staging -> core (CORE, the normalized ERD) -> analytics + serving
 --
 -- This migration is ADDITIVE and NON-BREAKING. It creates the new schemas and
 -- the target `core` model EMPTY (ready for ETL), stands up `analytics.figure`
@@ -23,7 +23,7 @@ create schema if not exists serving;
 
 comment on schema raw       is 'Files at ingestion, exactly as received. Immutable, append-only, all-text.';
 comment on schema staging   is 'Normalization + cleaning. Typed/validated/deduped. Fully rebuildable from raw.';
-comment on schema core      is 'Proper ERD — normalized source of truth. One entity, one table, one PK.';
+comment on schema core      is 'CORE — the normalized ERD, source of truth. One entity, one table, one PK.';
 comment on schema analytics is 'Pre-calculated figures (analytics.figure) — fast single-lookup recall.';
 comment on schema serving   is 'Front-end mapping layer: stable read-only view contract the app queries.';
 
@@ -42,7 +42,7 @@ create table if not exists raw.ingestion (
 );
 
 -- ---------------------------------------------------------------
--- 2) core — Proper ERD. Empty; loaded from staging during cutover.
+-- 2) core — CORE (normalized ERD). Empty; loaded from staging during cutover.
 --    No PK duplication: every entity keyed once; facts reference dims by FK.
 -- ---------------------------------------------------------------
 

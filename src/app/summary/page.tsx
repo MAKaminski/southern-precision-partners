@@ -46,9 +46,11 @@ export default async function SummaryPage() {
             <Kpi label="Months with Actuals Entered" value={`${monthsWithActuals} / 12`} />
           </div>
           <p className="text-[10px] text-text-secondary -mt-3">
-            The annual figures above are context from the full-year Plan, not a monthly split — no monthly actual
-            or plan data exists anywhere in this platform&apos;s source records yet, so nothing below is
-            estimated or interpolated. Each cell is entered directly as that month&apos;s books close.
+            Monthly <strong>Plan</strong> is the full-year {YEAR} Plan phased evenly across the year (the operating
+            model runs revenue at a flat ~$390K/mo). <strong>Actual</strong> is set equal to Plan for the closed
+            months (Jan&ndash;Sep {YEAR}) as a tracking-to-plan placeholder, to be replaced as real monthly closes
+            are booked; Oct&ndash;Dec actuals and the Free Cash Flow / Cash Balance rows are left blank pending
+            close data. Click any cell to enter a booked figure.
           </p>
 
           {monthly.length === 0 ? (
