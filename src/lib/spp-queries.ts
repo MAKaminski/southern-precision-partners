@@ -40,6 +40,7 @@ export interface DebtRow {
 }
 
 export interface RevenueMatrixRow {
+  id: string;
   year: number;
   existing_rev: number | null;
   new_rev: number | null;

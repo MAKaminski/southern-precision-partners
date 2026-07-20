@@ -2,6 +2,7 @@ import { getForecast, getGrowthInitiatives, sppDbConfigured } from "@/lib/spp-qu
 import { phases } from "@/lib/data";
 import { ClassificationBadge } from "@/components/ClassificationBadge";
 import { GrowthInitiativeStatusSelect } from "@/components/spp/GrowthInitiativeStatusSelect";
+import { RevenueMatrixEditor } from "@/components/spp/RevenueMatrixEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -23,8 +24,6 @@ export default async function MarketingPage() {
   const revenueGrowthInitiatives = phases
     .flatMap((p) => p.initiatives.map((i) => ({ ...i, phaseTitle: p.title })))
     .filter((i) => i.revenueImpact);
-
-  const latest = revenueMatrix[revenueMatrix.length - 1];
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
@@ -50,50 +49,7 @@ export default async function MarketingPage() {
         </div>
       ) : (
         <>
-          {latest && (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              <Kpi label={`${latest.year} Existing`} value={money(latest.existing_rev)} />
-              <Kpi label={`${latest.year} New`} value={money(latest.new_rev)} accent="green" />
-              <Kpi label={`${latest.year} Replacement`} value={money(latest.replacement)} />
-              <Kpi label={`${latest.year} Churn`} value={money(latest.churn)} accent="red" />
-              <Kpi label={`${latest.year} Ending`} value={money(latest.ending_rev)} />
-            </div>
-          )}
-
-          {/* Revenue build */}
-          <section>
-            <h2 className="text-sm font-semibold text-foreground mb-2">Revenue Build</h2>
-            {revenueMatrix.length === 0 ? (
-              <p className="text-xs text-text-secondary">No revenue matrix loaded yet.</p>
-            ) : (
-              <div className="overflow-x-auto border border-border-custom rounded-lg">
-                <table className="w-full text-xs">
-                  <thead className="bg-surface">
-                    <tr className="border-b border-border-custom text-text-secondary">
-                      <th className="text-left py-2 px-3 font-medium">Year</th>
-                      <th className="text-right py-2 px-2 font-medium">Existing</th>
-                      <th className="text-right py-2 px-2 font-medium">New</th>
-                      <th className="text-right py-2 px-2 font-medium">Replacement</th>
-                      <th className="text-right py-2 px-2 font-medium">Churn</th>
-                      <th className="text-right py-2 px-3 font-medium">Ending</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {revenueMatrix.map((r) => (
-                      <tr key={r.year} className="border-b border-border-custom/50 last:border-0">
-                        <td className="py-1.5 px-3 font-mono text-foreground">{r.year}</td>
-                        <td className="py-1.5 px-2 text-right font-mono text-text-secondary">{money(r.existing_rev)}</td>
-                        <td className="py-1.5 px-2 text-right font-mono text-accent-green">{money(r.new_rev)}</td>
-                        <td className="py-1.5 px-2 text-right font-mono text-text-secondary">{money(r.replacement)}</td>
-                        <td className="py-1.5 px-2 text-right font-mono text-accent-red">{money(r.churn)}</td>
-                        <td className="py-1.5 px-3 text-right font-mono text-foreground font-semibold">{money(r.ending_rev)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
+          <RevenueMatrixEditor initial={revenueMatrix} />
 
           {/* Modeled initiatives with a revenue impact */}
           <section>
@@ -164,16 +120,6 @@ export default async function MarketingPage() {
           </section>
         </>
       )}
-    </div>
-  );
-}
-
-function Kpi({ label, value, accent }: { label: string; value: string; accent?: "green" | "red" }) {
-  const color = accent === "green" ? "text-accent-green" : accent === "red" ? "text-accent-red" : "text-foreground";
-  return (
-    <div className="bg-surface border border-border-custom rounded-lg p-3 text-center">
-      <div className={`text-lg font-bold ${color}`}>{value}</div>
-      <div className="text-[10px] text-text-secondary mt-0.5 uppercase tracking-wide">{label}</div>
     </div>
   );
 }
