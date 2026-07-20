@@ -25,3 +25,8 @@ export function formatPercent(value: number, decimals = 1): string {
 export function formatMultiple(value: number): string {
   return `${value.toFixed(2)}×`;
 }
+
+export function getCurrentQuarterLabel(date: Date = new Date()): string {
+  const quarter = Math.floor(date.getMonth() / 3) + 1;
+  return `Q${quarter} ${date.getFullYear()}`;
+}
