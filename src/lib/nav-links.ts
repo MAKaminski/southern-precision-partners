@@ -16,6 +16,7 @@ export const NAV_LINKS: NavLink[] = [
   { href: "/summary", label: "Summary", level: "confidential" },
   { href: "/customers", label: "Customers", level: "internal" },
   { href: "/delivery", label: "Delivery Plan", level: "internal" },
+  { href: "/jp-variance", label: "JP Requirements Δ", level: "internal" },
   { href: "/forecast", label: "Forecast", level: "internal" },
   { href: "/hr", label: "HR & Payroll", level: "internal" },
   { href: "/marketing", label: "Marketing & Growth", level: "internal" },
