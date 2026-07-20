@@ -113,7 +113,7 @@ export interface EmployeePlanDetail {
   plan: HrPlan;
   role_title: string | null;
   department: string | null;
-  employment_type: "full_time" | "part_time" | "contractor" | null;
+  employment_type: "full_time" | "part_time" | "contractor" | "unpaid" | null;
   status: "active" | "terminated" | "new_hire";
   pay_type: "salary" | "hourly";
   pay_rate: number;
