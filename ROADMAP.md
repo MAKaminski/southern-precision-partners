@@ -3,6 +3,32 @@
 Running log of platform/process enhancements. One entry is added roughly
 each review cycle; each entry links to the PR/commit that implemented it.
 
+## 2026-07-20 — Persist deal submissions to Supabase (`/api/submit-deal`)
+
+**Status: Done — [PR #35](https://github.com/MAKaminski/southern-precision-partners/pull/35) (draft)**
+
+`/api/submit-deal` only `console.log`'d incoming public deal-submission form
+data — no database write, so every real investor/seller lead through
+`/submit` was silently lost with no record ([Linear MOD-8](https://linear.app/modular-equity/issue/MOD-8),
+High, open since 2026-07-19). The `deal_submissions` table already existed in
+Supabase with a schema matching the form fields exactly (0 rows — created but
+never wired up), so this was a pure wiring fix. `annualRevenue`/`annualEbitda`
+are entered in the form as "$M" and are converted to raw dollars (`× 1,000,000`)
+before storage to match the unscaled-numeric convention used elsewhere (e.g.
+`customers.lifetime_sales`). Falls back to logging if Supabase env vars aren't
+configured, matching `/api/contacts`. Verified the column mapping with a live
+dry-run insert + delete against the real table before shipping.
+
+**Process near-miss this cycle:** started from a local checkout 16 commits
+behind `main` and nearly reverted PR #14's deliberate "Southeast Precision
+Partners" brand standardization based on a stale Linear issue description
+([MOD-11](https://linear.app/modular-equity/issue/MOD-11)). Caught it by
+diffing against `origin/main` before merging — reset the branch, closed the
+bad PR (#34) with no code change, and marked MOD-11 Canceled as
+stale/superseded. Reinforces the standing lesson from the entry below: always
+re-verify against a freshly fetched `main`, not a cached view or another
+cycle's notes.
+
 ## 2026-07-20 — TEMPORARY: investor role granted full partner clearance
 
 **Status: Done — needs revert once Google sign-in is confirmed fixed**
