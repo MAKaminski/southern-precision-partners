@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getCustomer } from "@/lib/spp-queries";
+import { groupArTransactionsByInvoice } from "@/lib/ar-ledger";
+import { ARLedgerInvoices } from "@/components/spp/ARLedgerInvoices";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +16,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
   const invoiced = transactions.reduce((s, t) => s + (Number(t.invoice_amount) || 0), 0);
   const paid = transactions.reduce((s, t) => s + (Number(t.payment_amount) || 0), 0);
+  const invoiceGroups = groupArTransactionsByInvoice(transactions);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
@@ -63,46 +66,19 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-sm font-semibold text-foreground">A/R Ledger</h2>
           <span className="text-[11px] text-text-secondary">
-            {transactions.length} lines · Invoiced {money(invoiced)} · Paid {money(paid)}
+            {invoiceGroups.length} invoices · {transactions.length} lines · Invoiced {money(invoiced)} · Paid {money(paid)}
           </span>
         </div>
-        {transactions.length === 0 ? (
+        {invoiceGroups.length === 0 ? (
           <p className="text-xs text-text-secondary">No A/R transactions on file.</p>
         ) : (
-          <div className="overflow-x-auto border border-border-custom rounded-lg max-h-[520px] overflow-y-auto">
-            <table className="w-full text-xs">
-              <thead className="sticky top-0 bg-surface">
-                <tr className="border-b border-border-custom text-text-secondary">
-                  <th className="text-left py-2 px-3 font-medium">Invoice Date</th>
-                  <th className="text-left py-2 px-2 font-medium">Invoice #</th>
-                  <th className="text-right py-2 px-2 font-medium">Invoice Amt</th>
-                  <th className="text-left py-2 px-2 font-medium">Payment Ref</th>
-                  <th className="text-left py-2 px-2 font-medium">Payment Date</th>
-                  <th className="text-right py-2 px-2 font-medium">Payment Amt</th>
-                  <th className="text-right py-2 px-3 font-medium">Balance</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.map((t) => (
-                  <tr key={t.id} className={`border-b border-border-custom/50 ${t.is_credit_memo ? "bg-accent-amber/5" : ""}`}>
-                    <td className="py-1.5 px-3 font-mono text-text-secondary whitespace-nowrap">{t.invoice_date ?? "—"}</td>
-                    <td className="py-1.5 px-2 font-mono text-text-secondary">{t.invoice_number ?? "—"}</td>
-                    <td className="py-1.5 px-2 text-right font-mono text-foreground">{money(t.invoice_amount)}</td>
-                    <td className="py-1.5 px-2 font-mono text-text-secondary">
-                      {t.payment_ref ?? "—"}{t.is_credit_memo && <span className="ml-1 text-[9px] text-accent-amber">CR</span>}
-                    </td>
-                    <td className="py-1.5 px-2 font-mono text-text-secondary whitespace-nowrap">{t.payment_date ?? "—"}</td>
-                    <td className="py-1.5 px-2 text-right font-mono text-accent-green">{money(t.payment_amount)}</td>
-                    <td className="py-1.5 px-3 text-right font-mono text-text-secondary">{money(t.running_balance)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ARLedgerInvoices groups={invoiceGroups} />
         )}
         <p className="text-[10px] text-text-secondary mt-2">
-          Ledger imported from the operating company&apos;s A/R export. Credit memos (LC-prefixed refs) are flagged
-          <span className="text-accent-amber"> CR</span>; balances are best-effort from the source running total.
+          Ledger imported from the operating company&apos;s A/R export, grouped by invoice — click a row to see its
+          payments and credits. Credit memos (LC-prefixed refs) are flagged
+          <span className="text-accent-amber"> CR</span>. &ldquo;Unmatched / on-account&rdquo; groups payments with no
+          invoice number in the source data.
         </p>
       </section>
     </div>

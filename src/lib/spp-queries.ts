@@ -87,6 +87,37 @@ export interface CustomerWithSales extends Customer {
   annual: Record<number, number>; // year -> sales
 }
 
+export interface Employee {
+  id: string;
+  full_name: string;
+  employee_code: string | null;
+  hire_date: string | null;
+  notes: string | null;
+}
+
+export type HrPlan = "current" | "post_transition";
+
+export interface EmployeePlanDetail {
+  id: string;
+  employee_id: string;
+  plan: HrPlan;
+  role_title: string | null;
+  department: string | null;
+  employment_type: "full_time" | "part_time" | "contractor" | null;
+  status: "active" | "terminated" | "new_hire";
+  pay_type: "salary" | "hourly";
+  pay_rate: number;
+  hours_per_week: number | null;
+  annualized_cost: number | null;
+  change_type: "unchanged" | "pay_increase" | "pay_decrease" | "role_change" | "new_hire" | "termination";
+  effective_date: string | null;
+  notes: string | null;
+}
+
+export interface EmployeeWithPlans extends Employee {
+  plans: Partial<Record<HrPlan, EmployeePlanDetail>>;
+}
+
 // ─── Queries (service-role, server-only) ─────────────────────────────────────
 export async function getDeliveryTasks(): Promise<DeliveryTask[]> {
   const db = getSppDb();
@@ -153,6 +184,25 @@ export async function getCustomer(id: string): Promise<{
     annual: (annual.data ?? []) as AnnualSale[],
     transactions: (tx.data ?? []) as ArTransaction[],
   };
+}
+
+export async function getEmployees(): Promise<EmployeeWithPlans[]> {
+  const db = getSppDb();
+  if (!db) return [];
+  const [emp, plans] = await Promise.all([
+    db.from("hr_employees").select("*").order("full_name", { ascending: true }),
+    db.from("hr_employee_plan_details").select("*"),
+  ]);
+  if (emp.error) { console.error("getEmployees", emp.error.message); return []; }
+  const byId = new Map<string, Partial<Record<HrPlan, EmployeePlanDetail>>>();
+  for (const p of (plans.data ?? []) as EmployeePlanDetail[]) {
+    if (!byId.has(p.employee_id)) byId.set(p.employee_id, {});
+    byId.get(p.employee_id)![p.plan] = p;
+  }
+  return ((emp.data ?? []) as Employee[]).map((e) => ({
+    ...e,
+    plans: byId.get(e.id) ?? {},
+  }));
 }
 
 /** True when the SPP database connection is configured (service-role key present). */
