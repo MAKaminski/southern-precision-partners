@@ -22,18 +22,17 @@ export interface CapStackTranche {
   color: string;
 }
 
-// Sources: SBA term loan (Live Oak Bank) + Managing Partner + Seller financing,
-// each 80%/10%/10% of the $2.8M purchase price, plus the existing JP tranche.
-// Junior Partner is carried over unchanged from the prior structure — it wasn't
-// part of the new SBA-based plan, so confirm before relying on it downstream.
+// Sources: SBA term loan (Live Oak Bank) + Managing Partner equity + Seller
+// financing — 80%/10%/10% of the $2.8M purchase price. Junior Partner is
+// NOT a cash source (confirmed 2026-07-20: JP invests no cash — equity
+// vests over the hold, see jpVestingSchedule below) — removed from Sources.
 export const capStack: CapStackTranche[] = [
-  { name: "SBA Term Loan (Live Oak Bank)", amount: 2_240_000, pct: 77.2, terms: "10%, 15-yr term, acquisition financing", color: "#2563EB" },
-  { name: "Managing Partner Equity (Keith Piper)", amount: 280_000, pct: 9.7, terms: "10% of purchase price", color: "#059669" },
-  { name: "Junior Partner Equity", amount: 100_000, pct: 3.4, terms: "5% equity + 11% carry = 16% effective", color: "#7C3AED" },
-  { name: "Seller Note", amount: 280_000, pct: 9.7, terms: "10% seller financing", color: "#D97706" },
+  { name: "SBA Term Loan (Live Oak Bank)", amount: 2_240_000, pct: 80, terms: "10%, 15-yr term, acquisition financing", color: "#2563EB" },
+  { name: "Managing Partner Equity (Keith Piper)", amount: 280_000, pct: 10, terms: "10% of purchase price", color: "#059669" },
+  { name: "Seller Note", amount: 280_000, pct: 10, terms: "10% seller financing", color: "#D97706" },
 ];
 
-export const totalRaise = 2_900_000;
+export const totalRaise = 2_800_000;
 
 export interface UseOfFunds {
   label: string;
@@ -42,7 +41,6 @@ export interface UseOfFunds {
 
 export const usesOfFunds: UseOfFunds[] = [
   { label: "Business Acquisition", amount: 2_800_000 },
-  { label: "Working Capital / Reserves", amount: 100_000 },
 ];
 
 // ─── Investor Returns ────────────────────────────────────────────────────────
@@ -56,55 +54,31 @@ export interface InvestorReturn {
   color: string;
 }
 
-// The former "LP (Pete — Debt)" row is removed: the SBA term loan is
-// straight bank debt (principal + interest, tracked in debtFacilities),
-// not an equity/kicker position with a MOIC — it doesn't belong in an
-// investor-returns table the way the old debt-with-equity-kicker LP did.
-// AUDIT-FOLLOWUP: Keith's invested/proceeds/MOIC/IRR below still reflect
-// the prior $400K/79%-profit-share structure, not the new $280K (10% of
-// purchase price) equity figure — the full exit-waterfall model (this
-// table, `scenario1`/`scenario2`, `fullScenarios`, `scenarios`) needs a
-// rebuild against the new SBA-based capital structure, not just a
-// find-and-replace. Tracked in ROADMAP.md.
+// Figures below are 5-year cumulative operating distributions only (per the
+// confirmed rule: each year, distribute the lesser of 1/3 Net Income or FCF;
+// JP gets that pool × their vested equity %, GP gets the remainder — see
+// cashFlowProjections). They exclude exit proceeds, which need a separate
+// exit-valuation model against the new SBA-based capital structure — not
+// fabricated here. MOIC/IRR are intentionally omitted until that exists.
 export const investorReturns: InvestorReturn[] = [
   {
     title: "Managing Partner — Keith Piper (Equity)",
-    invested: "$400K",
-    structure: "79% profit share",
-    proceeds: "$5.22M",
-    moic: "13.0×",
-    irr: "66%",
+    invested: "$280K",
+    structure: "Receives distributable pool remainder after JP's vested share",
+    proceeds: "$1.64M",
+    moic: "Pending exit model",
+    irr: "Pending exit model",
     color: "#059669",
   },
   {
-    title: "Junior Partner (Equity + Carry)",
-    invested: "$100K",
-    structure: "5% equity + 11% carried interest",
-    proceeds: "$1.08M",
-    moic: "10.8×",
-    irr: "60%",
+    title: "Junior Partner (Equity Vesting)",
+    invested: "$0 (no cash — vesting equity)",
+    structure: "0% → 20% equity vesting over 5 yrs, tied to value creation",
+    proceeds: "$298K",
+    moic: "Pending exit model",
+    irr: "Pending exit model",
     color: "#7C3AED",
   },
-];
-
-// ─── Scenario Table (JP) ────────────────────────────────────────────────────
-export interface Scenario {
-  name: string;
-  exitMultiple: string;
-  jpMoic: string;
-  jpIrr: string;
-}
-
-// Bear: $875K×4.5=$3.94M EV, −$2.6M debt=$1.34M equity. After cap return($500K)=$837K. JP: $100K+20%×$837K=$267K → 2.67×
-// Base: $875K×6=$5.25M EV (or $9M target), −$2.6M=$6.4M. After cap($500K)=$5.9M. JP: $100K+20%×$5.9M=$1.28M → 12.8×
-// Bull: $875K×7.5=$6.56M, −$2.6M=$3.96M. After cap=$3.46M. JP: $100K+20%×$3.46M=$792K → 7.9×
-// Using $9M EV for base case (deal-specific target, not pure EBITDA multiple)
-// GP 79% / JP 16% / LP 5% — GP MOIC is 16-22% above JP across all scenarios
-export const scenarios: Scenario[] = [
-  { name: "Bear", exitMultiple: "4.5×", jpMoic: "3.24×", jpIrr: "26%" },
-  { name: "Base", exitMultiple: "$9M EV", jpMoic: "10.76×", jpIrr: "60%" },
-  { name: "Bull", exitMultiple: "7.5×", jpMoic: "14.36×", jpIrr: "70%" },
-  { name: "Stretch", exitMultiple: "9.0×", jpMoic: "17.96×", jpIrr: "78%" },
 ];
 
 // ─── Value Creation Phases ───────────────────────────────────────────────────
@@ -182,7 +156,17 @@ export const ebitdaBridgeNormalization = {
   year1ProForma: 554_000,
 };
 
-// ─── Financials — PRE-Initiative (Organic 5% Growth) ─────────────────────────
+// ─── 5-Year Plan (Post-Close) ────────────────────────────────────────────────
+// Source: "Mosaic" planning sheet (Google Drive, Business Plan tab), confirmed
+// against the live deal 2026-07-20. Replaces the old 5%-organic model, which
+// didn't tie to the real plan. Year 0 = 2026 entry/closing basis (current
+// run-rate at acquisition, target close Q3 2026); Years 1-5 = 2027-2031 hold
+// period, ending at ~$17.2M revenue / ~$3.1M EBITDA.
+//
+// AUDIT-FOLLOWUP: this is the aggregate plan (organic growth + all initiatives
+// combined) — splitting it into an "organic baseline" vs. "initiative impact"
+// track, and building a per-year EBITDA bridge tied to these EOY numbers, is
+// a deliberate next step, not done here. See ROADMAP.md.
 export interface FinancialYear {
   year: string;
   label: string;
@@ -191,152 +175,73 @@ export interface FinancialYear {
   ebitdaMargin: number;
 }
 
-export const financialYearsPreInitiative: FinancialYear[] = [
-  { year: "2026E", label: "Yr 1", revenue: 4_800_000, ebitda: 553_920, ebitdaMargin: 11.5 },
-  { year: "2027E", label: "Yr 2", revenue: 5_040_000, ebitda: 624_960, ebitdaMargin: 12.4 },
-  { year: "2028E", label: "Yr 3", revenue: 5_292_000, ebitda: 701_719, ebitdaMargin: 13.3 },
-  { year: "2029E", label: "Yr 4", revenue: 5_556_600, ebitda: 785_148, ebitdaMargin: 14.1 },
-  { year: "2030E", label: "Yr 5", revenue: 5_834_430, ebitda: 875_165, ebitdaMargin: 15.0 },
+export const entryBasis: FinancialYear = {
+  year: "2026E",
+  label: "Entry (Yr 0)",
+  revenue: 4_679_751,
+  ebitda: 380_260,
+  ebitdaMargin: 8.1,
+};
+
+export const financialYears: FinancialYear[] = [
+  { year: "2027E", label: "Yr 1", revenue: 5_500_000, ebitda: 495_000, ebitdaMargin: 9.0 },
+  { year: "2028E", label: "Yr 2", revenue: 7_425_000, ebitda: 891_000, ebitdaMargin: 12.0 },
+  { year: "2029E", label: "Yr 3", revenue: 10_395_000, ebitda: 1_455_300, ebitdaMargin: 14.0 },
+  { year: "2030E", label: "Yr 4", revenue: 14_033_250, ebitda: 2_315_486, ebitdaMargin: 16.5 },
+  { year: "2031E", label: "Yr 5", revenue: 17_190_730, ebitda: 3_094_331, ebitdaMargin: 18.0 },
 ];
 
-// ─── Financials — POST-Initiative (Organic + Growth Initiatives) ─────────────
-export const financialYearsPostInitiative: FinancialYear[] = [
-  { year: "2026E", label: "Yr 1", revenue: 4_950_000, ebitda: 683_100, ebitdaMargin: 13.8 },
-  { year: "2027E", label: "Yr 2", revenue: 5_690_000, ebitda: 848_100, ebitdaMargin: 14.9 },
-  { year: "2028E", label: "Yr 3", revenue: 5_942_000, ebitda: 848_100, ebitdaMargin: 14.3 },
-  { year: "2029E", label: "Yr 4", revenue: 6_036_600, ebitda: 958_100, ebitdaMargin: 15.9 },
-  { year: "2030E", label: "Yr 5", revenue: 6_314_430, ebitda: 958_100, ebitdaMargin: 15.2 },
-];
-
-// Combined for chart (used on summary page)
-export const financialYears: FinancialYear[] = financialYearsPostInitiative;
-
-// ─── Growth Initiative Phase Targets ─────────────────────────────────────────
-export interface InitiativePhaseTarget {
-  phase: string;
-  years: string;
-  salesImpact: number;
-  ebitdaImpact: number;
-  projectedEbitda: number;
-  projectedMargin: number;
+// ─── Junior Partner Equity Vesting ────────────────────────────────────────────
+// JP equity vests 0% -> 20% over the hold as the company creates value — no
+// upfront cash investment (confirmed 2026-07-20; corrects the prior $100K
+// cash-investment assumption, which was wrong).
+export interface JPVestingYear {
+  year: string;
+  jpEquityPct: number;
+  jpEquityValue: number;
 }
 
-export const initiativePhaseTargets: InitiativePhaseTarget[] = [
-  { phase: "Phase 1: Efficiency Engine", years: "Yr 1", salesImpact: 150_000, ebitdaImpact: 129_100, projectedEbitda: 683_100, projectedMargin: 13.8 },
-  { phase: "Phase 2: Commercial & Digital", years: "Yr 2–3", salesImpact: 650_000, ebitdaImpact: 165_000, projectedEbitda: 848_100, projectedMargin: 14.5 },
-  { phase: "Phase 3: Scale & Geo Expansion", years: "Yr 4–5", salesImpact: 480_000, ebitdaImpact: 110_000, projectedEbitda: 958_100, projectedMargin: 16.4 },
+export const jpVestingSchedule: JPVestingYear[] = [
+  { year: "Yr 1", jpEquityPct: 4, jpEquityValue: 153_142 },
+  { year: "Yr 2", jpEquityPct: 8, jpEquityValue: 456_427 },
+  { year: "Yr 3", jpEquityPct: 12, jpEquityValue: 969_111 },
+  { year: "Yr 4", jpEquityPct: 16, jpEquityValue: 2_125_368 },
+  { year: "Yr 5", jpEquityPct: 20, jpEquityValue: 4_498_418 },
 ];
 
-// ─── Scenario 1 — 10% LP Debt IO ────────────────────────────────────────────
+// ─── Cash Flow Projections & Distributions ───────────────────────────────────
+// Debt service and Net Income/FCF per the Mosaic sheet's Financing Schedule +
+// P&L (SBA Term Loan + Seller Note — the confirmed capital structure).
+//
+// Distribution rule (confirmed 2026-07-20): each year, distribute the LESSER
+// of 1/3 of Net Income or Free Cash Flow ("distributablePool"); JP receives
+// that pool times their vested equity % for the year ("jpDistribution"); GP
+// receives the remainder ("gpDistribution").
 export interface CashFlowYear {
   year: string;
   sales: number;
-  ebitdaPct: number;
   ebitda: number;
-  lpInterest: number;
-  sellerNote: number;
-  capitalReserve: number;
+  ebitdaPct: number;
+  sbaInterest: number;
+  sbaPrincipal: number;
+  sellerNoteInterest: number;
+  sellerNotePrincipal: number;
+  capex: number;
   taxes: number;
-  distributableFCF: number;
-  managingMember: number;
-  juniorPartner: number;
-  seniorLPEquity?: number;
+  netIncome: number;
+  freeCashFlow: number;
+  distributablePool: number;
+  jpEquityPct: number;
+  gpDistribution: number;
+  jpDistribution: number;
 }
 
-// Operating distributions: 79/16/5 split (GP/JP/LP kicker where applicable)
-// For Scenario 1 (no kicker): 83/17 split (GP/JP) — same ratio as 79/16 normalized
-export const scenario1CashFlows: CashFlowYear[] = [
-  { year: "Yr 1", sales: 4_800_000, ebitdaPct: 11.5, ebitda: 553_920, lpInterest: -240_000, sellerNote: -46_400, capitalReserve: -55_000, taxes: -53_130, distributableFCF: 159_390, managingMember: 132_294, juniorPartner: 27_096 },
-  { year: "Yr 2", sales: 5_040_000, ebitdaPct: 12.4, ebitda: 624_960, lpInterest: -240_000, sellerNote: -46_400, capitalReserve: -57_750, taxes: -70_203, distributableFCF: 210_607, managingMember: 174_804, juniorPartner: 35_803 },
-  { year: "Yr 3", sales: 5_292_000, ebitdaPct: 13.3, ebitda: 701_719, lpInterest: -240_000, sellerNote: -46_400, capitalReserve: -60_638, taxes: -88_670, distributableFCF: 266_011, managingMember: 220_789, juniorPartner: 45_222 },
-  { year: "Yr 4", sales: 5_556_600, ebitdaPct: 14.1, ebitda: 785_148, lpInterest: -240_000, sellerNote: -46_400, capitalReserve: -63_669, taxes: -108_770, distributableFCF: 326_309, managingMember: 270_836, juniorPartner: 55_473 },
-  { year: "Yr 5", sales: 5_834_430, ebitdaPct: 15.0, ebitda: 875_165, lpInterest: -240_000, sellerNote: -46_400, capitalReserve: -66_853, taxes: -130_478, distributableFCF: 391_434, managingMember: 324_890, juniorPartner: 66_544 },
-];
-
-export const scenario1 = {
-  name: "Scenario 1 — 10% LP Debt Only",
-  lpRate: "10%",
-  lpStructure: "IO, 60-month balloon",
-  totalDeal: 3_100_000,
-  lpPrincipal: 2_400_000,
-  gpEquity: 400_000,
-  jpEquity: 100_000,
-  sellerNote: 200_000,
-  exitEV: 9_000_000,
-  lpCoverage: "2.31×",
-  profitSplit: "GP 79% / JP 16% / LP kicker 5%",
-  jpStructure: "5% equity + 11% carried interest",
-};
-
-// ─── Scenario 2 — 7% LP + 5% Equity Kicker ──────────────────────────────────
-// Scenario 2: 7% IO + 5% LP equity kicker. Profit split 79/16/5 (GP/JP/LP kicker)
-export const scenario2CashFlows: CashFlowYear[] = [
-  { year: "Yr 1", sales: 4_800_000, ebitdaPct: 11.5, ebitda: 553_920, lpInterest: -168_000, sellerNote: -46_400, capitalReserve: -55_000, taxes: -71_130, distributableFCF: 213_390, managingMember: 168_578, juniorPartner: 34_142, seniorLPEquity: 10_670 },
-  { year: "Yr 2", sales: 5_040_000, ebitdaPct: 12.4, ebitda: 624_960, lpInterest: -168_000, sellerNote: -46_400, capitalReserve: -57_750, taxes: -88_203, distributableFCF: 264_607, managingMember: 209_040, juniorPartner: 42_337, seniorLPEquity: 13_230 },
-  { year: "Yr 3", sales: 5_292_000, ebitdaPct: 13.3, ebitda: 701_719, lpInterest: -168_000, sellerNote: -46_400, capitalReserve: -60_638, taxes: -106_670, distributableFCF: 320_011, managingMember: 252_809, juniorPartner: 51_202, seniorLPEquity: 16_001 },
-  { year: "Yr 4", sales: 5_556_600, ebitdaPct: 14.1, ebitda: 785_148, lpInterest: -168_000, sellerNote: -46_400, capitalReserve: -63_669, taxes: -126_770, distributableFCF: 380_309, managingMember: 300_444, juniorPartner: 60_849, seniorLPEquity: 19_015 },
-  { year: "Yr 5", sales: 5_834_430, ebitdaPct: 15.0, ebitda: 875_165, lpInterest: -168_000, sellerNote: -46_400, capitalReserve: -66_853, taxes: -148_478, distributableFCF: 445_434, managingMember: 351_893, juniorPartner: 71_269, seniorLPEquity: 22_272 },
-];
-
-export const scenario2 = {
-  name: "Scenario 2 — 7% LP + 5% Equity Kicker",
-  lpRate: "7%",
-  lpStructure: "IO + 5% common equity kicker, refi allowed after Mo 12",
-  totalDeal: 3_100_000,
-  lpPrincipal: 2_400_000,
-  gpEquity: 400_000,
-  jpEquity: 100_000,
-  sellerNote: 200_000,
-  exitEV: 9_000_000,
-  postDebtEV: 6_600_000,
-  lpCoverage: "3.30×",
-  profitSplit: "GP 79% / JP 16% / LP kicker 5%",
-  jpStructure: "5% equity + 11% carried interest",
-  exitSplit: { seniorLP5pct: 305_000, juniorPartner16pct: 1_076_000, managingMember79pct: 5_219_000 },
-};
-
-// ─── Income Statement Line Items ─────────────────────────────────────────────
-export interface IncomeStatementLine {
-  label: string;
-  isHeader?: boolean;
-  values: (number | null)[];
-}
-
-// Pre-initiative (organic only) cash flow — Scenario 1 (10% IO)
-export const incomeStatementPreInitiative: IncomeStatementLine[] = [
-  { label: "Revenue", isHeader: true, values: [4_800_000, 5_040_000, 5_292_000, 5_556_600, 5_834_430] },
-  { label: "EBITDA", isHeader: true, values: [553_920, 624_960, 701_719, 785_148, 875_165] },
-  { label: "EBITDA Margin", values: [11.5, 12.4, 13.3, 14.1, 15.0] },
-  { label: "LP Interest (10% IO)", values: [-240_000, -240_000, -240_000, -240_000, -240_000] },
-  { label: "Seller Note (P&I)", values: [-46_400, -46_400, -46_400, -46_400, -46_400] },
-  { label: "Capital Reserve", values: [-55_000, -57_750, -60_638, -63_669, -66_853] },
-  { label: "Est. Taxes (25%)", values: [-53_130, -70_203, -88_670, -108_770, -130_478] },
-  { label: "Distributable FCF", isHeader: true, values: [159_390, 210_607, 266_011, 326_309, 391_434] },
-  { label: "→ GP (Keith Piper — 79%)", values: [132_294, 174_804, 220_789, 270_836, 324_890] },
-  { label: "→ JP (5% eq + 11% carry — 16%)", values: [27_096, 35_803, 45_222, 55_473, 66_544] },
-  { label: "→ LP (Senior Debt Yield)", values: [240_000, 240_000, 240_000, 240_000, 240_000] },
-];
-
-// Post-initiative cash flow (same debt service, higher EBITDA → higher FCF)
-// Post-init FCF = EBITDA - LP Interest - Seller Note - Reserve - Taxes(25%)
-// Yr1: 683100-240000-46400-55000-0.25*(683100-240000-46400-55000) = 683100-341400 - 0.25*341700 = 341700-85425 = 256275
-// GP/JP rows below are 79%/16% of distributable FCF (normalized split), which
-// leaves 5% unaccounted for — this table still uses the no-kicker 10% IO debt
-// terms (Scenario 1), which has no LP equity-kicker row to absorb that 5%.
-// AUDIT-FOLLOWUP: reconcile whether this table should add a "→ LP (5% equity
-// kicker)" row or use the 83/17 no-kicker split instead. Tracked on roadmap.
-export const incomeStatementPostInitiative: IncomeStatementLine[] = [
-  { label: "Revenue", isHeader: true, values: [4_950_000, 5_690_000, 5_942_000, 6_036_600, 6_314_430] },
-  { label: "EBITDA", isHeader: true, values: [683_100, 848_100, 848_100, 958_100, 958_100] },
-  { label: "EBITDA Margin", values: [13.8, 14.9, 14.3, 15.9, 15.2] },
-  { label: "LP Interest (10% IO)", values: [-240_000, -240_000, -240_000, -240_000, -240_000] },
-  { label: "Seller Note (P&I)", values: [-46_400, -46_400, -46_400, -46_400, -46_400] },
-  { label: "Capital Reserve", values: [-55_000, -57_750, -60_638, -63_669, -66_853] },
-  { label: "Est. Taxes (25%)", values: [-85_425, -125_988, -125_266, -152_008, -151_212] },
-  { label: "Distributable FCF", isHeader: true, values: [256_275, 377_963, 375_796, 456_023, 453_636] },
-  { label: "→ GP (Keith Piper — 79%)", values: [202_457, 298_591, 296_879, 360_258, 358_372] },
-  { label: "→ JP (5% eq + 11% carry — 16%)", values: [41_004, 60_474, 60_127, 72_964, 72_582] },
-  { label: "→ LP (Senior Debt Yield)", values: [240_000, 240_000, 240_000, 240_000, 240_000] },
+export const cashFlowProjections: CashFlowYear[] = [
+  { year: "Yr 1", sales: 5_500_000, ebitda: 495_000, ebitdaPct: 9.0, sbaInterest: -64_854, sbaPrincipal: -224_000, sellerNoteInterest: -28_000, sellerNotePrincipal: -67_046, capex: -30_000, taxes: -102_547, netIncome: 299_599, freeCashFlow: 269_599, distributablePool: 99_866, jpEquityPct: 4, gpDistribution: 95_871, jpDistribution: 3_995 },
+  { year: "Yr 2", sales: 7_425_000, ebitda: 891_000, ebitdaPct: 12.0, sbaInterest: -64_854, sbaPrincipal: -224_000, sellerNoteInterest: -28_000, sellerNotePrincipal: -67_046, capex: -30_000, taxes: -203_527, netIncome: 594_619, freeCashFlow: 564_619, distributablePool: 198_206, jpEquityPct: 8, gpDistribution: 182_350, jpDistribution: 15_856 },
+  { year: "Yr 3", sales: 10_395_000, ebitda: 1_455_300, ebitdaPct: 14.0, sbaInterest: -64_854, sbaPrincipal: -224_000, sellerNoteInterest: -28_000, sellerNotePrincipal: -67_046, capex: -30_000, taxes: -347_424, netIncome: 1_015_022, freeCashFlow: 985_022, distributablePool: 338_341, jpEquityPct: 12, gpDistribution: 297_740, jpDistribution: 40_601 },
+  { year: "Yr 4", sales: 14_033_250, ebitda: 2_315_486, ebitdaPct: 16.5, sbaInterest: -64_854, sbaPrincipal: -224_000, sellerNoteInterest: -28_000, sellerNotePrincipal: -67_046, capex: -30_000, taxes: -566_771, netIncome: 1_655_861, freeCashFlow: 1_625_861, distributablePool: 551_954, jpEquityPct: 16, gpDistribution: 463_641, jpDistribution: 88_313 },
+  { year: "Yr 5", sales: 17_190_730, ebitda: 3_094_331, ebitdaPct: 18.0, sbaInterest: -64_854, sbaPrincipal: -224_000, sellerNoteInterest: -28_000, sellerNotePrincipal: -67_046, capex: -30_000, taxes: -765_377, netIncome: 2_236_100, freeCashFlow: 2_206_100, distributablePool: 745_367, jpEquityPct: 20, gpDistribution: 596_294, jpDistribution: 149_073 },
 ];
 
 export const incomeStatementYears = ["Yr 1", "Yr 2", "Yr 3", "Yr 4", "Yr 5"];
@@ -360,6 +265,12 @@ export const debtFacilities: DebtFacility[] = [
   { name: "A/R Factoring", lender: "TBD", amount: "$400K revolving", rate: "3.0%", structure: "Revolving", maturity: "Ongoing", recourse: "Non-recourse" },
 ];
 
+// AUDIT-FOLLOWUP: this single cumulative bridge still targets the old ~$1.3M
+// Year-5 EBITDA plan (Baseline $334K), not the new $3.09M Year-5 EBITDA from
+// the real 5-year plan above. Item 5 of the 2026-07-20 direction asks for a
+// per-year bridge (organic vs. initiative, tied to real EOY EBITDA each year)
+// plus a schedule per initiative — that's a deliberate follow-up rebuild, not
+// done here. Tracked in ROADMAP.md.
 // ─── EBITDA Bridge ───────────────────────────────────────────────────────────
 export interface BridgeItem {
   name: string;
@@ -379,6 +290,10 @@ export const ebitdaBridge: BridgeItem[] = [
   { name: "Phase 3 Initiatives", value: 110_000 },
 ];
 
+// AUDIT-FOLLOWUP: sensitivity/IRR matrices below and the base-case anchor
+// still assume the old $9M exit EV / $3.1M raise. Needs a rebuild against the
+// new SBA-based structure and real revenue plan once an exit-valuation model
+// is defined. Tracked in ROADMAP.md.
 // ─── Sensitivity Matrix (MOIC) ──────────────────────────────────────────────
 export const sensitivityRevenueLabels = ["-40%", "-30%", "-20%", "-10%", "Base", "+10%"];
 
@@ -409,53 +324,6 @@ export const irrMatrix: number[][] = [
   [78.1, 54.8, 42.4, 34.6, 29.3],
   [87.6, 60.9, 46.8, 38.0, 32.1],
   [96.3, 66.4, 50.7, 41.0, 34.5],
-];
-
-// ─── Full Scenario Returns ───────────────────────────────────────────────────
-export interface FullScenario {
-  name: string;
-  exitMultiple: string;
-  lp: { proceeds: string; moic: string; irr: string };
-  mp: { proceeds: string; moic: string; irr: string };
-  jp: { proceeds: string; moic: string; irr: string };
-}
-
-// Exit waterfall: Post-debt equity → return capital ($400K GP + $100K JP) → split 75/20/5
-// Bear: $9M×0.5=$4.5M EV, −$2.6M debt=$1.9M equity. Cap return $500K. Remaining $1.4M → GP 75%=$1.05M+$400K=$1.45M, JP 20%=$280K+$100K=$380K
-// Base: $9M EV, −$2.4M debt=$6.6M. Cap $500K. Rem $6.1M → GP=$4.575M+$400K=$4.975M, JP=$1.22M+$100K=$1.32M
-// Bull: $9M×1.25=$11.25M, −$2.4M=$8.85M. Cap $500K. Rem $8.35M → GP=$6.263M+$400K=$6.663M, JP=$1.77M+$100K=$1.87M
-// Stretch: $9M×1.5=$13.5M, −$2.4M=$11.1M. Cap $500K. Rem $10.6M → GP=$7.95M+$400K=$8.35M, JP=$2.12M+$100K=$2.22M
-// Exit waterfall: Post-debt equity → return capital ($500K) → split 79/16/5 (GP/JP/LP)
-// GP MOIC is 16-22% higher than JP MOIC across all scenarios
-export const fullScenarios: FullScenario[] = [
-  {
-    name: "Bear",
-    exitMultiple: "4.5×",
-    lp: { proceeds: "$3.21M", moic: "1.34×", irr: "5.4%" },
-    mp: { proceeds: "$1.51M", moic: "3.77×", irr: "30%" },
-    jp: { proceeds: "$324K", moic: "3.24×", irr: "26%" },
-  },
-  {
-    name: "Base",
-    exitMultiple: "$9M EV",
-    lp: { proceeds: "$3.51M", moic: "1.46×", irr: "6.2%" },
-    mp: { proceeds: "$5.22M", moic: "13.05×", irr: "66%" },
-    jp: { proceeds: "$1.08M", moic: "10.76×", irr: "60%" },
-  },
-  {
-    name: "Bull",
-    exitMultiple: "7.5×",
-    lp: { proceeds: "$3.81M", moic: "1.59×", irr: "7.0%" },
-    mp: { proceeds: "$7.00M", moic: "17.49×", irr: "77%" },
-    jp: { proceeds: "$1.44M", moic: "14.36×", irr: "70%" },
-  },
-  {
-    name: "Stretch",
-    exitMultiple: "9.0×",
-    lp: { proceeds: "$4.11M", moic: "1.71×", irr: "7.7%" },
-    mp: { proceeds: "$8.77M", moic: "21.94×", irr: "85%" },
-    jp: { proceeds: "$1.80M", moic: "17.96×", irr: "78%" },
-  },
 ];
 
 // ─── Lender Comparisons ─────────────────────────────────────────────────────

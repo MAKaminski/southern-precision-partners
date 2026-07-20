@@ -1,60 +1,13 @@
-import { fullScenarios } from "@/lib/data";
-
-const scenarioColors: Record<string, string> = {
-  Bear: "border-red-500/30",
-  Base: "border-accent-blue/30",
-  Bull: "border-accent-green/30",
-  Stretch: "border-accent-amber/30",
-};
-
+// Bear/Base/Bull/Stretch full-investor-return cards were removed 2026-07-20 —
+// they were built on the old $9M-exit / $400K-GP-equity / $100K-JP-cash
+// structure, none of which match the confirmed SBA-based structure and JP
+// equity-vesting schedule. Re-deriving these needs an exit-valuation model,
+// which doesn't exist yet. Tracked in ROADMAP.md.
 export function FullScenarioCards() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {fullScenarios.map((s) => (
-        <div key={s.name} className={`bg-surface border ${scenarioColors[s.name]} rounded-lg p-4`}>
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="text-sm font-semibold text-foreground">{s.name} Case</h4>
-            <span className="text-xs text-text-secondary">Exit: {s.exitMultiple}</span>
-          </div>
-          {/* AUDIT-FOLLOWUP: s.lp (SBA term loan) row removed — bank debt doesn't
-              carry a MOIC/IRR the way an equity-kicker LP position did, and s.mp/s.jp
-              below still reflect the prior $400K/79%-profit-share structure, not the
-              new $280K GP equity figure. Needs a full model rebuild. See ROADMAP.md. */}
-          <div className="space-y-3">
-            <InvestorRow label="GP — Keith Piper (79% profit)" invested="$400K" data={s.mp} color="text-accent-green" />
-            <InvestorRow label="JP (5% equity + 11% carry)" invested="$100K" data={s.jp} color="text-accent-purple" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function InvestorRow({
-  label,
-  invested,
-  data,
-  color,
-}: {
-  label: string;
-  invested: string;
-  data: { proceeds: string; moic: string; irr: string };
-  color: string;
-}) {
-  return (
-    <div className="border-b border-border-custom/30 pb-2 last:border-0 last:pb-0">
-      <div className={`text-xs font-medium ${color} mb-1`}>{label} ({invested})</div>
-      <div className="flex gap-4 text-xs">
-        <span className="text-text-secondary">
-          Proceeds: <span className="text-foreground">{data.proceeds}</span>
-        </span>
-        <span className="text-text-secondary">
-          MOIC: <span className="text-accent-green font-semibold">{data.moic}</span>
-        </span>
-        <span className="text-text-secondary">
-          IRR: <span className="text-accent-green font-semibold">{data.irr}</span>
-        </span>
-      </div>
+    <div className="text-sm text-text-secondary bg-surface border border-dashed border-border-custom rounded-lg p-4">
+      Full investor returns by exit scenario are being rebuilt against the new SBA-based capital structure
+      and JP equity-vesting schedule. Pending an exit-valuation model.
     </div>
   );
 }

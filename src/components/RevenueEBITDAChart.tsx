@@ -2,36 +2,25 @@
 
 import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
-import { financialYearsPreInitiative, financialYearsPostInitiative, scenario1CashFlows } from "@/lib/data";
+import { financialYears, cashFlowProjections } from "@/lib/data";
 
-// FCF from scenario 1 (organic) and approximate post-initiative FCF
-const organicFCF = scenario1CashFlows.map((cf) => cf.distributableFCF);
-// Post-initiative FCF (from incomeStatementPostInitiative data)
-const postInitFCF = [256_275, 377_963, 375_796, 456_023, 453_636];
+// Outstanding debt: SBA Term Loan $2.24M declining $224K/yr (per Financing
+// Schedule) + Seller Note $280K held flat (amortization term not yet
+// finalized — see debtFacilities).
+const outstandingDebt = [2_296_000, 2_072_000, 1_848_000, 1_624_000, 1_400_000];
 
-// Outstanding debt: LP $2.4M bullet (stays flat), Seller note $200K amortizing
-// Seller note: 5-yr amort on $200K at 6% → principal balance declines ~$40K/yr
-const outstandingDebt = [2_600_000, 2_560_000, 2_520_000, 2_480_000, 2_440_000];
+const chartData = financialYears.map((y, i) => ({
+  year: y.label,
+  EBITDA: y.ebitda,
+  "Free Cash Flow": cashFlowProjections[i].freeCashFlow,
+  "Outstanding Debt": outstandingDebt[i],
+}));
 
-const chartData = financialYearsPreInitiative.map((pre, i) => {
-  const post = financialYearsPostInitiative[i];
-  return {
-    year: pre.label,
-    "EBITDA (Organic)": pre.ebitda,
-    "EBITDA (w/ Initiatives)": post.ebitda,
-    "FCF (Organic)": organicFCF[i],
-    "FCF (w/ Initiatives)": postInitFCF[i],
-    "Outstanding Debt": outstandingDebt[i],
-  };
-});
-
-type BarKey = "EBITDA (Organic)" | "EBITDA (w/ Initiatives)" | "FCF (Organic)" | "FCF (w/ Initiatives)" | "Outstanding Debt";
+type BarKey = "EBITDA" | "Free Cash Flow" | "Outstanding Debt";
 
 const barConfig: { key: BarKey; fill: string; label: string }[] = [
-  { key: "EBITDA (Organic)", fill: "#93C5FD", label: "EBITDA (Organic)" },
-  { key: "EBITDA (w/ Initiatives)", fill: "#2563EB", label: "EBITDA (w/ Init.)" },
-  { key: "FCF (Organic)", fill: "#6EE7B7", label: "FCF (Organic)" },
-  { key: "FCF (w/ Initiatives)", fill: "#059669", label: "FCF (w/ Init.)" },
+  { key: "EBITDA", fill: "#2563EB", label: "EBITDA" },
+  { key: "Free Cash Flow", fill: "#059669", label: "Free Cash Flow" },
   { key: "Outstanding Debt", fill: "#F87171", label: "Outstanding Debt" },
 ];
 
@@ -43,10 +32,8 @@ function formatTick(val: number) {
 
 export function RevenueEBITDAChart() {
   const [visible, setVisible] = useState<Record<BarKey, boolean>>({
-    "EBITDA (Organic)": true,
-    "EBITDA (w/ Initiatives)": true,
-    "FCF (Organic)": true,
-    "FCF (w/ Initiatives)": true,
+    EBITDA: true,
+    "Free Cash Flow": true,
     "Outstanding Debt": true,
   });
 

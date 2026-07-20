@@ -14,7 +14,7 @@ export function InvestorReturnCard({ investor }: InvestorReturnCardProps) {
       <div className="space-y-2">
         <Row label="Cash Invested" value={investor.invested} />
         <Row label="Structure" value={investor.structure} />
-        <Row label="Total Proceeds (Base)" value={investor.proceeds} />
+        <Row label="5-Yr Distributions" value={investor.proceeds} />
         <Row label="MOIC" value={investor.moic} highlight />
         <Row label="IRR" value={investor.irr} highlight />
       </div>

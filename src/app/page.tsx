@@ -61,7 +61,7 @@ export default function HomePage() {
                 <div>
                   <span className="text-[10px] font-medium text-accent-blue bg-accent-blue/10 px-2 py-0.5 rounded uppercase">Active — Target Close Q3 2026</span>
                   <h3 className="text-xl font-bold text-foreground mt-2">Project Mosaic</h3>
-                  <p className="text-sm text-text-secondary mt-1">Tile Center Group — Leveraged Buyout | Georgia</p>
+                  <p className="text-sm text-text-secondary mt-1">Building Materials Retailer — Leveraged Buyout | South Carolina</p>
                 </div>
                 <svg className="w-5 h-5 text-text-secondary group-hover:text-accent-blue transition-colors mt-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </div>
@@ -69,7 +69,8 @@ export default function HomePage() {
                 <MiniStat label="Enterprise Value" value="$2.49M" />
                 <MiniStat label="LTM Revenue" value="$4.95M" />
                 <MiniStat label="Pro-Forma EBITDA" value="$554K" />
-                <MiniStat label="Entry Multiple" value="4.5x" />
+                <MiniStat label="OpCo Value (2.7x)" value="$1.49M" />
+                <MiniStat label="Real Estate" value="$1.0M" />
               </div>
             </div>
           </a>
