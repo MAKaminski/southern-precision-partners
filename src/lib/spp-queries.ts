@@ -48,6 +48,15 @@ export interface RevenueMatrixRow {
   ending_rev: number | null;
 }
 
+export interface OpexGlRow {
+  id: string;
+  scenario: "forecast" | "plan";
+  gl_category: string;
+  year: number;
+  value: number | null;
+  sort_order: number;
+}
+
 export interface Customer {
   id: string;
   customer_code: string | null;
@@ -134,19 +143,22 @@ export async function getForecast(): Promise<{
   rows: ForecastRow[];
   debt: DebtRow[];
   revenueMatrix: RevenueMatrixRow[];
+  opexGl: OpexGlRow[];
 }> {
   const db = getSppDb();
-  if (!db) return { rows: [], debt: [], revenueMatrix: [] };
-  const [pnl, debt, rev] = await Promise.all([
+  if (!db) return { rows: [], debt: [], revenueMatrix: [], opexGl: [] };
+  const [pnl, debt, rev, opexGl] = await Promise.all([
     db.from("forecast_pnl").select("*").order("sort_order").order("year"),
     db.from("debt_schedule").select("facility,year,principal,interest,ending_balance").order("year"),
     db.from("revenue_matrix").select("*").order("year"),
+    db.from("forecast_opex_gl").select("*").order("sort_order").order("year"),
   ]);
   if (pnl.error) console.error("getForecast/pnl", pnl.error.message);
   return {
     rows: (pnl.data ?? []) as ForecastRow[],
     debt: (debt.data ?? []) as DebtRow[],
     revenueMatrix: (rev.data ?? []) as RevenueMatrixRow[],
+    opexGl: (opexGl.data ?? []) as OpexGlRow[],
   };
 }
 
@@ -246,6 +258,51 @@ export async function getSchemaErd(): Promise<SchemaErd | null> {
   const { data, error } = await db.rpc("get_schema_erd");
   if (error) { console.error("getSchemaErd", error.message); return null; }
   return data as SchemaErd;
+}
+
+export interface GrowthInitiative {
+  id: string;
+  category: "new_business" | "churn_replacement" | "share_of_wallet" | "pricing" | "other";
+  name: string;
+  description: string | null;
+  target_revenue_impact: number | null;
+  owner: string | null;
+  status: "tbd" | "planned" | "in_progress" | "done";
+  notes: string | null;
+  sort_order: number;
+}
+
+export async function getGrowthInitiatives(): Promise<GrowthInitiative[]> {
+  const db = getSppDb();
+  if (!db) return [];
+  const { data, error } = await db
+    .from("growth_initiatives")
+    .select("*")
+    .order("sort_order", { ascending: true });
+  if (error) { console.error("getGrowthInitiatives", error.message); return []; }
+  return (data ?? []) as GrowthInitiative[];
+}
+
+export interface MonthlyPerformanceRow {
+  id: string;
+  year: number;
+  month: number;
+  category: "Revenue" | "EBITDA" | "Free Cash Flow" | "Cash Balance";
+  plan_value: number | null;
+  actual_value: number | null;
+  notes: string | null;
+}
+
+export async function getMonthlyPerformance(year: number): Promise<MonthlyPerformanceRow[]> {
+  const db = getSppDb();
+  if (!db) return [];
+  const { data, error } = await db
+    .from("monthly_performance")
+    .select("*")
+    .eq("year", year)
+    .order("month", { ascending: true });
+  if (error) { console.error("getMonthlyPerformance", error.message); return []; }
+  return (data ?? []) as MonthlyPerformanceRow[];
 }
 
 /** True when the SPP database connection is configured (service-role key present). */
