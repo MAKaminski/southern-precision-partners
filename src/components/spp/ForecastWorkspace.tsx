@@ -283,13 +283,19 @@ function OpexGl({
   setScenario: (s: "forecast" | "plan") => void;
   onSaved: (id: string, v: number | null) => void;
 }) {
-  const [year, setYear] = useState(years[years.length - 1]);
-  const rowsForYear = opexGl
-    .filter((r) => r.scenario === scenario && r.year === year)
-    .sort((a, b) => a.sort_order - b.sort_order);
-  const lumpTotal = lumpRows.find((r) => r.scenario === scenario && r.category === "OpEx" && r.year === year)?.value ?? null;
-  const glSum = rowsForYear.reduce((s, r) => s + (r.value ?? 0), 0);
-  const reconciled = lumpTotal === null || Math.abs(glSum - lumpTotal) < 0.5;
+  const rowsForScenario = opexGl.filter((r) => r.scenario === scenario);
+  const categories = useMemo(() => {
+    const byCat = new Map<string, { gl_category: string; sort_order: number; byYear: Record<number, OpexGlRow> }>();
+    for (const r of rowsForScenario) {
+      if (!byCat.has(r.gl_category)) byCat.set(r.gl_category, { gl_category: r.gl_category, sort_order: r.sort_order, byYear: {} });
+      byCat.get(r.gl_category)!.byYear[r.year] = r;
+    }
+    return [...byCat.values()].sort((a, b) => a.sort_order - b.sort_order);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opexGl, scenario]);
+
+  const glSumByYear = (y: number) => categories.reduce((s, c) => s + (c.byYear[y]?.value ?? 0), 0);
+  const lumpTotalByYear = (y: number) => lumpRows.find((r) => r.scenario === scenario && r.category === "OpEx" && r.year === y)?.value ?? null;
 
   return (
     <div>
@@ -303,52 +309,56 @@ function OpexGl({
             {s}
           </button>
         ))}
-        <select
-          value={year}
-          onChange={(e) => setYear(Number(e.target.value))}
-          className="text-xs bg-surface border border-border-custom rounded px-2 py-1"
-        >
-          {years.map((y) => (
-            <option key={y} value={y}>{y}</option>
-          ))}
-        </select>
-        <span className={`text-[11px] ml-2 ${reconciled ? "text-accent-green" : "text-red-600"}`}>
-          {lumpTotal === null
-            ? "No lump OpEx total for this year"
-            : reconciled
-              ? `Reconciles to lump OpEx (${money(lumpTotal)})`
-              : `Off by ${money(glSum - lumpTotal)} vs lump OpEx (${money(lumpTotal)})`}
-        </span>
       </div>
       <p className="text-[11px] text-text-secondary mb-3">
         Standard chart of accounts, seeded once with the known lump OpEx total under &quot;Unclassified&quot; —
-        move dollars into named categories as real GL data becomes available. No splits are invented here.
+        move dollars into named categories as real GL data becomes available. No splits are invented here. Click
+        any cell to edit. The Reconciled row shows whether the GL categories sum to the lump OpEx total for that
+        year.
       </p>
       <div className="overflow-x-auto border border-border-custom rounded-lg">
         <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-border-custom bg-surface text-text-secondary">
-              <th className="text-left py-2 px-3 font-medium">GL Category</th>
-              <th className="text-right py-2 px-3 font-medium">
-                {year} {scenario}
-              </th>
+              <th className="text-left py-2 px-3 font-medium sticky left-0 bg-surface">GL Category</th>
+              {years.map((y) => <th key={y} className="text-right py-2 px-2 font-medium whitespace-nowrap">{y}</th>)}
             </tr>
           </thead>
           <tbody>
-            {rowsForYear.map((r) => (
+            {categories.map((c) => (
               <tr
-                key={r.id}
-                className={`border-b border-border-custom/50 ${r.gl_category.startsWith("Unclassified") ? "bg-surface/60 italic" : ""}`}
+                key={c.gl_category}
+                className={`border-b border-border-custom/50 ${c.gl_category.startsWith("Unclassified") ? "bg-surface/60 italic" : ""}`}
               >
-                <td className="py-1.5 px-3 text-text-secondary">{r.gl_category}</td>
-                <td className="py-1 px-3 text-right">
-                  <OpexGlCell row={r} onSaved={onSaved} />
-                </td>
+                <td className="py-1.5 px-3 text-text-secondary whitespace-nowrap sticky left-0 bg-background">{c.gl_category}</td>
+                {years.map((y) => {
+                  const row = c.byYear[y];
+                  return (
+                    <td key={y} className="py-1 px-2 text-right">
+                      {row ? <OpexGlCell row={row} onSaved={onSaved} /> : <span className="text-text-secondary">—</span>}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
             <tr className="border-t-2 border-border-custom font-semibold">
-              <td className="py-1.5 px-3 text-foreground">Total</td>
-              <td className="py-1.5 px-3 text-right font-mono text-foreground">{money(glSum)}</td>
+              <td className="py-1.5 px-3 text-foreground sticky left-0 bg-background">Total</td>
+              {years.map((y) => (
+                <td key={y} className="py-1.5 px-2 text-right font-mono text-foreground whitespace-nowrap">{money(glSumByYear(y))}</td>
+              ))}
+            </tr>
+            <tr>
+              <td className="py-1.5 px-3 text-text-secondary sticky left-0 bg-background">Reconciled to Lump OpEx</td>
+              {years.map((y) => {
+                const lump = lumpTotalByYear(y);
+                const sum = glSumByYear(y);
+                const reconciled = lump === null || Math.abs(sum - lump) < 0.5;
+                return (
+                  <td key={y} className={`py-1.5 px-2 text-right font-mono whitespace-nowrap ${lump === null ? "text-text-secondary" : reconciled ? "text-accent-green" : "text-red-600"}`}>
+                    {lump === null ? "—" : reconciled ? "✓" : money(sum - lump)}
+                  </td>
+                );
+              })}
             </tr>
           </tbody>
         </table>
