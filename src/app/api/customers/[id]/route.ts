@@ -11,7 +11,18 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   const db = getSppDb();
   if (!db) return NextResponse.json({ error: "database not configured" }, { status: 503 });
 
-  let body: { alias?: string; notes?: string; segment?: string };
+  let body: {
+    alias?: string;
+    notes?: string;
+    segment?: string;
+    email?: string | null;
+    phone?: string | null;
+    address_line1?: string | null;
+    city?: string | null;
+    state?: string | null;
+    zip?: string | null;
+    primary_store?: string | null;
+  };
   try {
     body = await req.json();
   } catch {
@@ -26,6 +37,13 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       return NextResponse.json({ error: "invalid segment" }, { status: 400 });
     }
     updates.segment = body.segment;
+  }
+  const TEXT_FIELDS = ["email", "phone", "address_line1", "city", "state", "zip", "primary_store"] as const;
+  for (const field of TEXT_FIELDS) {
+    const value = body[field];
+    if (value !== undefined) {
+      updates[field] = value === null ? null : String(value).trim().slice(0, 300) || null;
+    }
   }
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: "nothing to update" }, { status: 400 });

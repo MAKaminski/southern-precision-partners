@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getCustomer } from "@/lib/spp-queries";
 import { groupArTransactionsByInvoice } from "@/lib/ar-ledger";
 import { ARLedgerInvoices } from "@/components/spp/ARLedgerInvoices";
+import { CustomerContactEditor } from "@/components/spp/CustomerContactEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +53,8 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           ))}
         </div>
       </section>
+
+      <CustomerContactEditor customer={customer} />
 
       {/* Metadata */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">

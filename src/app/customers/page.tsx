@@ -1,6 +1,7 @@
 import { getCustomers, getArAgingByCustomer, sppDbConfigured } from "@/lib/spp-queries";
 import { CustomersTable, type CustomerRow } from "@/components/spp/CustomersTable";
 import { ArAgingQuadrant } from "@/components/spp/ArAgingQuadrant";
+import { CustomerGeography } from "@/components/spp/CustomerGeography";
 import { ClassificationBadge } from "@/components/ClassificationBadge";
 
 export const dynamic = "force-dynamic";
@@ -62,6 +63,8 @@ export default async function CustomersPage() {
             <h2 className="text-sm font-semibold text-foreground mb-1">Collections Issue Areas</h2>
             <ArAgingQuadrant customers={customers} aging={aging} />
           </section>
+
+          <CustomerGeography customers={customers} />
 
           <CustomersTable customers={rows} />
         </>

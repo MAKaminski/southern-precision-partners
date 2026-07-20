@@ -72,6 +72,13 @@ export interface Customer {
   balance: number;
   segment: string | null;
   notes: string | null;
+  email: string | null;
+  phone: string | null;
+  address_line1: string | null;
+  city: string | null;
+  state: string | null;
+  zip: string | null;
+  primary_store: string | null;
 }
 
 export interface AnnualSale {
