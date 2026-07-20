@@ -59,6 +59,13 @@ export const SEGMENT_DEFS: SegmentDef[] = [
 const EXCLUDE_PATTERN = /cash/i;
 const EXCLUDE_ZERO_SALES_ORDER_THRESHOLD = 50;
 
+/** True when a customer record is a point-of-sale/aggregate bucket, not a distinct real customer. */
+export function isExcludedAggregate(c: { name: string; lifetime_sales: number; lifetime_sale_count: number }): boolean {
+  const sales = Number(c.lifetime_sales) || 0;
+  const orders = Number(c.lifetime_sale_count) || 0;
+  return EXCLUDE_PATTERN.test(c.name) || (sales === 0 && orders >= EXCLUDE_ZERO_SALES_ORDER_THRESHOLD);
+}
+
 // Business-name signal: common entity suffixes and trade-industry words seen
 // throughout this ledger (contractors, tile/flooring shops, builders, etc.).
 // Names are truncated to ~15-16 chars in the source export, so this matches
@@ -90,10 +97,9 @@ export function avgAnnualSpend(c: CustomerWithSales): { avg: number; years: numb
 
 export function classifyCustomer(c: CustomerWithSales): ClassifiedCustomer {
   const { avg, years } = avgAnnualSpend(c);
-  const sales = Number(c.lifetime_sales) || 0;
   const orders = Number(c.lifetime_sale_count) || 0;
 
-  if (EXCLUDE_PATTERN.test(c.name) || (sales === 0 && orders >= EXCLUDE_ZERO_SALES_ORDER_THRESHOLD)) {
+  if (isExcludedAggregate(c)) {
     return { customer: c, segment: "excluded", avgAnnualSpend: avg, yearsActive: years };
   }
 

@@ -261,6 +261,25 @@ export async function getSchemaErd(): Promise<SchemaErd | null> {
   return data as SchemaErd;
 }
 
+export interface ArAgingByCustomer {
+  customer_id: string;
+  invoice_count: number;
+  total_invoice_amount: number;
+  avg_days_to_pay: number | null;
+}
+
+/** Per-customer AR aging rollup — see get_ar_aging_by_customer() in
+ * supabase/migrations/0008_ar_aging_by_customer_function.sql. Invoice
+ * dollars and days-to-pay are computed per invoice_number first (one
+ * invoice_amount, latest payment_date), not a naive per-row sum. */
+export async function getArAgingByCustomer(): Promise<ArAgingByCustomer[]> {
+  const db = getSppDb();
+  if (!db) return [];
+  const { data, error } = await db.rpc("get_ar_aging_by_customer");
+  if (error) { console.error("getArAgingByCustomer", error.message); return []; }
+  return (data ?? []) as ArAgingByCustomer[];
+}
+
 export interface GrowthInitiative {
   id: string;
   category: "new_business" | "churn_replacement" | "share_of_wallet" | "pricing" | "other";
