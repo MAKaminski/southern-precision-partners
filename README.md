@@ -16,6 +16,19 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Required environment variables
+
+Set these in Vercel (Project Settings → Environment Variables) for every
+environment (Production, Preview) — the app will build without them but
+auth and confidential-data features fail at runtime if any are missing:
+
+| Variable | Required for |
+|---|---|
+| `AUTH_SECRET` | NextAuth session signing — **without this, all sign-in fails** (`MissingSecret` error) and, more importantly, `src/proxy.ts`'s clearance check can fail open. Generate with `openssl rand -base64 32`. |
+| `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | Google OAuth sign-in |
+| `SUPABASE_SERVICE_ROLE_KEY` (+ `NEXT_PUBLIC_SUPABASE_URL`) | Delivery Plan / Customers / Forecast (`src/lib/spp-db.ts`) |
+| `ANTHROPIC_API_KEY` | Deal-assistant chatbot (`/api/chat`) |
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

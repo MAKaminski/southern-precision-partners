@@ -1,4 +1,7 @@
+import { getCurrentQuarterLabel } from "@/lib/utils";
+
 export default function HomePage() {
+  const currentQuarter = getCurrentQuarterLabel();
   return (
     <div>
       {/* Hero */}
@@ -8,7 +11,7 @@ export default function HomePage() {
         <div className="relative max-w-5xl mx-auto px-4 py-24 sm:py-32 text-center">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full px-4 py-1.5 mb-6">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs text-white/70 font-medium">Actively Acquiring — Q1 2026</span>
+            <span className="text-xs text-white/70 font-medium">Actively Acquiring — {currentQuarter}</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-tight mb-4">
             Strategic Continuity for<br />
@@ -36,7 +39,7 @@ export default function HomePage() {
       <section className="max-w-5xl mx-auto px-4 py-16">
         <div className="text-center mb-10">
           <h2 className="text-2xl font-bold text-foreground">Current Buy Box</h2>
-          <p className="text-sm text-text-secondary mt-2">Our acquisition criteria as of Q1 2026</p>
+          <p className="text-sm text-text-secondary mt-2">Our acquisition criteria as of {currentQuarter}</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <BuyBoxCard icon="target" title="Business Type" value="Founder-Led" description="Clear operational levers for margin expansion and/or revenue growth" />
@@ -59,9 +62,9 @@ export default function HomePage() {
             <div className="bg-background border border-border-custom rounded-xl p-6 hover:border-accent-blue/30 hover:shadow-lg transition-all">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <span className="text-[10px] font-medium text-accent-blue bg-accent-blue/10 px-2 py-0.5 rounded uppercase">Active — April 2026</span>
+                  <span className="text-[10px] font-medium text-accent-blue bg-accent-blue/10 px-2 py-0.5 rounded uppercase">Active — Target Close Q3 2026</span>
                   <h3 className="text-xl font-bold text-foreground mt-2">Project Mosaic</h3>
-                  <p className="text-sm text-text-secondary mt-1">Tile Center Group — Leveraged Buyout | Georgia</p>
+                  <p className="text-sm text-text-secondary mt-1">Building Materials Retailer — Leveraged Buyout | South Carolina</p>
                 </div>
                 <svg className="w-5 h-5 text-text-secondary group-hover:text-accent-blue transition-colors mt-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </div>
@@ -69,7 +72,8 @@ export default function HomePage() {
                 <MiniStat label="Enterprise Value" value="$2.49M" />
                 <MiniStat label="LTM Revenue" value="$4.95M" />
                 <MiniStat label="Pro-Forma EBITDA" value="$554K" />
-                <MiniStat label="Entry Multiple" value="4.5x" />
+                <MiniStat label="OpCo Value (2.7x)" value="$1.49M" />
+                <MiniStat label="Real Estate" value="$1.0M" />
               </div>
             </div>
           </a>

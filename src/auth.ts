@@ -16,6 +16,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      // Without this, Google silently reuses the browser's existing signed-in
+      // account instead of offering the account picker.
+      authorization: { params: { prompt: "select_account" } },
     }),
     Credentials({
       id: "email-signup",

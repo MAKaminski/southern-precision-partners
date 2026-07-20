@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireClearance } from "@/lib/guard";
 
 // Accepts CSV upload of real contacts and returns structured outreach targets
 // CSV format: company,type,location,contactName,contactTitle,email,phone,estimatedRevenue,priority,template
@@ -67,6 +68,10 @@ function parseCSV(text: string): Record<string, string>[] {
 }
 
 export async function POST(req: NextRequest) {
+  // Internal contact import — SEP partners only.
+  const guard = await requireClearance("internal");
+  if (!guard.ok) return guard.response;
+
   try {
     const contentType = req.headers.get("content-type") || "";
 

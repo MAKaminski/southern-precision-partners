@@ -11,6 +11,7 @@ import { EBITDABridgeChart } from "@/components/EBITDABridgeChart";
 import { SensitivityHeatmap } from "@/components/SensitivityHeatmap";
 import { FullScenarioCards } from "@/components/FullScenarioCards";
 import { LenderComparisonTable } from "@/components/LenderComparisonTable";
+import { AcceptanceCostByChannel } from "@/components/AcceptanceCostByChannel";
 import {
   phases,
   usesOfFunds,
@@ -24,8 +25,9 @@ import {
   irrMatrix,
 } from "@/lib/data";
 import { formatCurrency } from "@/lib/utils";
+import { ClassificationBadge } from "@/components/ClassificationBadge";
 
-const tabs = ["Financials", "Deal Structure", "Initiatives", "Returns", "Lenders"] as const;
+const tabs = ["Financials", "Deal Structure", "Initiatives", "Acceptance Cost", "Returns", "Lenders"] as const;
 type Tab = (typeof tabs)[number];
 
 export default function DetailsPage() {
@@ -33,7 +35,10 @@ export default function DetailsPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-foreground mb-6">Project Mosaic — Deep Dive</h1>
+      <div className="flex items-center gap-3 mb-6">
+        <h1 className="text-2xl font-bold text-foreground">Project Mosaic — Deep Dive</h1>
+        <ClassificationBadge level="confidential" showAudience={false} />
+      </div>
 
       {/* Tab bar */}
       <div className="flex gap-1 border-b border-border-custom mb-8 overflow-x-auto">
@@ -56,6 +61,7 @@ export default function DetailsPage() {
       {activeTab === "Financials" && <FinancialsTab />}
       {activeTab === "Deal Structure" && <DealStructureTab />}
       {activeTab === "Initiatives" && <InitiativesTab />}
+      {activeTab === "Acceptance Cost" && <AcceptanceCostByChannel />}
       {activeTab === "Returns" && <ReturnsTab />}
       {activeTab === "Lenders" && <LendersTab />}
     </div>
