@@ -69,7 +69,8 @@ export default function HomePage() {
                 <MiniStat label="Enterprise Value" value="$2.49M" />
                 <MiniStat label="LTM Revenue" value="$4.95M" />
                 <MiniStat label="Pro-Forma EBITDA" value="$554K" />
-                <MiniStat label="Entry Multiple" value="4.5x" />
+                <MiniStat label="OpCo Value (2.7x)" value="$1.49M" />
+                <MiniStat label="Real Estate" value="$1.0M" />
               </div>
             </div>
           </a>
