@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 const money = (v: number) => (v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${Math.round(v / 1000)}K`);
 
 export default async function ForecastPage() {
-  const { rows, debt, revenueMatrix } = await getForecast();
+  const { rows, debt, revenueMatrix, opexGl } = await getForecast();
   const configured = sppDbConfigured();
 
   const years = [...new Set(rows.map((r) => r.year))].sort((a, b) => a - b);
@@ -51,7 +51,7 @@ export default async function ForecastPage() {
             <Kpi label={`${latest} EBITDA %`} value={ebitdaPctLatest !== null ? `${(ebitdaPctLatest * 100).toFixed(1)}%` : "—"} />
             <Kpi label="Horizon" value={`${years[0]}–${latest}`} />
           </div>
-          <ForecastWorkspace rows={rows} years={years} debt={debt} revenueMatrix={revenueMatrix} />
+          <ForecastWorkspace rows={rows} years={years} debt={debt} revenueMatrix={revenueMatrix} opexGl={opexGl} />
         </>
       )}
     </div>

@@ -99,6 +99,14 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: "/customers", level: "internal" }, // customer records incl. PII / aliases / notes
   { prefix: "/delivery", level: "internal" }, // delivery plan / execution tracking — partner-only
   { prefix: "/forecast", level: "internal" }, // forecast P&L model — partner-only
+  { prefix: "/erd", level: "internal" }, // live Supabase schema map — partner-only
+  { prefix: "/hr", level: "internal" }, // staffing plan & pay rates — partner-only
+  { prefix: "/marketing", level: "internal" }, // growth levers & revenue build — partner-only
+  { prefix: "/systems", level: "internal" }, // platform tech-stack documentation — partner-only
+  { prefix: "/sql", level: "internal" }, // read-only SQL console over live Supabase data — partner-only
+  { prefix: "/api/sql", level: "internal" },
+  { prefix: "/jp-variance", level: "internal" }, // JP Requirements variance vs plan — comp/equity/deal terms, partner-only
+  { prefix: "/summary", level: "confidential" }, // monthly performance vs plan — investor-facing
   { prefix: "/api/contacts", level: "internal" },
   { prefix: "/api/import-contacts", level: "internal" },
   { prefix: "/api/customers", level: "internal" },
@@ -109,6 +117,7 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: "/api/submit-deal", level: "public" }, // inbound deal submissions
   { prefix: "/api/chat", level: "public" }, // guarded at the response layer, not the route
   { prefix: "/api/auth", level: "public" }, // NextAuth handlers
+  { prefix: "/api/health", level: "public" }, // config/readiness status — booleans only, no secret values
 ];
 
 /** Classify a pathname. Longest matching prefix wins; unlisted → public. */
