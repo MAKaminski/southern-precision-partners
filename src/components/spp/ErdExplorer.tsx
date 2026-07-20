@@ -17,7 +17,7 @@ export function ErdExplorer({
   tables: ErdTable[];
   relationships: ErdRelationship[];
 }) {
-  const [expanded, setExpanded] = useState<Set<string>>(new Set(tables.map((t) => t.table_name)));
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   function toggle(name: string) {
     setExpanded((prev) => {
