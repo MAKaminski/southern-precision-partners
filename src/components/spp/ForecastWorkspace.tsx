@@ -20,6 +20,9 @@ export interface DebtRow {
 export interface RevenueMatrixRow {
   year: number; existing_rev: number | null; new_rev: number | null; replacement: number | null; churn: number | null; ending_rev: number | null;
 }
+export interface OpexGlRow {
+  id: string; scenario: "forecast" | "plan"; gl_category: string; year: number; value: number | null; sort_order: number;
+}
 
 const money = (v: number | null | undefined) => {
   if (v === null || v === undefined) return "—";
@@ -32,12 +35,13 @@ const pct = (v: number | null | undefined) => (v === null || v === undefined ? "
 const fmt = (v: number | null | undefined, isPct: boolean) => (isPct ? pct(v) : money(v));
 const chartTick = (v: number) => (Math.abs(v) >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${(v / 1000).toFixed(0)}K`);
 
-type Tab = "charts" | "pnl" | "variance" | "revenue";
+type Tab = "charts" | "pnl" | "variance" | "revenue" | "opex";
 
 export function ForecastWorkspace({
-  rows: initialRows, years, debt, revenueMatrix,
-}: { rows: ForecastRow[]; years: number[]; debt: DebtRow[]; revenueMatrix: RevenueMatrixRow[] }) {
+  rows: initialRows, years, debt, revenueMatrix, opexGl: initialOpexGl,
+}: { rows: ForecastRow[]; years: number[]; debt: DebtRow[]; revenueMatrix: RevenueMatrixRow[]; opexGl: OpexGlRow[] }) {
   const [rows, setRows] = useState(initialRows);
+  const [opexGl, setOpexGl] = useState(initialOpexGl);
   const [tab, setTab] = useState<Tab>("charts");
   const [scenario, setScenario] = useState<"forecast" | "plan">("forecast");
 
@@ -71,10 +75,14 @@ export function ForecastWorkspace({
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, value } : r)));
   }
 
+  function onOpexSaved(id: string, value: number | null) {
+    setOpexGl((prev) => prev.map((r) => (r.id === id ? { ...r, value } : r)));
+  }
+
   return (
     <div>
       <div className="flex gap-1 mb-5 flex-wrap">
-        {([["charts", "Charts"], ["pnl", "P&L Grid"], ["variance", "Forecast vs Plan"], ["revenue", "Revenue Build"]] as [Tab, string][]).map(([t, label]) => (
+        {([["charts", "Charts"], ["pnl", "P&L Grid"], ["variance", "Forecast vs Plan"], ["revenue", "Revenue Build"], ["opex", "OpEx (GL Detail)"]] as [Tab, string][]).map(([t, label]) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -131,6 +139,10 @@ export function ForecastWorkspace({
       {tab === "variance" && <Variance grids={grids} years={years} />}
 
       {tab === "revenue" && <RevenueBuild revenueMatrix={revenueMatrix} debt={debt} />}
+
+      {tab === "opex" && (
+        <OpexGl opexGl={opexGl} lumpRows={rows} years={years} scenario={scenario} setScenario={setScenario} onSaved={onOpexSaved} />
+      )}
     </div>
   );
 }
@@ -258,6 +270,151 @@ function Variance({ grids, years }: { grids: Record<string, { category: string; 
         </tbody>
       </table>
     </div>
+  );
+}
+
+function OpexGl({
+  opexGl, lumpRows, years, scenario, setScenario, onSaved,
+}: {
+  opexGl: OpexGlRow[];
+  lumpRows: ForecastRow[];
+  years: number[];
+  scenario: "forecast" | "plan";
+  setScenario: (s: "forecast" | "plan") => void;
+  onSaved: (id: string, v: number | null) => void;
+}) {
+  const rowsForScenario = opexGl.filter((r) => r.scenario === scenario);
+  const categories = useMemo(() => {
+    const byCat = new Map<string, { gl_category: string; sort_order: number; byYear: Record<number, OpexGlRow> }>();
+    for (const r of rowsForScenario) {
+      if (!byCat.has(r.gl_category)) byCat.set(r.gl_category, { gl_category: r.gl_category, sort_order: r.sort_order, byYear: {} });
+      byCat.get(r.gl_category)!.byYear[r.year] = r;
+    }
+    return [...byCat.values()].sort((a, b) => a.sort_order - b.sort_order);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opexGl, scenario]);
+
+  const glSumByYear = (y: number) => categories.reduce((s, c) => s + (c.byYear[y]?.value ?? 0), 0);
+  const lumpTotalByYear = (y: number) => lumpRows.find((r) => r.scenario === scenario && r.category === "OpEx" && r.year === y)?.value ?? null;
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center gap-2 mb-1">
+        {(["forecast", "plan"] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setScenario(s)}
+            className={`text-xs px-3 py-1 rounded capitalize transition-colors ${scenario === s ? "bg-accent-green text-white" : "text-text-secondary hover:bg-surface border border-border-custom"}`}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+      <p className="text-[11px] text-text-secondary mb-3">
+        Standard chart of accounts, seeded once with the known lump OpEx total under &quot;Unclassified&quot; —
+        move dollars into named categories as real GL data becomes available. No splits are invented here. Click
+        any cell to edit. The Reconciled row shows whether the GL categories sum to the lump OpEx total for that
+        year.
+      </p>
+      <div className="overflow-x-auto border border-border-custom rounded-lg">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-border-custom bg-surface text-text-secondary">
+              <th className="text-left py-2 px-3 font-medium sticky left-0 bg-surface">GL Category</th>
+              {years.map((y) => <th key={y} className="text-right py-2 px-2 font-medium whitespace-nowrap">{y}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {categories.map((c) => (
+              <tr
+                key={c.gl_category}
+                className={`border-b border-border-custom/50 ${c.gl_category.startsWith("Unclassified") ? "bg-surface/60 italic" : ""}`}
+              >
+                <td className="py-1.5 px-3 text-text-secondary whitespace-nowrap sticky left-0 bg-background">{c.gl_category}</td>
+                {years.map((y) => {
+                  const row = c.byYear[y];
+                  return (
+                    <td key={y} className="py-1 px-2 text-right">
+                      {row ? <OpexGlCell row={row} onSaved={onSaved} /> : <span className="text-text-secondary">—</span>}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+            <tr className="border-t-2 border-border-custom font-semibold">
+              <td className="py-1.5 px-3 text-foreground sticky left-0 bg-background">Total</td>
+              {years.map((y) => (
+                <td key={y} className="py-1.5 px-2 text-right font-mono text-foreground whitespace-nowrap">{money(glSumByYear(y))}</td>
+              ))}
+            </tr>
+            <tr>
+              <td className="py-1.5 px-3 text-text-secondary sticky left-0 bg-background">Reconciled to Lump OpEx</td>
+              {years.map((y) => {
+                const lump = lumpTotalByYear(y);
+                const sum = glSumByYear(y);
+                const reconciled = lump === null || Math.abs(sum - lump) < 0.5;
+                return (
+                  <td key={y} className={`py-1.5 px-2 text-right font-mono whitespace-nowrap ${lump === null ? "text-text-secondary" : reconciled ? "text-accent-green" : "text-red-600"}`}>
+                    {lump === null ? "—" : reconciled ? "✓" : money(sum - lump)}
+                  </td>
+                );
+              })}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function OpexGlCell({ row, onSaved }: { row: OpexGlRow; onSaved: (id: string, v: number | null) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const display = row.value === null ? "" : String(row.value);
+  const [draft, setDraft] = useState(display);
+
+  async function commit() {
+    setEditing(false);
+    const raw = draft.trim();
+    const value: number | null = raw === "" ? null : Number(raw.replace(/[$,]/g, ""));
+    if (value !== null && Number.isNaN(value)) { setDraft(display); return; }
+    if (value === row.value) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/forecast-opex-gl", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: row.id, value }),
+      });
+      if (!res.ok) throw new Error();
+      onSaved(row.id, value);
+    } catch {
+      setDraft(display);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => { if (e.key === "Enter") commit(); if (e.key === "Escape") { setDraft(display); setEditing(false); } }}
+        className="w-24 text-right text-xs font-mono border border-accent-blue/40 rounded px-1 py-0.5 focus:outline-none"
+      />
+    );
+  }
+  return (
+    <button
+      onClick={() => { setDraft(display); setEditing(true); }}
+      className={`font-mono hover:bg-accent-blue/10 rounded px-1 py-0.5 text-foreground ${saving ? "opacity-50" : ""}`}
+      title="Click to edit"
+    >
+      {money(row.value)}
+    </button>
   );
 }
 

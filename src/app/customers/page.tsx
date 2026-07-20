@@ -1,5 +1,7 @@
-import { getCustomers, sppDbConfigured } from "@/lib/spp-queries";
+import { getCustomers, getArAgingByCustomer, sppDbConfigured } from "@/lib/spp-queries";
 import { CustomersTable, type CustomerRow } from "@/components/spp/CustomersTable";
+import { ArAgingQuadrant } from "@/components/spp/ArAgingQuadrant";
+import { CustomerGeography } from "@/components/spp/CustomerGeography";
 import { ClassificationBadge } from "@/components/ClassificationBadge";
 
 export const dynamic = "force-dynamic";
@@ -8,7 +10,7 @@ const money = (v: number) =>
   v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(2)}M` : `$${Math.round(v / 1000)}K`;
 
 export default async function CustomersPage() {
-  const customers = await getCustomers();
+  const [customers, aging] = await Promise.all([getCustomers(), getArAgingByCustomer()]);
   const configured = sppDbConfigured();
 
   const rows: CustomerRow[] = customers.map((c) => ({
@@ -57,6 +59,13 @@ export default async function CustomersPage() {
             <Kpi label="2026 Sales" value={money(total2026)} />
             <Kpi label="Open A/R" value={money(openAR)} />
           </div>
+          <section>
+            <h2 className="text-sm font-semibold text-foreground mb-1">Collections Issue Areas</h2>
+            <ArAgingQuadrant customers={customers} aging={aging} />
+          </section>
+
+          <CustomerGeography customers={customers} />
+
           <CustomersTable customers={rows} />
         </>
       )}

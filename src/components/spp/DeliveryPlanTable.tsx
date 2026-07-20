@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import type { DeliveryTask } from "@/lib/spp-queries";
 import { DeliveryStatusSelect } from "@/components/spp/DeliveryStatusSelect";
 import { EditableCell } from "@/components/spp/EditableCell";
+import { deliveryTabLink } from "@/lib/delivery-tab-links";
 
 const YEAR_LABEL: Record<number, string> = {
   1: "Year 1 — Integration & Foundation (2026)",
@@ -120,6 +121,7 @@ export function DeliveryPlanTable({ initialTasks }: { initialTasks: DeliveryTask
                   <tr className="border-b border-border-custom bg-surface text-text-secondary">
                     <th className="text-left py-2 px-3 font-medium">Initiative</th>
                     <th className="text-left py-2 px-2 font-medium">System</th>
+                    <th className="text-left py-2 px-2 font-medium">Tab</th>
                     <th className="text-left py-2 px-2 font-medium">Next Step</th>
                     <th className="text-center py-2 px-2 font-medium">Owner</th>
                     <th className="text-right py-2 px-2 font-medium whitespace-nowrap">Start</th>
@@ -137,6 +139,9 @@ export function DeliveryPlanTable({ initialTasks }: { initialTasks: DeliveryTask
                       </td>
                       <td className="py-1 px-2">
                         <EditableCell id={t.id} field="system" value={t.system} placeholder="—" onSaved={(v) => patchLocal(t.id, "system", v)} />
+                      </td>
+                      <td className="py-1 px-2">
+                        <TabLinkCell system={t.system} />
                       </td>
                       <td className="py-1 px-2 text-text-secondary max-w-[200px]">
                         <EditableCell id={t.id} field="next_step" value={t.next_step} onSaved={(v) => patchLocal(t.id, "next_step", v)} />
@@ -181,6 +186,16 @@ export function DeliveryPlanTable({ initialTasks }: { initialTasks: DeliveryTask
         </div>
       )}
     </div>
+  );
+}
+
+function TabLinkCell({ system }: { system: string | null }) {
+  const link = deliveryTabLink(system);
+  if (!link) return <span className="text-text-secondary">—</span>;
+  return (
+    <a href={link.href} className="text-accent-blue hover:underline whitespace-nowrap">
+      {link.label} →
+    </a>
   );
 }
 
