@@ -18,7 +18,7 @@ export default async function SummaryPage() {
   const monthsWithActuals = new Set(monthly.filter((r) => r.actual_value !== null).map((r) => r.month)).size;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
       <a href="/deals/mosaic" className="text-[10px] text-accent-blue hover:underline uppercase tracking-wide">
         &larr; Project Mosaic
       </a>

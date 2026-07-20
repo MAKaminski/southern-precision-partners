@@ -23,59 +23,61 @@ export function MonthlySummaryGrid({ rows: initialRows }: { rows: MonthlyPerform
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {CATEGORY_ORDER.map((category) => {
-        const catRows = rows
-          .filter((r) => r.category === category)
-          .sort((a, b) => a.month - b.month);
+        const catRows = rows.filter((r) => r.category === category);
         if (catRows.length === 0) return null;
+
+        // Index this metric's rows by month so months become the columns.
+        const byMonth = new Map<number, MonthlyPerformanceRow>();
+        catRows.forEach((r) => byMonth.set(r.month, r));
+        const months = Array.from({ length: 12 }, (_, i) => i + 1);
+
+        const planTotal = catRows.reduce((s, r) => s + (r.plan_value ?? 0), 0);
+        const actualTotal = catRows.reduce((s, r) => s + (r.actual_value ?? 0), 0);
+        const hasAnyActual = catRows.some((r) => r.actual_value !== null);
+        // Cash Balance is a point-in-time stock, not a flow — a full-year "total" is
+        // meaningless, so show the latest entered month instead of a sum.
+        const isStock = category === "Cash Balance";
 
         return (
           <div key={category}>
             <h3 className="text-xs font-semibold text-foreground mb-1.5">{category}</h3>
             <div className="overflow-x-auto border border-border-custom rounded-lg">
-              <table className="w-full text-xs">
+              <table className="text-xs border-collapse">
                 <thead className="bg-surface">
                   <tr className="border-b border-border-custom text-text-secondary">
-                    <th className="text-left py-2 px-3 font-medium">Month</th>
-                    <th className="text-right py-2 px-2 font-medium">Plan</th>
-                    <th className="text-right py-2 px-2 font-medium">Actual</th>
-                    <th className="text-right py-2 px-3 font-medium">Variance</th>
+                    <th className="sticky left-0 z-10 bg-surface text-left py-2 px-3 font-medium whitespace-nowrap">
+                      {category === "Cash Balance" ? "Cash" : category === "Free Cash Flow" ? "FCF" : category}
+                    </th>
+                    {months.map((m) => (
+                      <th key={m} className="text-right py-2 px-2.5 font-medium whitespace-nowrap min-w-[68px]">
+                        {MONTH_LABEL[m - 1]}
+                      </th>
+                    ))}
+                    <th className="text-right py-2 px-3 font-semibold whitespace-nowrap border-l border-border-custom">
+                      {isStock ? "Latest" : "FY 2026"}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {catRows.map((r) => {
-                    const variance =
-                      r.plan_value !== null && r.actual_value !== null ? r.actual_value - r.plan_value : null;
-                    const variancePct =
-                      variance !== null && r.plan_value ? (variance / Math.abs(r.plan_value)) * 100 : null;
-                    return (
-                      <tr key={r.id} className="border-b border-border-custom/50 last:border-0">
-                        <td className="py-1.5 px-3 font-mono text-text-secondary whitespace-nowrap">
-                          {MONTH_LABEL[r.month - 1]} {r.year}
-                        </td>
-                        <td className="py-1 px-2 text-right">
-                          <Cell id={r.id} field="plan_value" value={r.plan_value} onSaved={patchLocal} />
-                        </td>
-                        <td className="py-1 px-2 text-right">
-                          <Cell id={r.id} field="actual_value" value={r.actual_value} onSaved={patchLocal} />
-                        </td>
-                        <td
-                          className={`py-1.5 px-3 text-right font-mono ${
-                            variance === null
-                              ? "text-text-secondary"
-                              : variance >= 0
-                                ? "text-accent-green"
-                                : "text-accent-red"
-                          }`}
-                        >
-                          {variance === null
-                            ? "—"
-                            : `${money(variance)}${variancePct !== null ? ` (${variancePct >= 0 ? "+" : ""}${variancePct.toFixed(1)}%)` : ""}`}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  <MetricRow
+                    label="Plan"
+                    months={months}
+                    byMonth={byMonth}
+                    field="plan_value"
+                    total={isStock ? latestValue(catRows, "plan_value") : planTotal}
+                    onSaved={patchLocal}
+                  />
+                  <MetricRow
+                    label="Actual"
+                    months={months}
+                    byMonth={byMonth}
+                    field="actual_value"
+                    total={hasAnyActual ? (isStock ? latestValue(catRows, "actual_value") : actualTotal) : null}
+                    onSaved={patchLocal}
+                  />
+                  <VarianceRow months={months} byMonth={byMonth} isStock={isStock} />
                 </tbody>
               </table>
             </div>
@@ -84,6 +86,106 @@ export function MonthlySummaryGrid({ rows: initialRows }: { rows: MonthlyPerform
       })}
     </div>
   );
+}
+
+function latestValue(
+  rows: MonthlyPerformanceRow[],
+  field: "plan_value" | "actual_value",
+): number | null {
+  const withValue = rows.filter((r) => r[field] !== null).sort((a, b) => b.month - a.month);
+  return withValue.length ? (withValue[0][field] as number) : null;
+}
+
+function MetricRow({
+  label,
+  months,
+  byMonth,
+  field,
+  total,
+  onSaved,
+}: {
+  label: string;
+  months: number[];
+  byMonth: Map<number, MonthlyPerformanceRow>;
+  field: "plan_value" | "actual_value";
+  total: number | null;
+  onSaved: (id: string, field: "plan_value" | "actual_value", value: number | null) => void;
+}) {
+  return (
+    <tr className="border-b border-border-custom/50">
+      <th className="sticky left-0 z-10 bg-background text-left py-1.5 px-3 font-medium text-text-secondary whitespace-nowrap">
+        {label}
+      </th>
+      {months.map((m) => {
+        const row = byMonth.get(m);
+        return (
+          <td key={m} className="py-1 px-2.5 text-right">
+            {row ? (
+              <Cell id={row.id} field={field} value={row[field]} onSaved={onSaved} />
+            ) : (
+              <span className="text-text-secondary">—</span>
+            )}
+          </td>
+        );
+      })}
+      <td className="py-1.5 px-3 text-right font-mono font-semibold text-foreground border-l border-border-custom whitespace-nowrap">
+        {money(total)}
+      </td>
+    </tr>
+  );
+}
+
+function VarianceRow({
+  months,
+  byMonth,
+  isStock,
+}: {
+  months: number[];
+  byMonth: Map<number, MonthlyPerformanceRow>;
+  isStock: boolean;
+}) {
+  let planTotal = 0;
+  let actualTotal = 0;
+  let hasActual = false;
+  byMonth.forEach((r) => {
+    planTotal += r.plan_value ?? 0;
+    actualTotal += r.actual_value ?? 0;
+    if (r.actual_value !== null) hasActual = true;
+  });
+  const totalVar = hasActual && !isStock ? actualTotal - planTotal : null;
+
+  return (
+    <tr>
+      <th className="sticky left-0 z-10 bg-background text-left py-1.5 px-3 font-medium text-text-secondary whitespace-nowrap">
+        Var
+      </th>
+      {months.map((m) => {
+        const row = byMonth.get(m);
+        const variance =
+          row && row.plan_value !== null && row.actual_value !== null
+            ? row.actual_value - row.plan_value
+            : null;
+        return (
+          <td
+            key={m}
+            className={`py-1.5 px-2.5 text-right font-mono whitespace-nowrap ${varianceClass(variance)}`}
+          >
+            {variance === null ? "—" : money(variance)}
+          </td>
+        );
+      })}
+      <td
+        className={`py-1.5 px-3 text-right font-mono font-semibold border-l border-border-custom whitespace-nowrap ${varianceClass(totalVar)}`}
+      >
+        {totalVar === null ? "—" : money(totalVar)}
+      </td>
+    </tr>
+  );
+}
+
+function varianceClass(v: number | null): string {
+  if (v === null) return "text-text-secondary";
+  return v >= 0 ? "text-accent-green" : "text-accent-red";
 }
 
 function Cell({
@@ -143,7 +245,7 @@ function Cell({
             setEditing(false);
           }
         }}
-        className="w-24 text-right text-xs font-mono border border-accent-blue/40 rounded px-1 py-0.5 focus:outline-none"
+        className="w-20 text-right text-xs font-mono border border-accent-blue/40 rounded px-1 py-0.5 focus:outline-none"
       />
     );
   }

@@ -107,7 +107,7 @@ export function HrRoster({ initial }: { initial: EmployeeWithPlans[] }) {
                   {post ? (
                     <PlanCells plan={post} onUpdated={(row) => updatePlan(e.id, "post_transition", row)} />
                   ) : (
-                    <NoPlanCells employeeId={e.id} fullName={e.full_name} plan="post_transition" onAdded={(row) => addEmployeeToState(e.id, e.full_name, "post_transition", row)} />
+                    <NoPlanCells employeeId={e.id} fullName={e.full_name} plan="post_transition" retainFrom={cur} onAdded={(row) => addEmployeeToState(e.id, e.full_name, "post_transition", row)} />
                   )}
                   <td className="py-1.5 px-3 text-text-secondary">{post?.change_type ?? "—"}</td>
                 </tr>
@@ -160,9 +160,40 @@ function PlanCells({ plan, onUpdated }: { plan: EmployeePlanDetail; onUpdated: (
 }
 
 function NoPlanCells({
-  employeeId, fullName, plan, onAdded,
-}: { employeeId: string; fullName: string; plan: HrPlan; onAdded: (row: EmployeePlanDetail) => void }) {
+  employeeId, fullName, plan, onAdded, retainFrom,
+}: { employeeId: string; fullName: string; plan: HrPlan; onAdded: (row: EmployeePlanDetail) => void; retainFrom?: EmployeePlanDetail }) {
   const [adding, setAdding] = useState(false);
+  const [retaining, setRetaining] = useState(false);
+
+  // Carry the current plan forward unchanged — same role, status, and pay.
+  async function retain() {
+    if (!retainFrom) return;
+    setRetaining(true);
+    try {
+      const res = await fetch("/api/hr/plan-details", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          employee_id: employeeId,
+          plan,
+          role_title: retainFrom.role_title,
+          department: retainFrom.department,
+          employment_type: retainFrom.employment_type,
+          status: retainFrom.status,
+          pay_type: retainFrom.pay_type,
+          pay_rate: retainFrom.pay_rate,
+          hours_per_week: retainFrom.hours_per_week,
+          change_type: "unchanged",
+        }),
+      });
+      if (!res.ok) return;
+      const json = await res.json();
+      onAdded(json.row as EmployeePlanDetail);
+    } finally {
+      setRetaining(false);
+    }
+  }
+
   if (adding) {
     return (
       <td colSpan={3} className="py-1.5 px-2">
@@ -186,13 +217,25 @@ function NoPlanCells({
   }
   return (
     <td colSpan={3} className="py-1.5 px-2">
-      <button
-        onClick={() => setAdding(true)}
-        className="text-[10px] text-accent-blue hover:underline"
-        title={`Add a ${plan === "current" ? "current" : "post-transition"} plan for ${fullName}`}
-      >
-        + Add {plan === "current" ? "current" : "post-transition"} plan
-      </button>
+      <div className="flex items-center gap-2">
+        {plan === "post_transition" && retainFrom && (
+          <button
+            onClick={retain}
+            disabled={retaining}
+            className="text-[10px] text-accent-green hover:underline disabled:opacity-50"
+            title={`Retain ${fullName} post-transition — carry current role, status, and pay forward unchanged`}
+          >
+            {retaining ? "Retaining…" : "Retain"}
+          </button>
+        )}
+        <button
+          onClick={() => setAdding(true)}
+          className="text-[10px] text-accent-blue hover:underline"
+          title={`Add a ${plan === "current" ? "current" : "post-transition"} plan for ${fullName}`}
+        >
+          + Add {plan === "current" ? "current" : "post-transition"} plan
+        </button>
+      </div>
     </td>
   );
 }
