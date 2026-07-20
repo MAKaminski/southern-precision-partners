@@ -20,6 +20,7 @@ export default async function HrPage() {
   const configured = sppDbConfigured();
 
   const currentActive = employees.filter((e) => e.plans.current?.status === "active");
+  const postTransitionPlanned = employees.some((e) => e.plans.post_transition);
   const postActive = employees.filter(
     (e) => e.plans.post_transition && e.plans.post_transition.status !== "terminated"
   );
@@ -67,12 +68,15 @@ export default async function HrPage() {
         <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Kpi label="Current Headcount" value={String(currentActive.length)} />
-            <Kpi label="Post-Transition Headcount" value={String(postActive.length)} />
+            <Kpi
+              label="Post-Transition Headcount"
+              value={postTransitionPlanned ? String(postActive.length) : "Not yet planned"}
+            />
             <Kpi label="Current Annualized Payroll" value={money(currentCost)} />
             <Kpi
               label="Post-Transition Annualized Payroll"
-              value={money(postCost)}
-              accent={postCost !== currentCost}
+              value={postTransitionPlanned ? money(postCost) : "Not yet planned"}
+              accent={postTransitionPlanned && postCost !== currentCost}
             />
           </div>
 
