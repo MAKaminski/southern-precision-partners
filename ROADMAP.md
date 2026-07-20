@@ -3,6 +3,47 @@
 Running log of platform/process enhancements. One entry is added roughly
 each review cycle; each entry links to the PR/commit that implemented it.
 
+## 2026-07-20 — Keith BI input: Reports appendix + sourcing/auditability + Changelog tab
+
+**Status: Done**
+
+Keith emailed a set of BI requirements ("Mosaic - BI Input", 2026-07-20) —
+mix rate, customer trend, attachment %, P&L themes, per-associate KPIs, AI
+theme detection, discretionary-discount visibility, and a 15–30 min Monday
+all-hands digest. Integrated all of it, plus the sourcing/auditability and
+changelog scaffolding requested alongside:
+
+- **Reports tab (`/reports`, `src/app/reports/page.tsx`, `src/lib/reports.ts`)**
+  — an appendix of analytics views. Indexes the 9 live views already in the
+  platform (Summary, Forecast, Customers, AR aging, Delivery, HR, Marketing,
+  ERD, SQL) *and* catalogues Keith's 8 requested reports, each with its
+  question, definition, grain, data source, and a `live | spec | planned`
+  status.
+- **Honesty about data:** the schema has NO line-level sales / product-SKU /
+  salesperson / discount data (only summary `customer_annual_sales`,
+  `ar_transactions`, and monthly/annual P&L aggregates). So mix rate,
+  attachment %, per-associate KPIs, and discount visibility are recorded as
+  fully-specified `spec` reports — not back-filled with invented numbers —
+  each naming the layered `core.fact_*` / `serving.*` object (from the 0012
+  scaffold) that will serve it once ETL lands. Customer-trend and P&L-themes
+  are partially live today.
+- **Sourcing / auditability (`src/lib/sources.ts`, `src/components/SourceTag.tsx`)**
+  — a registry attributing every addition to the requesting party, channel,
+  and date, with Keith's verbatim asks captured. An inline `SourceTag`
+  ("Requested by Keith Piper · …") renders on each requested report so the
+  provenance is visible on the surface itself.
+- **Changelog tab (`/changelog`, `src/app/changelog/page.tsx`,
+  `src/lib/changelog.ts`)** — restates each party's original feedback verbatim
+  (pulled from the source registry) beside the itemised changes made to
+  address it, with per-item status and file/route pointers.
+- Registered both routes in `NAV_LINKS` (`src/lib/nav-links.ts`) and
+  `ROUTE_RULES` (`src/lib/access.ts`, both `internal`/partner-only).
+
+Verified: `npm run typecheck` clean, `npm run lint` 0 errors (6 pre-existing
+warnings), `npm run build` succeeds with `/reports` + `/changelog` present,
+`npm run audit:financials` passes. No migrations or data changes — additive UI
++ registries only.
+
 ## 2026-07-20 — Backlog hygiene: closed 5 stale draft PRs (Linear MOD-17)
 
 **Status: Done**
