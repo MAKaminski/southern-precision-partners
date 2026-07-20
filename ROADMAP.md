@@ -3,6 +3,48 @@
 Running log of platform/process enhancements. One entry is added roughly
 each review cycle; each entry links to the PR/commit that implemented it.
 
+## 2026-07-20 — Backlog hygiene: closed 5 stale draft PRs (Linear MOD-17)
+
+**Status: Done**
+
+Linear [MOD-17](https://linear.app/modular-equity/issue/MOD-17) has flagged
+for over a day that draft PRs from hourly review cycles were piling up
+unmerged. Checking each open PR against the current `main` this cycle found
+that #28 ("Rebuild 5-yr financial model on real SBA deal structure"), #29
+("Wire `audit:financials` into CI"), and #5 ("Public/private guardrails")
+— all already merged — silently obsoleted five of the eleven still-open
+draft PRs:
+
+- **#6** and **#20** — both correct the Seller Note from $300K → $200K in
+  the *old* cap stack. #28 rebuilt the model from scratch; the Seller Note
+  is now $280K under different SBA + Seller Note terms. Neither $200K nor
+  $300K appear anywhere in `data.ts` anymore — merging either would
+  reintroduce numbers that don't reconcile with the rest of the model.
+- **#24** — wires `audit:financials` into CI. Already done by #29.
+  Merging now would conflict with `.github/workflows/ci.yml`.
+- **#26** — adds `src/lib/data.test.ts`, a first automated test suite for
+  the financial model. It imports `financialYearsPreInitiative`,
+  `scenario1CashFlows`, `incomeStatementPreInitiative`, and other exports
+  that #28 removed entirely (replaced by `financialYears` +
+  `cashFlowProjections`). Merging as-is would fail to build. The
+  underlying goal is still valuable — Linear
+  [MOD-9](https://linear.app/modular-equity/issue/MOD-9) stays open for a
+  fresh attempt against the current `data.ts` shape.
+- **#21** — adds an auth check to `src/middleware.ts`, a file that no
+  longer exists (`main` renamed it to `src/proxy.ts` in #5, which merged
+  *before* #21 was opened). The gap it targets (unauthenticated
+  `/api/contacts`, `/api/import-contacts`, `/api/download-model`) is
+  already closed on `main` by #5's `access.ts` + `proxy.ts` classification
+  system — confirmed by reading current `main`, not assumed.
+
+All five closed with an explanatory comment on GitHub rather than left to
+rot or accidentally merged. This does **not** fully close MOD-17: six other
+open draft PRs (#4, #13, #18, #19, #23, #25) are still valid, unmerged
+fixes for real, currently-live issues (stale "Q1 2026" label on the live
+homepage, stale chatbot model ID, `/api/health` endpoint, deal-submission
+persistence) — those need a human merge/triage pass, not another
+autonomous PR piled on top.
+
 ## 2026-07-20 — TEMPORARY: investor role granted full partner clearance
 
 **Status: Done — needs revert once Google sign-in is confirmed fixed**
