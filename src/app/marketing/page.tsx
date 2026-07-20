@@ -4,6 +4,7 @@ import { ClassificationBadge } from "@/components/ClassificationBadge";
 import { GrowthInitiativeStatusSelect } from "@/components/spp/GrowthInitiativeStatusSelect";
 import { RevenueMatrixEditor } from "@/components/spp/RevenueMatrixEditor";
 import { CustomerSegments } from "@/components/spp/CustomerSegments";
+import { MarketingPlaybooks } from "@/components/spp/MarketingPlaybooks";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +58,8 @@ export default async function MarketingPage() {
           <RevenueMatrixEditor initial={revenueMatrix} />
 
           <CustomerSegments customers={customers} />
+
+          <MarketingPlaybooks customers={customers} />
 
           {/* Modeled initiatives with a revenue impact */}
           <section>
