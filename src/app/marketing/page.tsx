@@ -1,8 +1,9 @@
-import { getForecast, getGrowthInitiatives, sppDbConfigured } from "@/lib/spp-queries";
+import { getForecast, getGrowthInitiatives, getCustomers, sppDbConfigured } from "@/lib/spp-queries";
 import { phases } from "@/lib/data";
 import { ClassificationBadge } from "@/components/ClassificationBadge";
 import { GrowthInitiativeStatusSelect } from "@/components/spp/GrowthInitiativeStatusSelect";
 import { RevenueMatrixEditor } from "@/components/spp/RevenueMatrixEditor";
+import { CustomerSegments } from "@/components/spp/CustomerSegments";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,11 @@ const CATEGORY_LABEL: Record<string, string> = {
 };
 
 export default async function MarketingPage() {
-  const [{ revenueMatrix }, initiatives] = await Promise.all([getForecast(), getGrowthInitiatives()]);
+  const [{ revenueMatrix }, initiatives, customers] = await Promise.all([
+    getForecast(),
+    getGrowthInitiatives(),
+    getCustomers(),
+  ]);
   const configured = sppDbConfigured();
 
   const revenueGrowthInitiatives = phases
@@ -50,6 +55,8 @@ export default async function MarketingPage() {
       ) : (
         <>
           <RevenueMatrixEditor initial={revenueMatrix} />
+
+          <CustomerSegments customers={customers} />
 
           {/* Modeled initiatives with a revenue impact */}
           <section>
