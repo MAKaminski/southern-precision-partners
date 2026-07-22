@@ -106,6 +106,7 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: "/sql", level: "internal" }, // read-only SQL console over live Supabase data — partner-only
   { prefix: "/api/sql", level: "internal" },
   { prefix: "/jp-variance", level: "internal" }, // JP Requirements variance vs plan — comp/equity/deal terms, partner-only
+  { prefix: "/prospects", level: "internal" }, // SC-expansion Pro prospect pipeline + contacts — partner-only
   { prefix: "/reports", level: "internal" }, // BI reports appendix (analytics views + requested specs) — partner-only
   { prefix: "/changelog", level: "internal" }, // feedback → changes-made ledger — partner-only
   { prefix: "/summary", level: "confidential" }, // monthly performance vs plan — investor-facing

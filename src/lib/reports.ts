@@ -22,7 +22,7 @@
 // Every entry that came from a party's request carries `sourceId` +
 // `sourceExcerpt` pointing at src/lib/sources.ts, so the appendix is auditable.
 
-import { keithBiInput } from "@/lib/sources";
+import { keithBiInput, landbaseScProspects } from "@/lib/sources";
 
 export type ReportStatus = "live" | "spec" | "planned";
 
@@ -194,6 +194,40 @@ export const requestedReports: Report[] = [
   },
 ];
 
+// ── Prospecting & enrichment (source: Landbase SC export, 2026-07-22) ─────────
+export const prospectingReports: Report[] = [
+  {
+    id: "pro-prospect-pipeline",
+    title: "Pro Prospect Pipeline — SC Expansion",
+    category: "Prospecting & Enrichment",
+    question:
+      "Which SC construction/remodeling companies should we target for the Pro tile-system expansion, and who do we call?",
+    definition:
+      "213 SC construction/remodeling companies and 369 named decision-makers, ranked by a transparent fit score (revenue band + tile/remodel keyword fit + decision-maker seniority + reachability) and grouped by SC-expansion territory (Columbia, Florence, Sumter, …). Expand any company for firmographics and contacts with LinkedIn.",
+    grain: "Company × decision-maker contact",
+    dataSource: "LIVE — prospect_companies + prospect_contacts (Supabase), from the Landbase SC export.",
+    status: "live",
+    sourceId: landbaseScProspects.id,
+    sourceExcerpt: "Integrate the prospect list",
+    liveRoute: "/prospects",
+  },
+  {
+    id: "customer-enrichment-candidates",
+    title: "Existing-Customer Enrichment Candidates",
+    category: "Prospecting & Enrichment",
+    question: "Which prospects are already our customers, and what firmographics/contacts can enrich those records?",
+    definition:
+      "Prospects whose normalized name prefix-matches an existing (truncated) customer name, surfaced with the matched customer and a strong/possible confidence. Non-destructive — nothing writes back to customer records automatically; it's a reviewable candidate list.",
+    grain: "Matched company",
+    dataSource: "LIVE — prospect_companies.matched_customer_id join to customers (Supabase).",
+    status: "live",
+    sourceId: landbaseScProspects.id,
+    sourceExcerpt: "Enrich existing customers",
+    liveRoute: "/prospects",
+    gap: "Auto-applying enrichment to customers is deferred by design — matches are prefix-based on truncated names and want a human check.",
+  },
+];
+
 // ── Live analytics views already in the platform (the appendix of things we
 //    actually look at). These predate Keith's note; listed so Reports is a
 //    complete index, not just a wishlist. ────────────────────────────────────
@@ -300,7 +334,7 @@ export const liveViews: Report[] = [
   },
 ];
 
-export const ALL_REPORTS: Report[] = [...requestedReports, ...liveViews];
+export const ALL_REPORTS: Report[] = [...requestedReports, ...prospectingReports, ...liveViews];
 
 export const REPORT_STATUS_META: Record<
   ReportStatus,
@@ -331,6 +365,7 @@ export const REPORT_CATEGORY_ORDER = [
   "People",
   "Pricing",
   "Operating Cadence",
+  "Prospecting & Enrichment",
   "Reference — Live Views",
 ];
 

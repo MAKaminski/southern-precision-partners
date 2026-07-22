@@ -114,7 +114,53 @@ const keithBiResponse: ChangelogEntry = {
   ],
 };
 
-export const CHANGELOG: ChangelogEntry[] = [keithBiResponse];
+// ── Response to Michael's Landbase SC prospect drop (2026-07-22) ─────────────
+const landbaseResponse: ChangelogEntry = {
+  id: "cl-landbase-sc-2026-07-22",
+  date: "2026-07-22",
+  sourceId: "landbase-sc-prospects-2026-07-22",
+  title: "Landbase SC prospects integrated as a Pro pipeline + enrichment candidates",
+  responseSummary:
+    "The two uploaded CSVs (213 SC construction/remodeling companies + 369 named decision-makers) were normalized, joined, and loaded into two new tables behind a DB-backed /prospects tab, ranked by a transparent in-house fit score and grouped by SC-expansion territory. Where a prospect appears to already be an existing customer, it's flagged as a non-destructive enrichment candidate — nothing is written back to customer records automatically, because customer names in the current data are truncated (~14 chars) and match on prefix.",
+  changes: [
+    {
+      what: "New prospect_companies + prospect_contacts tables (migration 0014) with fit_score, SC territory, and a non-destructive matched_customer_id link.",
+      where: "supabase/migrations/0014_prospects_schema.sql",
+      status: "done",
+      addresses: "Integrate the prospect list",
+    },
+    {
+      what: "Idempotent seed of 213 companies + 369 contacts, plus a prospect→customer match UPDATE that writes only to prospect_companies.",
+      where: "supabase/migrations/0015_seed_prospects.sql",
+      status: "done",
+      addresses: "Integrate the prospect list",
+    },
+    {
+      what: "DB-backed /prospects tab — searchable/filterable explorer by region, fit tier, and reachability; expandable firmographics + decision-maker contacts with LinkedIn.",
+      where: "/prospects · src/app/prospects/page.tsx · src/components/spp/ProspectsExplorer.tsx",
+      status: "done",
+      addresses: "Integrate the prospect list",
+    },
+    {
+      what: "Enrichment-candidates view — prospects matched to existing customers surfaced for review; NOT auto-written to customer records.",
+      where: "/prospects (candidates callout + filter) · /reports#customer-enrichment-candidates",
+      status: "done",
+      addresses: "Enrich existing customers",
+    },
+    {
+      what: "Two live reports added to the Reports appendix (Pro Prospect Pipeline; Existing-Customer Enrichment Candidates), and the drop registered in the sourcing registry.",
+      where: "src/lib/reports.ts · src/lib/sources.ts",
+      status: "done",
+    },
+    {
+      what: "Migrations ship in the PR; applying them to the live Supabase project is deferred until approved (matches the layered-schema rollout).",
+      where: "supabase/migrations/0014–0015",
+      status: "planned",
+    },
+  ],
+};
+
+export const CHANGELOG: ChangelogEntry[] = [landbaseResponse, keithBiResponse];
 
 export function changelogForSource(sourceId: string): ChangelogEntry[] {
   return CHANGELOG.filter((e) => e.sourceId === sourceId);

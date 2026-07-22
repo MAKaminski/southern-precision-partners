@@ -96,7 +96,40 @@ export const keithBiInput: FeedbackSource = {
   ],
 };
 
-export const SOURCES: FeedbackSource[] = [keithBiInput];
+// ── Michael Kaminski — Landbase SC prospect list (2026-07-22) ────────────────
+// Two CSVs uploaded ("Landbase - Atlanta roof replacement pros export" +
+// its contacts companion). Despite the filename, the records are South
+// Carolina construction/remodeling firms — Pro buyers for the SC expansion —
+// with a direction to integrate them as prospects and to use the firmographics
+// to enrich existing customer records.
+export const landbaseScProspects: FeedbackSource = {
+  id: "landbase-sc-prospects-2026-07-22",
+  party: "Michael Kaminski",
+  role: "Managing Partner (GP) — Southeast Precision Partners",
+  channel: "Uploaded CSVs — Landbase “Atlanta roof replacement pros” export",
+  receivedAt: "2026-07-22",
+  subject: "Landbase SC prospect + enrichment export",
+  summary:
+    "213 SC construction/remodeling companies and 369 named decision-makers, to be integrated as a Pro prospect pipeline for the SC expansion and used to enrich existing customer records.",
+  excerpts: [
+    {
+      heading: "Integrate the prospect list",
+      text:
+        "Find attachments of prospects (as well as possible data enrichment for existing customers). Integrate this into our project as this can help significantly with execution.",
+    },
+    {
+      heading: "Enrich existing customers",
+      text:
+        "Possible data enrichment for existing customers — where a prospect is already an account, use the firmographics/contacts to enrich that customer record.",
+    },
+  ],
+  otherNotes: [
+    "Data note: the export's own “Fit”/“Relevance” columns came back empty, so the fit_score shown is a transparent in-house heuristic (revenue band + tile/remodel keyword fit + decision-maker seniority + reachability), not vendor-supplied.",
+    "Enrichment is surfaced as reviewable candidates, not auto-applied — customer names in the current data are truncated (~14 chars) so matches are prefix-based.",
+  ],
+};
+
+export const SOURCES: FeedbackSource[] = [keithBiInput, landbaseScProspects];
 
 export function getSource(id: string): FeedbackSource | undefined {
   return SOURCES.find((s) => s.id === id);

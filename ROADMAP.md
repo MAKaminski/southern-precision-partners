@@ -3,6 +3,43 @@
 Running log of platform/process enhancements. One entry is added roughly
 each review cycle; each entry links to the PR/commit that implemented it.
 
+## 2026-07-22 — Landbase SC prospects: /prospects pipeline + customer-enrichment candidates
+
+**Status: Code done; live DB apply deferred to approval**
+
+Integrated an uploaded two-file Landbase export ("Atlanta roof replacement
+pros" — actually South Carolina construction/remodeling firms, the Pro buyer
+for the SC expansion): **213 companies + 369 named decision-makers**.
+
+- **New tables** `prospect_companies` + `prospect_contacts` (migration
+  `0014_prospects_schema.sql`) — RLS deny-by-default, updated_at triggers,
+  natural unique keys (`company_key` / `contact_key`) for idempotent seed.
+  `fit_score` is a transparent in-house heuristic (revenue band + tile/remodel
+  keyword fit + decision-maker seniority + reachability); the export's own
+  Fit/Relevance columns came back empty. `region` tags SC-expansion territory
+  (Columbia 167, Florence 23, Sumter 14, …).
+- **Seed** `0015_seed_prospects.sql` — idempotent INSERT…ON CONFLICT for both
+  tables, plus a **non-destructive** UPDATE that links a prospect to an
+  existing customer where its normalized name prefix-matches a (truncated)
+  customer `name_key`. Writes only to `prospect_companies` — customer records
+  are never mutated.
+- **`/prospects` tab** (`src/app/prospects/page.tsx` + client
+  `ProspectsExplorer`) — DB-backed, ranked by fit, filterable by region / fit
+  tier / reachability, expandable firmographics + contacts (LinkedIn). Plus an
+  enrichment-candidates callout for the ~15–25 prospects that look like
+  existing customers (reviewable, not auto-applied — customer names are
+  truncated ~14 chars, so matches are prefix-based).
+- Registered `/prospects` in `NAV_LINKS` + `ROUTE_RULES` (internal). Added two
+  live reports to the Reports appendix (Pro Prospect Pipeline; Existing-Customer
+  Enrichment Candidates), a `sources.ts` provenance entry, and a Changelog
+  entry.
+
+Verified: typecheck clean, lint 0 errors, build succeeds (`/prospects`
+present), audit:financials passes. Seed SQL statically validated (213×19 +
+369×9 fields, quote/paren balance). **Migrations 0014–0015 are NOT yet applied
+to the live Supabase project** — deferred to approval per direction; the tab
+shows an "apply migrations" state until then.
+
 ## 2026-07-20 — Keith BI input: Reports appendix + sourcing/auditability + Changelog tab
 
 **Status: Done**
