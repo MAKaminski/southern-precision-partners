@@ -153,9 +153,9 @@ const landbaseResponse: ChangelogEntry = {
       status: "done",
     },
     {
-      what: "Migrations ship in the PR; applying them to the live Supabase project is deferred until approved (matches the layered-schema rollout).",
+      what: "Migrations 0014–0015 applied to the live Supabase project (213 companies, 369 contacts, 10 enrichment candidates matched; customers table untouched).",
       where: "supabase/migrations/0014–0015",
-      status: "planned",
+      status: "done",
     },
   ],
 };

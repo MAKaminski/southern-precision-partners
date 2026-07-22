@@ -5,7 +5,7 @@ each review cycle; each entry links to the PR/commit that implemented it.
 
 ## 2026-07-22 — Landbase SC prospects: /prospects pipeline + customer-enrichment candidates
 
-**Status: Code done; live DB apply deferred to approval**
+**Status: Done — live**
 
 Integrated an uploaded two-file Landbase export ("Atlanta roof replacement
 pros" — actually South Carolina construction/remodeling firms, the Pro buyer
@@ -35,10 +35,12 @@ for the SC expansion): **213 companies + 369 named decision-makers**.
   entry.
 
 Verified: typecheck clean, lint 0 errors, build succeeds (`/prospects`
-present), audit:financials passes. Seed SQL statically validated (213×19 +
-369×9 fields, quote/paren balance). **Migrations 0014–0015 are NOT yet applied
-to the live Supabase project** — deferred to approval per direction; the tab
-shows an "apply migrations" state until then.
+present), audit:financials passes. **Migrations 0014–0015 applied to the live
+Supabase project** — 213 companies, 369 contacts, 10 enrichment candidates
+matched; the `customers` table was not mutated (the match writes only to
+`prospect_companies`). The seed omits the bulky free-text description/keywords
+to stay lean; the structured firmographics + fit_evidence carry the value and
+the columns remain for future enrichment.
 
 ## 2026-07-20 — Keith BI input: Reports appendix + sourcing/auditability + Changelog tab
 
