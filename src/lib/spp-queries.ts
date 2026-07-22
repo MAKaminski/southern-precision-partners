@@ -332,6 +332,98 @@ export async function getMonthlyPerformance(year: number): Promise<MonthlyPerfor
   return (data ?? []) as MonthlyPerformanceRow[];
 }
 
+export interface ProspectContact {
+  id: string;
+  contact_key: string;
+  company_key: string;
+  first_name: string | null;
+  last_name: string | null;
+  title: string | null;
+  linkedin_url: string | null;
+  department: string | null;
+  management_level: string | null;
+  skills: string | null;
+}
+
+export interface ProspectCompany {
+  id: string;
+  company_key: string;
+  name: string;
+  website: string | null;
+  industry: string | null;
+  street: string | null;
+  city: string | null;
+  state: string | null;
+  zip: string | null;
+  region: string | null;
+  employees: number | null;
+  revenue: number | null;
+  revenue_range: string | null;
+  size_range: string | null;
+  description: string | null;
+  keywords: string | null;
+  email: string | null;
+  phone: string | null;
+  fit_score: number;
+  fit_evidence: string | null;
+  matched_customer_id: string | null;
+  match_confidence: "strong" | "possible" | null;
+}
+
+export interface MatchedCustomerLite {
+  id: string;
+  name: string;
+  customer_code: string | null;
+  segment: string | null;
+  lifetime_sales: number;
+}
+
+export interface ProspectCompanyWithContacts extends ProspectCompany {
+  contacts: ProspectContact[];
+  matched_customer: MatchedCustomerLite | null;
+}
+
+/** Prospect pipeline (companies + decision-maker contacts) sourced from the
+ * Landbase SC export — see supabase/migrations/0014_prospects_schema.sql and
+ * 0015_seed_prospects.sql. Returns companies ranked by fit_score, each with
+ * its contacts and (where the prospect appears to already be a customer) a
+ * non-destructive enrichment-candidate link to that customer. Degrades to []
+ * if the tables aren't present yet (migration not applied). */
+export async function getProspects(): Promise<ProspectCompanyWithContacts[]> {
+  const db = getSppDb();
+  if (!db) return [];
+  const [comp, contacts] = await Promise.all([
+    db.from("prospect_companies").select("*").order("fit_score", { ascending: false }).order("name"),
+    db.from("prospect_contacts").select("*"),
+  ]);
+  if (comp.error) { console.error("getProspects", comp.error.message); return []; }
+
+  const companies = (comp.data ?? []) as ProspectCompany[];
+
+  // Resolve enrichment-candidate customer names for the matched subset only.
+  const matchedIds = [...new Set(companies.map((c) => c.matched_customer_id).filter(Boolean))] as string[];
+  const custById = new Map<string, MatchedCustomerLite>();
+  if (matchedIds.length) {
+    const { data: custRows } = await db
+      .from("customers")
+      .select("id,name,customer_code,segment,lifetime_sales")
+      .in("id", matchedIds);
+    for (const c of (custRows ?? []) as MatchedCustomerLite[]) custById.set(c.id, c);
+  }
+
+  const byCompany = new Map<string, ProspectContact[]>();
+  for (const p of (contacts.data ?? []) as ProspectContact[]) {
+    if (!byCompany.has(p.company_key)) byCompany.set(p.company_key, []);
+    byCompany.get(p.company_key)!.push(p);
+  }
+
+  return companies.map((c) => ({
+    ...c,
+    contacts: byCompany.get(c.company_key) ?? [],
+    matched_customer: c.matched_customer_id ? custById.get(c.matched_customer_id) ?? null : null,
+  }));
+}
+
 /** True when the SPP database connection is configured (service-role key present). */
 export function sppDbConfigured(): boolean {
   return getSppDb() !== null;

@@ -3,6 +3,86 @@
 Running log of platform/process enhancements. One entry is added roughly
 each review cycle; each entry links to the PR/commit that implemented it.
 
+## 2026-07-22 — Landbase SC prospects: /prospects pipeline + customer-enrichment candidates
+
+**Status: Done — live**
+
+Integrated an uploaded two-file Landbase export ("Atlanta roof replacement
+pros" — actually South Carolina construction/remodeling firms, the Pro buyer
+for the SC expansion): **213 companies + 369 named decision-makers**.
+
+- **New tables** `prospect_companies` + `prospect_contacts` (migration
+  `0014_prospects_schema.sql`) — RLS deny-by-default, updated_at triggers,
+  natural unique keys (`company_key` / `contact_key`) for idempotent seed.
+  `fit_score` is a transparent in-house heuristic (revenue band + tile/remodel
+  keyword fit + decision-maker seniority + reachability); the export's own
+  Fit/Relevance columns came back empty. `region` tags SC-expansion territory
+  (Columbia 167, Florence 23, Sumter 14, …).
+- **Seed** `0015_seed_prospects.sql` — idempotent INSERT…ON CONFLICT for both
+  tables, plus a **non-destructive** UPDATE that links a prospect to an
+  existing customer where its normalized name prefix-matches a (truncated)
+  customer `name_key`. Writes only to `prospect_companies` — customer records
+  are never mutated.
+- **`/prospects` tab** (`src/app/prospects/page.tsx` + client
+  `ProspectsExplorer`) — DB-backed, ranked by fit, filterable by region / fit
+  tier / reachability, expandable firmographics + contacts (LinkedIn). Plus an
+  enrichment-candidates callout for the ~15–25 prospects that look like
+  existing customers (reviewable, not auto-applied — customer names are
+  truncated ~14 chars, so matches are prefix-based).
+- Registered `/prospects` in `NAV_LINKS` + `ROUTE_RULES` (internal). Added two
+  live reports to the Reports appendix (Pro Prospect Pipeline; Existing-Customer
+  Enrichment Candidates), a `sources.ts` provenance entry, and a Changelog
+  entry.
+
+Verified: typecheck clean, lint 0 errors, build succeeds (`/prospects`
+present), audit:financials passes. **Migrations 0014–0015 applied to the live
+Supabase project** — 213 companies, 369 contacts, 10 enrichment candidates
+matched; the `customers` table was not mutated (the match writes only to
+`prospect_companies`). The seed omits the bulky free-text description/keywords
+to stay lean; the structured firmographics + fit_evidence carry the value and
+the columns remain for future enrichment.
+
+## 2026-07-20 — Keith BI input: Reports appendix + sourcing/auditability + Changelog tab
+
+**Status: Done**
+
+Keith emailed a set of BI requirements ("Mosaic - BI Input", 2026-07-20) —
+mix rate, customer trend, attachment %, P&L themes, per-associate KPIs, AI
+theme detection, discretionary-discount visibility, and a 15–30 min Monday
+all-hands digest. Integrated all of it, plus the sourcing/auditability and
+changelog scaffolding requested alongside:
+
+- **Reports tab (`/reports`, `src/app/reports/page.tsx`, `src/lib/reports.ts`)**
+  — an appendix of analytics views. Indexes the 9 live views already in the
+  platform (Summary, Forecast, Customers, AR aging, Delivery, HR, Marketing,
+  ERD, SQL) *and* catalogues Keith's 8 requested reports, each with its
+  question, definition, grain, data source, and a `live | spec | planned`
+  status.
+- **Honesty about data:** the schema has NO line-level sales / product-SKU /
+  salesperson / discount data (only summary `customer_annual_sales`,
+  `ar_transactions`, and monthly/annual P&L aggregates). So mix rate,
+  attachment %, per-associate KPIs, and discount visibility are recorded as
+  fully-specified `spec` reports — not back-filled with invented numbers —
+  each naming the layered `core.fact_*` / `serving.*` object (from the 0012
+  scaffold) that will serve it once ETL lands. Customer-trend and P&L-themes
+  are partially live today.
+- **Sourcing / auditability (`src/lib/sources.ts`, `src/components/SourceTag.tsx`)**
+  — a registry attributing every addition to the requesting party, channel,
+  and date, with Keith's verbatim asks captured. An inline `SourceTag`
+  ("Requested by Keith Piper · …") renders on each requested report so the
+  provenance is visible on the surface itself.
+- **Changelog tab (`/changelog`, `src/app/changelog/page.tsx`,
+  `src/lib/changelog.ts`)** — restates each party's original feedback verbatim
+  (pulled from the source registry) beside the itemised changes made to
+  address it, with per-item status and file/route pointers.
+- Registered both routes in `NAV_LINKS` (`src/lib/nav-links.ts`) and
+  `ROUTE_RULES` (`src/lib/access.ts`, both `internal`/partner-only).
+
+Verified: `npm run typecheck` clean, `npm run lint` 0 errors (6 pre-existing
+warnings), `npm run build` succeeds with `/reports` + `/changelog` present,
+`npm run audit:financials` passes. No migrations or data changes — additive UI
++ registries only.
+
 ## 2026-07-20 — Backlog hygiene: closed 5 stale draft PRs (Linear MOD-17)
 
 **Status: Done**
