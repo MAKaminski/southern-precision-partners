@@ -1,25 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { DeliveryTask } from "@/lib/spp-queries";
 import { DeliveryStatusSelect } from "@/components/spp/DeliveryStatusSelect";
 import { EditableCell } from "@/components/spp/EditableCell";
+import { AddDeliveryItemForm } from "@/components/spp/AddDeliveryItemForm";
 import { deliveryTabLink } from "@/lib/delivery-tab-links";
-
-const YEAR_LABEL: Record<number, string> = {
-  1: "Year 1 — Integration & Foundation (2026)",
-  2: "Year 2 — Revenue Acceleration (2027)",
-  3: "Year 3 — Scale & Expansion (2028)",
-  4: "Year 4 — Platform & Portals (2029)",
-  5: "Year 5 — Optimize & Exit (2030–31)",
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  not_started: "Not Started",
-  in_progress: "In Progress",
-  blocked: "Blocked",
-  done: "Done",
-};
+import { DELIVERY_STATUS_LABEL as STATUS_LABEL, deliveryYearLabel } from "@/lib/delivery-meta";
 
 function k(v: number | null): string {
   return v === null || v === undefined ? "—" : `$${v.toLocaleString()}K`;
@@ -28,6 +16,7 @@ function k(v: number | null): string {
 const ALL = "__all__";
 
 export function DeliveryPlanTable({ initialTasks }: { initialTasks: DeliveryTask[] }) {
+  const router = useRouter();
   const [tasks, setTasks] = useState(initialTasks);
   const [year, setYear] = useState(ALL);
   const [owner, setOwner] = useState(ALL);
@@ -35,13 +24,15 @@ export function DeliveryPlanTable({ initialTasks }: { initialTasks: DeliveryTask
   const [status, setStatus] = useState(ALL);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [addYear, setAddYear] = useState<number | null>(null);
+  const [addedId, setAddedId] = useState<string | null>(null);
 
   const years = useMemo(() => [...new Set(tasks.map((t) => t.delivery_year ?? 0))].sort((a, b) => a - b), [tasks]);
   const owners = useMemo(() => [...new Set(tasks.map((t) => t.owner).filter((v): v is string => Boolean(v)))].sort(), [tasks]);
   const systems = useMemo(() => [...new Set(tasks.map((t) => t.system).filter((v): v is string => Boolean(v)))].sort(), [tasks]);
 
-  const filtered = useMemo(() => {
-    return tasks.filter((t) => {
+  const matchesFilters = useMemo(() => {
+    return (t: DeliveryTask) => {
       if (year !== ALL && String(t.delivery_year ?? 0) !== year) return false;
       if (owner !== ALL && t.owner !== owner) return false;
       if (system !== ALL && t.system !== system) return false;
@@ -49,8 +40,10 @@ export function DeliveryPlanTable({ initialTasks }: { initialTasks: DeliveryTask
       if (dateFrom && (!t.start_date || t.start_date < dateFrom)) return false;
       if (dateTo && (!t.start_date || t.start_date > dateTo)) return false;
       return true;
-    });
-  }, [tasks, year, owner, system, status, dateFrom, dateTo]);
+    };
+  }, [year, owner, system, status, dateFrom, dateTo]);
+
+  const filtered = useMemo(() => tasks.filter(matchesFilters), [tasks, matchesFilters]);
 
   const filtersActive = year !== ALL || owner !== ALL || system !== ALL || status !== ALL || dateFrom || dateTo;
 
@@ -67,17 +60,32 @@ export function DeliveryPlanTable({ initialTasks }: { initialTasks: DeliveryTask
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, [field]: value } : t)));
   }
 
+  function handleCreated(task: DeliveryTask) {
+    setTasks((prev) => [...prev, task]);
+    setAddedId(task.id);
+    setAddYear(null);
+    // A new row hidden behind the active filters would look like a failed save,
+    // so drop the filters when it wouldn't otherwise show.
+    if (!matchesFilters(task)) resetFilters();
+    // Refresh the server-rendered header counts (tasks / in progress / done).
+    router.refresh();
+  }
+
   const displayYears = [...new Set(filtered.map((t) => t.delivery_year ?? 0))].sort((a, b) => a - b);
   const byYear = (yr: number) => filtered.filter((t) => (t.delivery_year ?? 0) === yr);
 
   const totalCost = filtered.reduce((s, t) => s + (Number(t.cost_k) || 0), 0);
   const totalBenefit = filtered.reduce((s, t) => s + (Number(t.benefit_k) || 0), 0);
 
+  // Pre-select the year the user is already looking at, falling back to the
+  // earliest year in the plan.
+  const defaultAddYear = year !== ALL ? Number(year) || 1 : years.find((y) => y > 0) ?? 1;
+
   return (
     <div className="space-y-6">
       {/* Filter bar */}
       <div className="flex flex-wrap items-center gap-2 bg-surface border border-border-custom rounded-lg p-3">
-        <FilterSelect label="Year" value={year} onChange={setYear} options={years.map((y) => ({ value: String(y), label: YEAR_LABEL[y] ?? `Year ${y}` }))} />
+        <FilterSelect label="Year" value={year} onChange={setYear} options={years.map((y) => ({ value: String(y), label: deliveryYearLabel(y) }))} />
         <FilterSelect label="Owner" value={owner} onChange={setOwner} options={owners.map((o) => ({ value: o, label: o }))} />
         <FilterSelect label="System" value={system} onChange={setSystem} options={systems.map((s) => ({ value: s, label: s }))} />
         <FilterSelect label="Status" value={status} onChange={setStatus} options={Object.entries(STATUS_LABEL).map(([value, label]) => ({ value, label }))} />
@@ -94,10 +102,29 @@ export function DeliveryPlanTable({ initialTasks }: { initialTasks: DeliveryTask
             Clear filters
           </button>
         )}
-        <span className="text-[11px] text-text-secondary ml-auto sm:ml-0">
+        <span className={`text-[11px] text-text-secondary ${filtersActive ? "" : "ml-auto"}`}>
           {filtered.length} / {tasks.length} tasks
         </span>
+        <button
+          type="button"
+          onClick={() => setAddYear((prev) => (prev === null ? defaultAddYear : null))}
+          aria-expanded={addYear !== null}
+          className="ml-auto sm:ml-0 inline-flex items-center gap-1 bg-accent-blue text-white text-[11px] font-medium px-2.5 py-1 rounded hover:bg-accent-blue/90"
+        >
+          <span aria-hidden="true">+</span> Add Item
+        </button>
       </div>
+
+      {addYear !== null && (
+        <AddDeliveryItemForm
+          key={addYear}
+          defaultYear={addYear}
+          systems={systems}
+          owners={owners}
+          onCreated={handleCreated}
+          onCancel={() => setAddYear(null)}
+        />
+      )}
 
       {displayYears.map((yr) => {
         const rows = byYear(yr);
@@ -106,11 +133,22 @@ export function DeliveryPlanTable({ initialTasks }: { initialTasks: DeliveryTask
         const yDone = rows.filter((t) => t.status === "done").length;
         return (
           <section key={yr}>
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-foreground">{YEAR_LABEL[yr] ?? `Year ${yr}`}</h2>
-              <span className="text-[11px] text-text-secondary">
-                {rows.length} tasks · {yDone} done · Cost {k(yc)} · Benefit {k(yb)}
-              </span>
+            <div className="flex items-center justify-between mb-2 gap-3">
+              <h2 className="text-sm font-semibold text-foreground">{deliveryYearLabel(yr)}</h2>
+              <div className="flex items-center gap-3">
+                <span className="text-[11px] text-text-secondary">
+                  {rows.length} tasks · {yDone} done · Cost {k(yc)} · Benefit {k(yb)}
+                </span>
+                {yr > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setAddYear(yr)}
+                    className="text-[11px] text-accent-blue hover:underline whitespace-nowrap"
+                  >
+                    + Add Item
+                  </button>
+                )}
+              </div>
             </div>
             <div className="h-1.5 w-full bg-surface rounded-full overflow-hidden mb-3 border border-border-custom">
               <div className="h-full bg-accent-green" style={{ width: rows.length ? `${(yDone / rows.length) * 100}%` : "0%" }} />
@@ -133,7 +171,12 @@ export function DeliveryPlanTable({ initialTasks }: { initialTasks: DeliveryTask
                 </thead>
                 <tbody>
                   {rows.map((t) => (
-                    <tr key={t.id} className="border-b border-border-custom/50 hover:bg-surface/50">
+                    <tr
+                      key={t.id}
+                      className={`border-b border-border-custom/50 hover:bg-surface/50 ${
+                        t.id === addedId ? "bg-accent-blue/5 ring-1 ring-inset ring-accent-blue/30" : ""
+                      }`}
+                    >
                       <td className="py-1 px-3 text-foreground font-medium max-w-[220px]">
                         <EditableCell id={t.id} field="title" value={t.title} onSaved={(v) => patchLocal(t.id, "title", v)} />
                       </td>
@@ -174,8 +217,17 @@ export function DeliveryPlanTable({ initialTasks }: { initialTasks: DeliveryTask
       })}
 
       {filtered.length === 0 && (
-        <div className="text-center text-sm text-text-secondary py-10 border border-dashed border-border-custom rounded-lg">
-          No tasks match the current filters.
+        <div className="text-center text-sm text-text-secondary py-10 border border-dashed border-border-custom rounded-lg space-y-3">
+          <p>{tasks.length === 0 ? "No delivery items yet." : "No tasks match the current filters."}</p>
+          {addYear === null && (
+            <button
+              type="button"
+              onClick={() => setAddYear(defaultAddYear)}
+              className="inline-flex items-center gap-1 bg-accent-blue text-white text-[11px] font-medium px-2.5 py-1 rounded hover:bg-accent-blue/90"
+            >
+              <span aria-hidden="true">+</span> Add Item
+            </button>
+          )}
         </div>
       )}
 
